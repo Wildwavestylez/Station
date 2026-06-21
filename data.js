@@ -24,7 +24,7 @@ let trains = [
   {
     id: 1,
     name: "810 → Rokycany",
-    image: "https://i.imgur.com/5upJC9h.jpg"
+    image: "https://i.imgur.com/5upJC9h.jpg",
     state: "WAIT_ASSIGN",
     track: null,
     routeKey: "rokycany",
@@ -39,7 +39,7 @@ let trains = [
   {
     id: 2,
     name: "810 → Přeštice",
-    image: "https://i.imgur.com/KuMw5ko.jpg"
+    image: "https://i.imgur.com/KuMw5ko.jpg",
     state: "WAIT_ASSIGN",
     track: null,
     routeKey: "prestice",
@@ -54,7 +54,7 @@ let trains = [
   {
     id: 3,
     name: "Rychlík Praha",
-    image: "https://i.imgur.com/rwsmlyg.jpg"
+    image: "https://i.imgur.com/rwsmlyg.jpg",
     state: "COMING",
     track: null,
     routeKey: "praha",

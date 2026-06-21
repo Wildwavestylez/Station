@@ -6,27 +6,24 @@ html, body {
   font-family: Arial;
 }
 
-/* FIX pro Android viewport (adresní lišta) */
-body {
-  height: 100dvh;
+/* 🔥 HLAVNÍ KONTEJNER APP */
+#app {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-/* MAPA */
+/* 🗺️ MAPA = FLEX TOP */
 #map {
-  height: 55dvh;
+  flex: 1;
   position: relative;
   z-index: 1;
 }
 
-/* UI PANEL */
+/* 📱 UI PANEL = FIX VÝŠKA */
 #ui {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-
-  height: 45dvh;
-
+  height: 45%;
   background: #111;
   color: white;
 
@@ -38,7 +35,7 @@ body {
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
 
-  z-index: 9999; /* UI vždy nad mapou */
+  z-index: 9999;
 }
 
 /* TOP BAR */
@@ -48,14 +45,14 @@ body {
   font-size: 13px;
 }
 
-/* HLAVNÍ OBSAH */
+/* CONTENT FLEX */
 #content {
   display: flex;
   flex: 1;
   min-height: 0;
 }
 
-/* FRONTY VLAKŮ */
+/* LIST VLAKŮ */
 #queue {
   width: 40%;
   background: #151515;
@@ -64,7 +61,7 @@ body {
   min-height: 0;
 }
 
-/* DETAIL VLAKU */
+/* DETAIL */
 #detail {
   flex: 1;
   padding: 10px;
@@ -73,7 +70,7 @@ body {
   min-height: 0;
 }
 
-/* KARTA VLAKU */
+/* TRAIN CARD */
 .train {
   padding: 8px;
   margin: 6px;
@@ -83,7 +80,6 @@ body {
   position: relative;
 }
 
-/* ZELENÁ TEČKA */
 .dot {
   width: 8px;
   height: 8px;
@@ -94,7 +90,7 @@ body {
   top: 8px;
 }
 
-/* OBRÁZKY */
+/* IMAGE */
 img {
   width: 100%;
   max-height: 120px;
@@ -102,7 +98,7 @@ img {
   border-radius: 10px;
 }
 
-/* TLAČÍTKA */
+/* BUTTONS */
 button {
   margin: 4px;
   padding: 8px;
@@ -117,7 +113,7 @@ button {
 .r { background: #f44336; color: white; }
 .y { background: #ff9800; color: white; }
 
-/* PROGRESS BAR */
+/* BAR */
 .bar {
   height: 8px;
   background: #333;
@@ -132,14 +128,7 @@ button {
   background: limegreen;
 }
 
-/* VLAK NA MAPĚ */
-.train-div-icon {
-  font-size: 24px;
-  line-height: 1;
-  text-align: center;
-}
-
-/* Leaflet fallback (někdy pomůže na Androidu) */
+/* LEAFLET FIX */
 .leaflet-container {
   z-index: 0 !important;
 }

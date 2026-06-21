@@ -4,9 +4,13 @@ body {
   overflow: hidden;
   font-family: Arial;
 }
+
+/* MAPA */
 #map {
-  height: calc(100vh - 45vh);
+  height: 55vh;
 }
+
+/* UI PANEL */
 #ui {
   position: fixed;
   bottom: 0;
@@ -15,77 +19,40 @@ body {
   height: 45vh;
   background: #111;
   color: white;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
 }
+
+/* HLAVIČKA */
 #top {
   padding: 8px;
   background: #1c1c1c;
   font-size: 13px;
+  flex-shrink: 0;
 }
+
+/* HLAVNÍ OBSAH */
 #content {
   display: flex;
+  flex: 1;
+  min-height: 0; /* 🔥 KLÍČOVÝ FIX */
 }
+
+/* LEVÝ PANEL */
 #queue {
   width: 40%;
   background: #151515;
   overflow-y: auto;
-  height: calc(45vh - 35px);
+  min-height: 0;
 }
-.train {
-  padding: 8px;
-  margin: 6px;
-  background: #222;
-  border-radius: 8px;
-  cursor: pointer;
-  position: relative;
-}
-.dot {
-  width: 8px;
-  height: 8px;
-  background: limegreen;
-  border-radius: 50%;
-  position: absolute;
-  right: 8px;
-  top: 8px;
-}
+
+/* PRAVÝ PANEL */
 #detail {
   flex: 1;
   padding: 10px;
-}
-img {
-  width: 100%;
-  max-height: 120px;
-  object-fit: cover;
-  border-radius: 10px;
-}
-button {
-  margin: 4px;
-  padding: 8px;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-}
-.g { background: #4caf50; color: white; }
-.b { background: #2196f3; color: white; }
-.r { background: #f44336; color: white; }
-.y { background: #ff9800; color: white; }
-.bar {
-  height: 8px;
-  background: #333;
-  border-radius: 5px;
-  overflow: hidden;
-  margin: 5px 0;
-}
-.fill {
-  height: 100%;
-  width: 0%;
-  background: limegreen;
-}
-.train-div-icon {
-  font-size: 24px;
-  line-height: 1;
-  text-align: center;
+  overflow-y: auto;
+  min-height: 0;
 }

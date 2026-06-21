@@ -6,24 +6,25 @@ html, body {
   font-family: Arial;
 }
 
-/* HLAVNÍ KONTEJNER */
-#app {
-  height: 100dvh;
+/* 🔥 HLAVNÍ ROZDĚLENÍ STRÁNKY */
+body {
   display: flex;
   flex-direction: column;
 }
 
-/* MAPA = horní polovina */
+/* 🗺️ MAPA = HORNÍ ČÁST */
 #map {
-  flex: 1;
+  flex: 0 0 40%;   /* 40 % výšky */
   min-height: 0;
   position: relative;
   z-index: 1;
 }
 
-/* UI = dolní panel */
+/* 📦 UI = DOLNÍ ČÁST */
 #ui {
-  height: 45%;
+  flex: 1;         /* zbytek prostoru */
+  min-height: 0;
+
   background: #111;
   color: white;
 
@@ -52,7 +53,7 @@ html, body {
   min-height: 0;
 }
 
-/* LEVÁ LISTA */
+/* LEVÝ PANEL */
 #queue {
   width: 40%;
   background: #151515;
@@ -60,10 +61,73 @@ html, body {
   min-height: 0;
 }
 
-/* DETAIL */
+/* PRAVÝ PANEL */
 #detail {
   flex: 1;
   padding: 10px;
   overflow-y: auto;
   min-height: 0;
+}
+
+/* TRAIN CARD */
+.train {
+  padding: 8px;
+  margin: 6px;
+  background: #222;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: limegreen;
+  border-radius: 50%;
+  position: absolute;
+  right: 8px;
+  top: 8px;
+}
+
+/* IMAGE */
+img {
+  width: 100%;
+  max-height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* BUTTONS */
+button {
+  margin: 4px;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.g { background: #4caf50; color: white; }
+.b { background: #2196f3; color: white; }
+.r { background: #f44336; color: white; }
+.y { background: #ff9800; color: white; }
+
+/* PROGRESS BAR */
+.bar {
+  height: 8px;
+  background: #333;
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 5px 0;
+}
+
+.fill {
+  height: 100%;
+  width: 0%;
+  background: limegreen;
+}
+
+/* LEAFLET FIX */
+.leaflet-container {
+  z-index: 0 !important;
 }

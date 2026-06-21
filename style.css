@@ -1,29 +1,22 @@
-html, body {
+body {
   margin: 0;
-  padding: 0;
-  height: 100%;
+  height: 100vh;
   overflow: hidden;
   font-family: Arial;
 }
 
-/* 🔥 HLAVNÍ KONTEJNER APP */
-#app {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-/* 🗺️ MAPA = FLEX TOP */
+/* MAPA */
 #map {
-  flex: 1;
-  position: relative;
-  z-index: 1;
+  height: 55vh;
 }
 
-/* 📱 UI PANEL = FIX VÝŠKA */
+/* UI PANEL */
 #ui {
-  height: 45%;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 45vh;
   background: #111;
   color: white;
 
@@ -34,8 +27,6 @@ html, body {
 
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
-
-  z-index: 9999;
 }
 
 /* TOP BAR */
@@ -45,14 +36,14 @@ html, body {
   font-size: 13px;
 }
 
-/* CONTENT FLEX */
+/* HLAVNÍ OBSAH */
 #content {
   display: flex;
   flex: 1;
   min-height: 0;
 }
 
-/* LIST VLAKŮ */
+/* FRONTA VLAKŮ */
 #queue {
   width: 40%;
   background: #151515;
@@ -61,7 +52,7 @@ html, body {
   min-height: 0;
 }
 
-/* DETAIL */
+/* DETAIL VLAKU */
 #detail {
   flex: 1;
   padding: 10px;
@@ -70,7 +61,7 @@ html, body {
   min-height: 0;
 }
 
-/* TRAIN CARD */
+/* KARTA VLAKU */
 .train {
   padding: 8px;
   margin: 6px;
@@ -80,6 +71,7 @@ html, body {
   position: relative;
 }
 
+/* ZELENÁ TEČKA */
 .dot {
   width: 8px;
   height: 8px;
@@ -90,7 +82,7 @@ html, body {
   top: 8px;
 }
 
-/* IMAGE */
+/* OBRÁZKY */
 img {
   width: 100%;
   max-height: 120px;
@@ -98,7 +90,7 @@ img {
   border-radius: 10px;
 }
 
-/* BUTTONS */
+/* TLAČÍTKA */
 button {
   margin: 4px;
   padding: 8px;
@@ -113,7 +105,7 @@ button {
 .r { background: #f44336; color: white; }
 .y { background: #ff9800; color: white; }
 
-/* BAR */
+/* PROGRESS BAR */
 .bar {
   height: 8px;
   background: #333;
@@ -128,7 +120,9 @@ button {
   background: limegreen;
 }
 
-/* LEAFLET FIX */
-.leaflet-container {
-  z-index: 0 !important;
+/* VLAK NA MAPĚ */
+.train-div-icon {
+  font-size: 24px;
+  line-height: 1;
+  text-align: center;
 }

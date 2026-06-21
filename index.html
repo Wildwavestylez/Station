@@ -5,20 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Train Ops - IDEAL ARCH v2</title>
 
-  <!-- 1) Správný a kompletní odkaz na styl mapy -->
-  <link rel="stylesheet" href="https://unpkg.com"/>
+  <!-- 🗺️ Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <!-- 🎨 tvůj styl -->
   <link rel="stylesheet" href="style.css">
-
-  <!-- 2) Kompletní odkaz na knihovnu mapy -->
-  <script src="https://unpkg.com"></script>
-
-  <!-- 3) Načtení tvých dat o vlacích -->
-  <script src="data.js"></script>
-
-  <!-- 4) Kompletní odkaz na mobilní konzoli -->
-  <script src="https://jsdelivr.net"></script>
-  <script>eruda.init();</script>
 </head>
+
 <body>
 
   <div id="map"></div>
@@ -27,21 +23,37 @@
     <div id="top">
       💰 <span id="money">0</span> Kč | 🚉 Plzeň hl.n. | Koleje: 2
     </div>
+
     <div id="content">
       <div id="queue"></div>
+
       <div id="detail">
         <h3 id="name">Vyber vlak</h3>
         <p id="state">---</p>
+
         <img id="img" style="display:none;"/>
+
         <div class="bar"><div id="p1" class="fill"></div></div>
         <div class="bar"><div id="p2" class="fill"></div></div>
         <div class="bar"><div id="p3" class="fill"></div></div>
+
         <div id="actions"></div>
       </div>
     </div>
   </div>
 
-  <!-- 5) Spuštění logiky hry -->
+  <!-- 🗺️ Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- 📊 data (trains + routes) -->
+  <script src="data.js"></script>
+
+  <!-- 🧠 eruda (debug konzole v mobilu) -->
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+  <script>eruda.init();</script>
+
+  <!-- 🎮 hlavní hra -->
   <script src="game.js"></script>
+
 </body>
 </html>

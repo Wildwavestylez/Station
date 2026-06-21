@@ -4,8 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Train Ops - IDEAL ARCH v2</title>
+
+  <!-- 1) Nejdříve načteme styl mapy -->
   <link rel="stylesheet" href="https://unpkg.com"/>
   <link rel="stylesheet" href="style.css">
+
+  <!-- 2) TADY JE TA ZMĚNA: Načteme samotnou mapu dříve než logiku hry -->
+  <script src="https://unpkg.com"></script>
+  
+  <!-- 3) Načteme data o vlacích a trasách -->
+  <script src="data.js"></script>
+
+  <!-- Mobilní konzole pro jistotu (můžeš smazat, až to poběží) -->
+  <script src="https://jsdelivr.net"></script>
+  <script>eruda.init();</script>
 </head>
 <body>
 
@@ -29,13 +41,7 @@
     </div>
   </div>
 
-  <!-- Knihovny a skripty -->
-  <script src="https://unpkg.com"></script>
-  <script src="data.js"></script>
+  <!-- 4) Nakonec spustíme samotnou hru, až když je vše nahoře připravené -->
   <script src="game.js"></script>
-
-<script src="https://jsdelivr.net"></script>
-<script>eruda.init();</script>
-
 </body>
 </html>

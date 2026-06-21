@@ -1,13 +1,21 @@
-body {
+html, body {
   margin: 0;
-  height: 100vh;
+  padding: 0;
+  height: 100%;
   overflow: hidden;
   font-family: Arial;
 }
 
+/* FIX pro Android viewport (adresní lišta) */
+body {
+  height: 100dvh;
+}
+
 /* MAPA */
 #map {
-  height: 45vh;
+  height: 55dvh;
+  position: relative;
+  z-index: 1;
 }
 
 /* UI PANEL */
@@ -16,7 +24,9 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 55vh;
+
+  height: 45dvh;
+
   background: #111;
   color: white;
 
@@ -27,6 +37,8 @@ body {
 
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
+
+  z-index: 9999; /* UI vždy nad mapou */
 }
 
 /* TOP BAR */
@@ -43,7 +55,7 @@ body {
   min-height: 0;
 }
 
-/* FRONTA VLAKŮ */
+/* FRONTY VLAKŮ */
 #queue {
   width: 40%;
   background: #151515;
@@ -125,4 +137,9 @@ button {
   font-size: 24px;
   line-height: 1;
   text-align: center;
+}
+
+/* Leaflet fallback (někdy pomůže na Androidu) */
+.leaflet-container {
+  z-index: 0 !important;
 }

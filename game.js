@@ -134,7 +134,7 @@ function depart(){
   selected.currentStep = 0;
   selected.pendingAction = false;
 
-  // OPRAVENO: Odstraněn prázdný otazník a správně nastavená velikost ikony
+  // FIX: Hodnoty iconSize jsou nyní správně vyplněné [24, 24]
   selected.marker = L.marker(routes[selected.routeKey][0], {
     icon: L.divIcon({ html: '🚂', className: 'train-div-icon', iconSize: [24, 24] })
   }).addTo(map);

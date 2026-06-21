@@ -23,6 +23,7 @@ function assign(train){
 // 📋 VYKRESLENÍ SEZNAMU VLAKŮ
 function render(){
   let q = document.getElementById("queue");
+  if (!q) return;
   q.innerHTML = "";
 
   trains.forEach(t => {
@@ -133,6 +134,7 @@ function depart(){
   selected.currentStep = 0;
   selected.pendingAction = false;
 
+  // OPRAVENO: Odstraněn prázdný otazník a správně nastavená velikost ikony
   selected.marker = L.marker(routes[selected.routeKey][0], {
     icon: L.divIcon({ html: '🚂', className: 'train-div-icon', iconSize: [24, 24] })
   }).addTo(map);
@@ -142,7 +144,7 @@ function depart(){
   render();
 }
 
-// 🔁 BULLETPROOF HERNÍ LOOP
+// 🔁 HERNÍ LOOP
 setInterval(()=>{
   trains.forEach(t => {
     if(t.state === "WAIT_ASSIGN") assign(t);

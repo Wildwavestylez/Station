@@ -1,22 +1,29 @@
-body {
+html, body {
   margin: 0;
-  height: 100vh;
+  padding: 0;
+  height: 100%;
   overflow: hidden;
   font-family: Arial;
 }
 
-/* MAPA */
-#map {
-  height: 55vh;
+/* HLAVNÍ KONTEJNER */
+#app {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 
-/* UI PANEL */
+/* MAPA = horní polovina */
+#map {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* UI = dolní panel */
 #ui {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 45vh;
+  height: 45%;
   background: #111;
   color: white;
 
@@ -27,6 +34,8 @@ body {
 
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
+
+  z-index: 10;
 }
 
 /* TOP BAR */
@@ -36,93 +45,25 @@ body {
   font-size: 13px;
 }
 
-/* HLAVNÍ OBSAH */
+/* OBSAH UI */
 #content {
   display: flex;
   flex: 1;
   min-height: 0;
 }
 
-/* FRONTA VLAKŮ */
+/* LEVÁ LISTA */
 #queue {
   width: 40%;
   background: #151515;
-
   overflow-y: auto;
   min-height: 0;
 }
 
-/* DETAIL VLAKU */
+/* DETAIL */
 #detail {
   flex: 1;
   padding: 10px;
-
   overflow-y: auto;
   min-height: 0;
-}
-
-/* KARTA VLAKU */
-.train {
-  padding: 8px;
-  margin: 6px;
-  background: #222;
-  border-radius: 8px;
-  cursor: pointer;
-  position: relative;
-}
-
-/* ZELENÁ TEČKA */
-.dot {
-  width: 8px;
-  height: 8px;
-  background: limegreen;
-  border-radius: 50%;
-  position: absolute;
-  right: 8px;
-  top: 8px;
-}
-
-/* OBRÁZKY */
-img {
-  width: 100%;
-  max-height: 120px;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-/* TLAČÍTKA */
-button {
-  margin: 4px;
-  padding: 8px;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.g { background: #4caf50; color: white; }
-.b { background: #2196f3; color: white; }
-.r { background: #f44336; color: white; }
-.y { background: #ff9800; color: white; }
-
-/* PROGRESS BAR */
-.bar {
-  height: 8px;
-  background: #333;
-  border-radius: 5px;
-  overflow: hidden;
-  margin: 5px 0;
-}
-
-.fill {
-  height: 100%;
-  width: 0%;
-  background: limegreen;
-}
-
-/* VLAK NA MAPĚ */
-.train-div-icon {
-  font-size: 24px;
-  line-height: 1;
-  text-align: center;
 }

@@ -256,7 +256,7 @@ function depart() {
       icon: L.divIcon({
         html: `<img src="${t.image}" class="train-map-image">`,
         className: 'train-div-icon',
-        iconSize:, 
+        iconSize: [50, 37,5],
         iconAnchor: [50, 37.5] // Vycentrování na střed, aby jel přesně po čáře
       })
     }).addTo(map);

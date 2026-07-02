@@ -195,7 +195,7 @@ function depart(){
         html: `<img src="${t.image}" class="train-map-image">`,
         className: 'train-div-icon',
         iconSize: [100, 75],      // Velikost kontejneru pro ikonu na mapě
-        iconAnchor: [20, 12]     // Střed ikony (polovina šířky a výšky), aby jel přesně po čáře
+        iconAnchor: [100, 75]     // Střed ikony (polovina šířky a výšky), aby jel přesně po čáře
       })
     }).addTo(map);
   } else {

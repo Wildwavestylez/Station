@@ -21,7 +21,7 @@ const STATIONS_REGISTRY = {
     mapZoom: 11,
     startingTracks: 1,          // Start s 1 kolejí (další se odemknou levelem)
     moneyPerDepart: 2500,       // Kolik Kč dostaneš za odjezd vlaku
-    startingTrains:,        // Hra začne pouze s vlakem ID 1 (810 Rokycany)
+    startingTrains: [1],        // Hra začne pouze s vlakem ID 1 (810 Rokycany)
 
     // 🛤️ Trasy vedoucí specificky z Plzně
     routes: {
@@ -112,7 +112,7 @@ const STATIONS_REGISTRY = {
     mapZoom: 12,
     startingTracks: 1,
     moneyPerDepart: 150,        // Eura naskakují jinak
-    startingTrains:,
+    startingTrains: [101],
 
     routes: {
       ettlingen: [

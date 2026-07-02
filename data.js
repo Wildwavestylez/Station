@@ -145,8 +145,3 @@ const STATIONS_REGISTRY = {
 
 };
 
-// ==========================================
-// 🚀 SPUŠTĚNÍ HRY NA STARTU
-// ==========================================
-// Jakmile prohlížeč dočte konfiguráky, automaticky nastartuje Plzeň jako první město!
-loadStation("plzen");

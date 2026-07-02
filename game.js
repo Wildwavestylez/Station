@@ -17,6 +17,14 @@ let tracks = [null, null];      // Pole kolejí aktivního nádraží
 let trains = [];                // Seznam vlaků aktivního nádraží
 let unlockedTracksCount = 1;    // Počet aktuálně odemčených kolejí v daném městě
 
+// 🍔 3. FUNKCE PRO VYSUNUTÍ / ZASUNUTÍ BOČNÍHO MENU
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  if (sidebar) {
+    sidebar.classList.toggle("open");
+  }
+}
+
 
 // ==========================================
 // 🧱 KUS 2: BOČNÍ MENU A NAKUPOVÁNÍ NÁDRAŽÍ

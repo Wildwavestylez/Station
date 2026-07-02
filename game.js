@@ -35,9 +35,15 @@ function render(){
 
     let statusText = t.state;
     if(t.state === "EN_ROUTE_THERE") statusText = "Jede do cíle ➔";
-    if(t.state === "AT_DESTINATION") statusText = `V cíli (${t.stayTimer}s)`;
+    if(t.state === "AT_DESTINATION") statusText = `V cíli (${Math.max(0, Math.ceil(t.stayTimer))}s)`;
+    if(t.state === "UNLOADING") statusText = `Vykládá se (${Math.max(0, Math.ceil(t.timer))}s)`;
+    if(t.state === "WAIT_CLEAN") statusText = "Čeká na úklid";
+    if(t.state === "CLEANING") statusText = `Probíhá úklid (${Math.max(0, Math.ceil(t.timer))}s)`;
+    if(t.state === "WAIT_BOARD") statusText = "Čeká na nástup";
+    if(t.state === "BOARDING") statusText = `Nastupování (${Math.max(0, Math.ceil(t.timer))}s)`;
+    if(t.state === "READY_DEPART") statusText = "Připraven k odjezdu";
     if(t.state === "EN_ROUTE_BACK") statusText = "Vrací se zpět";
-    if(t.state === "COMING") statusText = `Přijíždí (${t.travel}s)`;
+    if(t.state === "COMING") statusText = `Přijíždí (${Math.max(0, Math.ceil(t.travel))}s)`;
     if(t.state === "ARRIVED") statusText = `Na stanici (Kolej ${t.track})`;
 
     d.innerHTML = `
@@ -58,7 +64,8 @@ function updateDetail(){
   if(!selected) {
     document.getElementById("name").innerText = "Vyber vlak";
     document.getElementById("state").innerText = "---";
-    document.getElementById("img").style.display = "none";
+    const img = document.getElementById("img");
+    if(img) img.style.display = "none";
     document.getElementById("p1").style.width = "0%";
     document.getElementById("p2").style.width = "0%";
     document.getElementById("p3").style.width = "0%";
@@ -68,10 +75,12 @@ function updateDetail(){
 
   document.getElementById("name").innerText = selected.name;
   document.getElementById("state").innerText = selected.state;
-  
+
   let img = document.getElementById("img");
-  img.src = selected.image;
-  img.style.display = "block";
+  if(img) {
+    img.src = selected.image;
+    img.style.display = "block";
+  }
 
   document.getElementById("p1").style.width = (selected.progress.exit || 0) + "%";
   document.getElementById("p2").style.width = (selected.progress.clean || 0) + "%";
@@ -99,9 +108,9 @@ function startTimer(type){
 
   const train = selected;
 
+  if(type === "exit") train.state = "UNLOADING";
   if(type === "clean") train.state = "CLEANING";
   if(type === "board") train.state = "BOARDING";
-  if(type === "exit") train.state = "AT_DESTINATION";
 
   train.timer = train.timers[type];
   train.pendingAction = false;
@@ -109,19 +118,14 @@ function startTimer(type){
 
 function prepareRoutes() {
   for (const key in routes) {
-
     const route = routes[key];
-
     route.segmentLengths = [];
     route.totalLength = 0;
 
     for (let i = 0; i < route.length - 1; i++) {
-
       const a = L.latLng(route[i]);
       const b = L.latLng(route[i + 1]);
-
       const len = a.distanceTo(b);
-
       route.segmentLengths.push(len);
       route.totalLength += len;
     }
@@ -129,35 +133,22 @@ function prepareRoutes() {
 }
 
 function getPositionOnRoute(route, distance){
-
   let passed = 0;
-
   for(let i = 0; i < route.segmentLengths.length; i++){
-
     const segment = route.segmentLengths[i];
-
     if(distance <= passed + segment){
-
       const t = (distance - passed) / segment;
-
-      const lat =
-        route[i][0] + (route[i+1][0] - route[i][0]) * t;
-
-      const lng =
-        route[i][1] + (route[i+1][1] - route[i][1]) * t;
-
+      const lat = route[i][0] + (route[i+1][0] - route[i][0]) * t;
+      const lng = route[i][1] + (route[i+1][1] - route[i][1]) * t;
       return [lat, lng];
     }
-
     passed += segment;
   }
-
   return route[route.length - 1];
 }
 
 // 🚂 ODJEZD Z PLZNĚ
 function depart(){
-
   if(!selected || selected.state !== "READY_DEPART") return;
 
   money += 100;
@@ -168,20 +159,22 @@ function depart(){
   tracks[t.track-1] = null;
   t.track = null;
 
-  t.state = "EN_ROUTE_THERE";
+  t.state = "EN_ROUTE_THERE"; // Změň na "EN_ROUTE_BACK", pokud se má vracet opačným směrem
   t.distance = 0;
   t.pendingAction = false;
 
-  t.marker = L.marker(routes[t.routeKey][0], {
-    icon: L.divIcon({
-      html: '🚂',
-      className: 'train-div-icon',
-      iconSize: [24, 24]
-    })
-  }).addTo(map);
+  // Pokud marker neexistuje, vytvoříme ho
+  if(!t.marker) {
+    t.marker = L.marker(routes[t.routeKey][0], {
+      icon: L.divIcon({
+        html: '🚂',
+        className: 'train-div-icon',
+        iconSize: [24, 24]
+      })
+    }).addTo(map);
+  }
 
   t.progress = { exit:0, clean:0, board:0 };
-
   selected = null;
 }
 
@@ -189,23 +182,17 @@ function depart(){
 let lastTime = performance.now();
 
 function gameLoop(now){
-
   const dt = (now - lastTime) / 1000;
   lastTime = now;
 
   trains.forEach(t => {
-
     const route = routes[t.routeKey];
 
     // 🚂 JÍZDA TAM
     if(t.state === "EN_ROUTE_THERE"){
-
       t.distance += t.speed * dt;
-
       if(t.distance < route.totalLength){
-        t.marker.setLatLng(
-          getPositionOnRoute(route, t.distance)
-        );
+        t.marker.setLatLng(getPositionOnRoute(route, t.distance));
       } else {
         t.distance = route.totalLength;
         t.state = "AT_DESTINATION";
@@ -213,33 +200,39 @@ function gameLoop(now){
       }
     }
 
-    // 🏢 POBYT VE STANICI
+    // 🏢 POBYT VE STANICI (Automatický odpočet před vyložením)
     if(t.state === "AT_DESTINATION"){
-
       t.stayTimer -= dt;
-
       if(t.stayTimer <= 0){
+        t.state = "ARRIVED"; // Vlak dorazil na kolej a čeká na akci hráče (Vyložit)
+        t.pendingAction = true;
+      }
+    }
+
+    // ⏳ UNLOADING TIMER
+    if(t.state === "UNLOADING" && t.timer != null){
+      t.timer -= dt;
+      t.progress.exit = (1 - t.timer / t.timers.exit) * 100;
+      if(t.timer <= 0){
         t.state = "WAIT_CLEAN";
         t.pendingAction = true;
       }
     }
 
-    // 🧽 CLEAN TIMER (UI tlačítko)
+    // 🧽 CLEAN TIMER
     if(t.state === "CLEANING" && t.timer != null){
-  t.timer -= dt;
-  t.progress.clean = (1 - t.timer / t.timers.clean) * 100;
+      t.timer -= dt;
+      t.progress.clean = (1 - t.timer / t.timers.clean) * 100;
+      if(t.timer <= 0){
+        t.state = "WAIT_BOARD";
+        t.pendingAction = true;
+      }
+    }
 
-  if(t.timer <= 0){
-    t.state = "WAIT_BOARD";
-    t.pendingAction = true;
-  }
-}
-
-    // 🚉 BOARD TIMER (UI tlačítko)
+    // 🚉 BOARD TIMER
     if(t.state === "BOARDING" && t.timer != null){
       t.timer -= dt;
       t.progress.board = (1 - t.timer / t.timers.board) * 100;
-
       if(t.timer <= 0){
         t.state = "READY_DEPART";
         t.pendingAction = true;
@@ -248,35 +241,33 @@ function gameLoop(now){
 
     // 🚂 JÍZDA ZPĚT
     if(t.state === "EN_ROUTE_BACK"){
-
       t.distance -= t.speed * dt;
-
       if(t.distance > 0){
-        t.marker.setLatLng(
-          getPositionOnRoute(route, t.distance)
-        );
+        t.marker.setLatLng(getPositionOnRoute(route, t.distance));
       } else {
-        map.removeLayer(t.marker);
-        t.marker = null;
-
+        if(t.marker) {
+          map.removeLayer(t.marker);
+          t.marker = null;
+        }
         t.distance = 0;
         t.state = "COMING";
         t.travel = 5;
       }
     }
 
-    // ⏳ COMING BACK INTO SYSTEM
+    // ⏳ NÁVRAT DO SYSTÉMU
     if(t.state === "COMING"){
       t.travel -= dt;
       if(t.travel <= 0){
         t.state = "WAIT_ASSIGN";
       }
     }
-
   });
 
   render();
   requestAnimationFrame(gameLoop);
 }
 
+// 🚀 SPUŠTĚNÍ HRY
+prepareRoutes(); // <--- TOTO ZDE CHYBĚLO
 requestAnimationFrame(gameLoop);

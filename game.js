@@ -194,7 +194,7 @@ function depart(){
       icon: L.divIcon({
         html: `<img src="${t.image}" class="train-map-image">`,
         className: 'train-div-icon',
-        iconSize:,      // Velikost kontejneru pro ikonu na mapě
+        iconSize: [20, 12],      // Velikost kontejneru pro ikonu na mapě
         iconAnchor: [20, 12]     // Střed ikony (polovina šířky a výšky), aby jel přesně po čáře
       })
     }).addTo(map);

@@ -132,20 +132,17 @@ function prepareRoutes() {
   }
 }
 
-function getPositionOnRoute(route, distance){
-  let passed = 0;
-  for(let i = 0; i < route.segmentLengths.length; i++){
-    const segment = route.segmentLengths[i];
-    if(distance <= passed + segment){
-      const t = (distance - passed) / segment;
-      const lat = route[i][0] + (route[i+1][0] - route[i][0]) * t;
-      const lng = route[i][1] + (route[i+1][1] - route[i][1]) * t;
-      return [lat, lng];
-    }
-    passed += segment;
-  }
-  return route[route.length - 1];
+if(t.marker){
+  map.removeLayer(t.marker);
 }
+
+t.marker = L.marker(routes[t.routeKey][0], {
+  icon: L.divIcon({
+    html: '🚂',
+    className: 'train-div-icon',
+    iconSize: [24, 24]
+  })
+}).addTo(map);
 
 // 🚂 ODJEZD Z PLZNĚ
 function depart(){

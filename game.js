@@ -174,7 +174,7 @@ function getPositionOnRoute(route, distance) {
 function depart(){
   if(!selected || selected.state !== "READY_DEPART") return;
 
-  money += 100; // nebo libovolná částka
+  money += 100; // Případně uprav částku
   document.getElementById("money").innerText = money;
 
   const t = selected;
@@ -185,15 +185,17 @@ function depart(){
   }
 
   t.state = "EN_ROUTE_THERE";
-  t.distance = 0; // Začíná na začátku trasy (v Plzni)
+  t.distance = 0;
   t.pendingAction = false;
 
+  // 🖼️ Vytvoření markeru s reálnou fotkou vlaku z data.js
   if(!t.marker) {
     t.marker = L.marker(routes[t.routeKey][0], {
       icon: L.divIcon({
-        html: '🚂',
+        html: `<img src="${t.image}" class="train-map-image">`,
         className: 'train-div-icon',
-        iconSize: [24, 24]
+        iconSize:,      // Velikost kontejneru pro ikonu na mapě
+        iconAnchor: [20, 12]     // Střed ikony (polovina šířky a výšky), aby jel přesně po čáře
       })
     }).addTo(map);
   } else {

@@ -197,13 +197,35 @@ let lastTime = performance.now();
 
 function gameLoop(now){
 
-  const dt = (now - lastTime) / 1000; // čas v sekundách
+  const dt = (now - lastTime) / 1000;
   lastTime = now;
 
   trains.forEach(t => {
 
     const route = routes[t.routeKey];
 
+    // 🚂 PŘIDĚLENÍ KOLEJE
+    if(t.state === "WAIT_ASSIGN"){
+      assign(t);
+    }
+
+    // 🚉 PŘÍJEZD (COMING)
+    if(t.state === "COMING"){
+      t.travel -= dt;
+
+      if(t.travel <= 0){
+        t.state = "WAIT_ASSIGN";
+      }
+    }
+
+    // 🚉 ODBAVENÍ NA NÁDRAŽÍ (KLÍČOVÁ ČÁST HRY)
+    if(t.state === "ARRIVED" || t.state === "WAIT_CLEAN" ||
+       t.state === "WAIT_BOARD" || t.state === "READY_DEPART"){
+
+      // nic nehýbe vlakem, jen UI stav
+    }
+
+    // 🚂 ODJÍŽDÍ DO CÍLE
     if(t.state === "EN_ROUTE_THERE"){
 
       t.distance += t.speed * dt;
@@ -219,10 +241,17 @@ function gameLoop(now){
       }
     }
 
-    if(t.state === "AT_DESTINATION" && (t.stayTimer -= dt) <= 0){
-      t.state = "EN_ROUTE_BACK";
+    // ⏱️ POBYT V CÍLI
+    if(t.state === "AT_DESTINATION"){
+
+      t.stayTimer -= dt;
+
+      if(t.stayTimer <= 0){
+        t.state = "EN_ROUTE_BACK";
+      }
     }
 
+    // 🚂 NÁVRAT
     if(t.state === "EN_ROUTE_BACK"){
 
       t.distance -= t.speed * dt;
@@ -232,8 +261,10 @@ function gameLoop(now){
           getPositionOnRoute(route, t.distance)
         );
       } else {
+
         map.removeLayer(t.marker);
         t.marker = null;
+
         t.distance = 0;
         t.state = "COMING";
         t.travel = 5;

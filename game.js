@@ -142,6 +142,33 @@ function prepareRoutes() {
   }
 }
 
+function getPositionOnRoute(route, distance){
+
+  let passed = 0;
+
+  for(let i = 0; i < route.segmentLengths.length; i++){
+
+    const segment = route.segmentLengths[i];
+
+    if(distance <= passed + segment){
+
+      const t = (distance - passed) / segment;
+
+      const lat =
+        route[i][0] + (route[i+1][0] - route[i][0]) * t;
+
+      const lng =
+        route[i][1] + (route[i+1][1] - route[i][1]) * t;
+
+      return [lat, lng];
+    }
+
+    passed += segment;
+  }
+
+  return route[route.length - 1];
+}
+
 // 🚂 ODJEZD Z PLZNĚ
 function depart(){
   if(!selected || selected.state !== "READY_DEPART") return;
@@ -152,7 +179,7 @@ function depart(){
   tracks[selected.track-1] = null;
   selected.track = null;
   selected.state = "EN_ROUTE_THERE";
-  selected.currentStep = 0;
+  selected.distance = 0;
   selected.pendingAction = false;
 
   // FIX: Hodnoty iconSize jsou nyní správně vyplněné [24, 24]
@@ -166,42 +193,57 @@ function depart(){
 }
 
 // 🔁 HERNÍ LOOP
-setInterval(()=>{
+let lastTime = performance.now();
+
+function gameLoop(now){
+
+  const dt = (now - lastTime) / 1000; // čas v sekundách
+  lastTime = now;
+
   trains.forEach(t => {
-    if(t.state === "WAIT_ASSIGN") assign(t);
-    
-    if(t.state === "COMING" && --t.travel <= 0) t.state = "WAIT_ASSIGN";
+
+    const route = routes[t.routeKey];
 
     if(t.state === "EN_ROUTE_THERE"){
-      const route = routes[t.routeKey];
-      t.currentStep++;
-      if(t.currentStep < route.length) {
-        t.marker.setLatLng(route[t.currentStep]);
+
+      t.distance += t.speed * dt;
+
+      if(t.distance < route.totalLength){
+        t.marker.setLatLng(
+          getPositionOnRoute(route, t.distance)
+        );
       } else {
+        t.distance = route.totalLength;
         t.state = "AT_DESTINATION";
         t.stayTimer = t.stayTime;
       }
     }
 
-    if(t.state === "AT_DESTINATION" && --t.stayTimer <= 0){
+    if(t.state === "AT_DESTINATION" && (t.stayTimer -= dt) <= 0){
       t.state = "EN_ROUTE_BACK";
-      t.currentStep = routes[t.routeKey].length - 1;
     }
 
     if(t.state === "EN_ROUTE_BACK"){
-      t.currentStep--;
-      if(t.currentStep >= 0) {
-        t.marker.setLatLng(routes[t.routeKey][t.currentStep]);
+
+      t.distance -= t.speed * dt;
+
+      if(t.distance > 0){
+        t.marker.setLatLng(
+          getPositionOnRoute(route, t.distance)
+        );
       } else {
         map.removeLayer(t.marker);
         t.marker = null;
+        t.distance = 0;
         t.state = "COMING";
         t.travel = 5;
       }
     }
-  });
-  render();
-}, 1000);
 
-// Start hry
-render();
+  });
+
+  render();
+  requestAnimationFrame(gameLoop);
+}
+
+requestAnimationFrame(gameLoop);

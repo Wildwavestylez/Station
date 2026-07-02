@@ -121,6 +121,27 @@ function startTimer(type){
   }, 1000);
 }
 
+function prepareRoutes() {
+  for (const key in routes) {
+
+    const route = routes[key];
+
+    route.segmentLengths = [];
+    route.totalLength = 0;
+
+    for (let i = 0; i < route.length - 1; i++) {
+
+      const a = L.latLng(route[i]);
+      const b = L.latLng(route[i + 1]);
+
+      const len = a.distanceTo(b);
+
+      route.segmentLengths.push(len);
+      route.totalLength += len;
+    }
+  }
+}
+
 // 🚂 ODJEZD Z PLZNĚ
 function depart(){
   if(!selected || selected.state !== "READY_DEPART") return;

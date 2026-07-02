@@ -2,15 +2,21 @@
 // 🧭 KROK 1: INICIALIZACE A PROMĚNNÉ
 // ==========================================
 
+
 // 🌍 1. Spuštění mapy a načtení dlaždic
 const map = L.map('map').setView([49.7410, 13.3860], 11);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
 // 💰 2. Základní stav herní session
-let money = 0;
-let selected = null;
-let trains = [];
-let tracks = [null, null]; // 2 volné kolejové pozice na nádraží
+let globalMoney = 100;          // Globální kasa pro nákup nových měst (World of Airports styl)
+let currentStationKey = null;   // ID aktuálního nádraží (např. "plzen")
+let currentStationData = null;  // Celý objekt dat aktivního nádraží
+let stationLevels = {};         // Úrovně jednotlivých měst, např: { plzen: { lvl: 0, xp: 0 } }
+let selected = null;            // Právě vybraný vlak hráčem
+let tracks = [null, null];      // Pole kolejí aktivního nádraží
+let trains = [];                // Seznam vlaků aktivního nádraží
+let unlockedTracksCount = 1;    // Počet aktuálně odemčených kolejí v daném městě
+
 
 // ==========================================
 // 🧱 KUS 2: BOČNÍ MENU A NAKUPOVÁNÍ NÁDRAŽÍ

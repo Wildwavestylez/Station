@@ -57,7 +57,7 @@ let trains = [
     id: 3,
     name: "Rychlík Praha",
     image: "https://i.imgur.com/rwsmlyg.jpg",
-    state: "COMING",
+    state: "WAIT_ASSIGN",
     track: null,
     routeKey: "praha",
     distance: 0,

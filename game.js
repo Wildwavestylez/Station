@@ -97,17 +97,14 @@ function renderActions(){
 function startTimer(type){
   if(!selected) return;
 
-  let train = selected;
+  const train = selected;
 
-  train.state =
-    type === "clean" ? "CLEANING" :
-    type === "board" ? "BOARDING" :
-    train.state;
+  if(type === "clean") train.state = "CLEANING";
+  if(type === "board") train.state = "BOARDING";
+  if(type === "exit") train.state = "AT_DESTINATION";
 
   train.timer = train.timers[type];
   train.pendingAction = false;
-
-  render();
 }
 
 function prepareRoutes() {
@@ -160,25 +157,32 @@ function getPositionOnRoute(route, distance){
 
 // 🚂 ODJEZD Z PLZNĚ
 function depart(){
+
   if(!selected || selected.state !== "READY_DEPART") return;
 
   money += 100;
   document.getElementById("money").innerText = money;
 
-  tracks[selected.track-1] = null;
-  selected.track = null;
-  selected.state = "EN_ROUTE_THERE";
-  selected.distance = 0;
-  selected.pendingAction = false;
+  const t = selected;
 
-  // FIX: Hodnoty iconSize jsou nyní správně vyplněné [24, 24]
-  selected.marker = L.marker(routes[selected.routeKey][0], {
-    icon: L.divIcon({ html: '🚂', className: 'train-div-icon', iconSize: [24, 24] })
+  tracks[t.track-1] = null;
+  t.track = null;
+
+  t.state = "EN_ROUTE_THERE";
+  t.distance = 0;
+  t.pendingAction = false;
+
+  t.marker = L.marker(routes[t.routeKey][0], {
+    icon: L.divIcon({
+      html: '🚂',
+      className: 'train-div-icon',
+      iconSize: [24, 24]
+    })
   }).addTo(map);
 
-  selected.progress = { exit:0, clean:0, board:0 };
+  t.progress = { exit:0, clean:0, board:0 };
+
   selected = null;
-  render();
 }
 
 // 🔁 HERNÍ LOOP
@@ -222,14 +226,14 @@ function gameLoop(now){
 
     // 🧽 CLEAN TIMER (UI tlačítko)
     if(t.state === "CLEANING" && t.timer != null){
-      t.timer -= dt;
-      t.progress.clean = (1 - t.timer / t.timers.clean) * 100;
+  t.timer -= dt;
+  t.progress.clean = (1 - t.timer / t.timers.clean) * 100;
 
-      if(t.timer <= 0){
-        t.state = "WAIT_BOARD";
-        t.pendingAction = true;
-      }
-    }
+  if(t.timer <= 0){
+    t.state = "WAIT_BOARD";
+    t.pendingAction = true;
+  }
+}
 
     // 🚉 BOARD TIMER (UI tlačítko)
     if(t.state === "BOARDING" && t.timer != null){

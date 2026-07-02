@@ -98,27 +98,16 @@ function startTimer(type){
   if(!selected) return;
 
   let train = selected;
+
+  train.state =
+    type === "clean" ? "CLEANING" :
+    type === "board" ? "BOARDING" :
+    train.state;
+
   train.timer = train.timers[type];
   train.pendingAction = false;
+
   render();
-
-  let interval = setInterval(()=>{
-    train.timer--;
-    train.progress[type] = ((train.timers[type] - train.timer) / train.timers[type]) * 100;
-
-    if(train.timer <= 0){
-      clearInterval(interval);
-      train.progress[type] = 100;
-      train.pendingAction = true;
-
-      if(type==="exit")   train.state = "WAIT_CLEAN";
-      if(type==="clean")  train.state = "WAIT_BOARD";
-      if(type==="board")  train.state = "READY_DEPART";
-
-      render();
-    }
-    if(selected?.id === train.id) updateDetail();
-  }, 1000);
 }
 
 function prepareRoutes() {
@@ -204,28 +193,7 @@ function gameLoop(now){
 
     const route = routes[t.routeKey];
 
-    // 🚂 PŘIDĚLENÍ KOLEJE
-    if(t.state === "WAIT_ASSIGN"){
-      assign(t);
-    }
-
-    // 🚉 PŘÍJEZD (COMING)
-    if(t.state === "COMING"){
-      t.travel -= dt;
-
-      if(t.travel <= 0){
-        t.state = "WAIT_ASSIGN";
-      }
-    }
-
-    // 🚉 ODBAVENÍ NA NÁDRAŽÍ (KLÍČOVÁ ČÁST HRY)
-    if(t.state === "ARRIVED" || t.state === "WAIT_CLEAN" ||
-       t.state === "WAIT_BOARD" || t.state === "READY_DEPART"){
-
-      // nic nehýbe vlakem, jen UI stav
-    }
-
-    // 🚂 ODJÍŽDÍ DO CÍLE
+    // 🚂 JÍZDA TAM
     if(t.state === "EN_ROUTE_THERE"){
 
       t.distance += t.speed * dt;
@@ -241,17 +209,40 @@ function gameLoop(now){
       }
     }
 
-    // ⏱️ POBYT V CÍLI
+    // 🏢 POBYT VE STANICI
     if(t.state === "AT_DESTINATION"){
 
       t.stayTimer -= dt;
 
       if(t.stayTimer <= 0){
-        t.state = "EN_ROUTE_BACK";
+        t.state = "WAIT_CLEAN";
+        t.pendingAction = true;
       }
     }
 
-    // 🚂 NÁVRAT
+    // 🧽 CLEAN TIMER (UI tlačítko)
+    if(t.state === "CLEANING" && t.timer != null){
+      t.timer -= dt;
+      t.progress.clean = (1 - t.timer / t.timers.clean) * 100;
+
+      if(t.timer <= 0){
+        t.state = "WAIT_BOARD";
+        t.pendingAction = true;
+      }
+    }
+
+    // 🚉 BOARD TIMER (UI tlačítko)
+    if(t.state === "BOARDING" && t.timer != null){
+      t.timer -= dt;
+      t.progress.board = (1 - t.timer / t.timers.board) * 100;
+
+      if(t.timer <= 0){
+        t.state = "READY_DEPART";
+        t.pendingAction = true;
+      }
+    }
+
+    // 🚂 JÍZDA ZPĚT
     if(t.state === "EN_ROUTE_BACK"){
 
       t.distance -= t.speed * dt;
@@ -261,13 +252,20 @@ function gameLoop(now){
           getPositionOnRoute(route, t.distance)
         );
       } else {
-
         map.removeLayer(t.marker);
         t.marker = null;
 
         t.distance = 0;
         t.state = "COMING";
         t.travel = 5;
+      }
+    }
+
+    // ⏳ COMING BACK INTO SYSTEM
+    if(t.state === "COMING"){
+      t.travel -= dt;
+      if(t.travel <= 0){
+        t.state = "WAIT_ASSIGN";
       }
     }
 

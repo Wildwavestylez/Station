@@ -543,6 +543,6 @@ function gameLoop(now) {
 // 🚀 19. SPOUŠTĚČ SMYČKY
 requestAnimationFrame(gameLoop);
 
-
+loadStation("plzen");
 
 

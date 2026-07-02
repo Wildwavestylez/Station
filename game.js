@@ -171,27 +171,24 @@ function getPositionOnRoute(route, distance) {
 }
 
 // 🚂 ODJEZD VLAKU ZE STANICE
-function depart() {
-  if (!selected || selected.state !== "READY_DEPART") return;
+function depart(){
+  if(!selected || selected.state !== "READY_DEPART") return;
 
-  // Přičtení peněz
-  money += 2500; 
+  money += 100; // nebo libovolná částka
   document.getElementById("money").innerText = money;
 
   const t = selected;
 
-  // Uvolnění kolejového stání
   if (t.track) {
-    tracks[t.track - 1] = null;
+    tracks[t.track-1] = null;
     t.track = null;
   }
 
   t.state = "EN_ROUTE_THERE";
-  t.distance = 0;
+  t.distance = 0; // Začíná na začátku trasy (v Plzni)
   t.pendingAction = false;
 
-  // Vytvoření ikonky na mapě, pokud ještě neexistuje
-  if (!t.marker) {
+  if(!t.marker) {
     t.marker = L.marker(routes[t.routeKey][0], {
       icon: L.divIcon({
         html: '🚂',
@@ -199,13 +196,15 @@ function depart() {
         iconSize: [24, 24]
       })
     }).addTo(map);
+  } else {
+    t.marker.setLatLng(routes[t.routeKey][0]);
   }
 
-  // Reset progress barů pro příště
-  t.progress = { exit: 0, clean: 0, board: 0 };
+  t.progress = { exit:0, clean:0, board:0 };
   selected = null;
   render();
 }
+
 
 // 🔁 HERNÍ LOOP
 let lastTime = performance.now();
@@ -230,19 +229,40 @@ function gameLoop(now) {
       }
     }
 
-    // 🏢 POBYT V CÍLOVÉ STANICI (Otočka vlaku na konci trasy)
-    if (t.state === "AT_DESTINATION") {
+    //     // 🏢 POBYT VE STANICI (V CÍLI)
+    if(t.state === "AT_DESTINATION"){
       t.stayTimer -= dt;
-      if (t.stayTimer <= 0) {
-        // Počkáme, až se vrátí před stanici
-        if (t.marker) {
+
+      if(t.stayTimer <= 0){
+        // Čas vypršel -> otáčíme vlak a posíláme ho zpět
+        t.state = "EN_ROUTE_BACK";
+        // Vzdálenost na cestu zpět začíná na maximu (v cíli)
+        t.distance = route.totalLength; 
+      }
+    }
+
+    // 🚂 JÍZDA ZPĚT (Obrácené pořadí, bod po bodu)
+    if(t.state === "EN_ROUTE_BACK"){
+      // Rychlost odečítáme, jedeme pozpátku k nule
+      t.distance -= t.speed * dt;
+
+      if(t.distance > 0){
+        t.marker.setLatLng(
+          getPositionOnRoute(route, t.distance)
+        );
+      } else {
+        // Vlak dorazil zpět na konečnou do Plzně!
+        if(t.marker) {
           map.removeLayer(t.marker);
           t.marker = null;
         }
-        t.state = "WAIT_ASSIGN"; 
-        t.pendingAction = true;
+
+        t.distance = 0;
+        t.state = "WAIT_ASSIGN"; // Hlásí se o přidělení koleje
+        t.pendingAction = true;  // Rozsvítí se červená tečka u vlaku
       }
     }
+
 
     // ⏳ PROGRESS: VYKLÁDÁNÍ
     if (t.state === "UNLOADING" && t.timer != null) {

@@ -9,6 +9,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 // 💰 2. Základní stav herní session
 let money = 0;
 let selected = null;
+let trains = [];
 let tracks = [null, null]; // 2 volné kolejové pozice na nádraží
 
 // ==========================================
@@ -342,7 +343,7 @@ function checkLevelUp() {
 
 // 📋 15. HLAVNÍ VYKRESLENÍ STATISTIK A SEZNAMU VLAKŮ
 function render() {
-  if (!currentStationData) return;
+  if (!currentStationData || !stationLevels[currentStationKey]) return;
 
   // 1. Aktualizace horní lišty podle aktivního balíčku měst
   const myData = stationLevels[currentStationKey] || { lvl: 0, xp: 0 };

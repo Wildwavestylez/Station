@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Train Ops - IDEAL ARCH v2</title>
+  <title>Train Ops - Framework Edition</title>
 
   <!-- 🗺️ Leaflet CSS -->
   <link
@@ -11,22 +11,39 @@
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   />
 
-  <!-- 🎨 tvůj styl -->
+  <!-- 🎨 Hlavní styl -->
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
+  <!-- 🍔 Tlačítko pro otevření menu -->
+  <button id="menu-btn" onclick="toggleSidebar()">☰</button>
+
+  <!-- 🗂️ Vysouvací boční panel pro přepínání nádraží (World of Airports styl) -->
+  <div id="sidebar">
+    <div class="sidebar-header">
+      <h3>Moje Impérium</h3>
+      <button class="close-btn" onclick="toggleSidebar()">✕</button>
+    </div>
+    <!-- Sem JavaScript dynamicky vykreslí seznam všech nádraží ve hře -->
+    <div id="station-list"></div>
+  </div>
+
+  <!-- 🗺️ Mapa hry -->
   <div id="map"></div>
 
+  <!-- 📦 Uživatelské rozhraní (UI) -->
   <div id="ui">
     <div id="top">
-      💰 <span id="money">0</span> Kč | 🚉 Plzeň hl.n. | Koleje: 2
+      💰 <span id="money">0</span> Kč | 🚉 <span id="station-name">Načítání...</span> | Koleje: <span id="tracks-count">0/0</span> | ⭐️ <span id="level-info">LVL 0 (0/0 XP)</span>
     </div>
 
     <div id="content">
+      <!-- Seznam vlaků čekajících před stanicí / na kolejích -->
       <div id="queue"></div>
 
+      <!-- Detail vybraného vlaku -->
       <div id="detail">
         <h3 id="name">Vyber vlak</h3>
         <p id="state">---</p>
@@ -45,14 +62,17 @@
   <!-- 🗺️ Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- 📊 data (trains + routes) -->
-  <script src="data.js"></script>
+  <!-- 📊 Globální konfigurace a datové balíčky jednotlivých nádraží -->
+  <!-- data.js nyní bude obsahovat seznam odemčených nádraží hráče a globální stav -->
+  <script src="data.js"></script> 
+  <script src="stations/plzen.js"></script>
+  <script src="stations/karlsruhe.js"></script>
 
-  <!-- 🧠 eruda (debug konzole v mobilu) -->
+  <!-- 🧠 Eruda (debug konzole v mobilu) -->
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
   <script>eruda.init();</script>
 
-  <!-- 🎮 hlavní hra -->
+  <!-- 🎮 Hlavní herní motor (Engine) -->
   <script src="game.js"></script>
 
 </body>

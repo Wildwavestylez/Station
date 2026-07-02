@@ -77,7 +77,7 @@ const STATIONS_REGISTRY = {
         routeKey: "rokycany",
         speed: 80,
         stayTime: 10,
-        initialContract: 2, // Musí udělat 2 otočky pro splnění kontraktu
+        initialContract: 1, // Musí udělat 2 otočky pro splnění kontraktu
         timers: { exit: 5, clean: 8, board: 5 }
       },
       2: {
@@ -86,7 +86,7 @@ const STATIONS_REGISTRY = {
         routeKey: "prestice",
         speed: 80,
         stayTime: 10,
-        initialContract: 2,
+        initialContract: 1,
         timers: { exit: 5, clean: 8, board: 5 }
       },
       3: {
@@ -95,7 +95,7 @@ const STATIONS_REGISTRY = {
         routeKey: "praha",
         speed: 120, // Rychlík pojede o něco rychleji
         stayTime: 15,
-        initialContract: 3, // Rychlík má těžší kontrakt na 3 otočky
+        initialContract: 1, // Rychlík má těžší kontrakt na 3 otočky
         timers: { exit: 8, clean: 12, board: 8 }
       }
     }

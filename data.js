@@ -75,7 +75,7 @@ const STATIONS_REGISTRY = {
         name: "810 → Rokycany",
         image: "https://i.imgur.com/5upJC9h.jpg",
         routeKey: "rokycany",
-        speed: 80,
+        speed: 180,
         stayTime: 10,
         initialContract: 1, // Musí udělat 2 otočky pro splnění kontraktu
         timers: { exit: 5, clean: 8, board: 5 }
@@ -87,7 +87,7 @@ const STATIONS_REGISTRY = {
         speed: 80,
         stayTime: 10,
         initialContract: 1,
-        timers: { exit: 5, clean: 8, board: 5 }
+        timers: { exit: 30, clean: 120, board: 35 }
       },
       3: {
         name: "Rychlík Praha",
@@ -96,7 +96,7 @@ const STATIONS_REGISTRY = {
         speed: 120, // Rychlík pojede o něco rychleji
         stayTime: 15,
         initialContract: 1, // Rychlík má těžší kontrakt na 3 otočky
-        timers: { exit: 8, clean: 12, board: 8 }
+        timers: { exit: 108, clean: 182, board: 108 }
       }
     }
   },

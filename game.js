@@ -84,6 +84,7 @@ function tryUnlockStation(key, st) {
   alert(`🎉 Odemkl jsi nádraží ${st.name}! Můžeš do něj rovnou vstoupit.`);
   renderSidebar();
   render();
+  saveGameState();
 }
 
 // ==========================================
@@ -281,6 +282,7 @@ function depart() {
   t.progress = { exit: 0, clean: 0, board: 0 };
   selected = null;
   render();
+  saveGameState();
 }
 
 // ==========================================
@@ -311,6 +313,7 @@ function processTrainReturn(t) {
   t.state = "WAIT_ASSIGN";
   t.pendingAction = true;
   render();
+  saveGameState();
 }
 
 // 📈 14. KONTROLA ZVÝŠENÍ LEVELU NÁDRAŽÍ
@@ -348,6 +351,7 @@ function checkLevelUp() {
 
     // Aktualizujeme menu a celé UI
     renderSidebar();
+    saveGameState();
   }
 }
 // ==========================================
@@ -463,6 +467,60 @@ function renderActions() {
 }
 
 // ==========================================
+// 💾 KUS A: UKLÁDÁNÍ HRY (LOCAL STORAGE)
+// ==========================================
+
+// Funkce, která vezme aktuální stav a uloží ho do paměti telefonu/PC
+function saveGameState() {
+  const saveContainer = {
+    globalMoney: globalMoney,
+    unlockedStations: GLOBAL_PLAYER_DATA.unlockedStations,
+    stationLevels: stationLevels
+  };
+  
+  // Převod dat na text a uložení pod klíčem 'trainOps_save'
+  localStorage.setItem('trainOps_save', JSON.stringify(saveContainer));
+  console.log("💾 Hra byla úspěšně uložena!");
+}
+
+// Pomocná funkce, pokud bys chtěl hru někdy resetovat do začátku
+function resetGameState() {
+  if (confirm("Opravdu chceš smazat veškerý postup a začít od nuly?")) {
+    localStorage.removeItem('trainOps_save');
+    window.location.reload(); // Obnoví stránku
+  }
+}
+
+// ==========================================
+// 💾 KUS B: NAČÍTÁNÍ HRY (LOCAL STORAGE)
+// ==========================================
+
+// Funkce, která při startu vytáhne data z paměti prohlížeče
+function loadGameState() {
+  const savedData = localStorage.getItem('trainOps_save');
+  
+  if (savedData) {
+    try {
+      const parsed = JSON.parse(savedData);
+      
+      // Obnovíme globální peníze a odemčená nádraží
+      globalMoney = parsed.globalMoney ?? 100;
+      GLOBAL_PLAYER_DATA.unlockedStations = parsed.unlockedStations ?? ["plzen"];
+      stationLevels = parsed.stationLevels ?? {};
+      
+      console.log("📂 Uložená hra byla úspěšně načtena!");
+    } catch (e) {
+      console.error("❌ Chyba při čtení uložené hry, začínáme od nuly.", e);
+    }
+  } else {
+    console.log("🆕 Žádné uložení nenalezeno. Start nové hry!");
+  }
+}
+
+
+
+
+// ==========================================
 // 🧱 KUS 8: HERNÍ LOOP A FINÁLNÍ SPUŠTĚNÍ
 // ==========================================
 
@@ -555,8 +613,13 @@ function gameLoop(now) {
 }
 
 // 🚀 19. SPOUŠTĚČ SMYČKY
+// Oficiální nastartování celého herního loopu
 requestAnimationFrame(gameLoop);
 
+// 🟢 TADY PŘIDÁME FUNKCI PRO NAČTENÍ:
+loadGameState(); 
+
+// Spuštění první stanice (Plzeň si teď vezme data z načteného savu)
 loadStation("plzen");
 
 

@@ -92,6 +92,9 @@ function tryUnlockStation(key, st) {
 // ==========================================
 
 // 🚉 6. NAČTENÍ A PŘEPNUTÍ KOMPLETNÍHO NÁDRAŽÍ
+// ==========================================
+// 🚉 NAČÍTÁNÍ A PŘEPNÁNÍ NÁDRAŽÍ (KOMPLETNÍ)
+// ==========================================
 function loadStation(stationKey) {
   // Smazání starých jedoucích vlaků z mapy, aby nezůstaly v jiném městě
   trains.forEach(t => { 
@@ -128,11 +131,44 @@ function loadStation(stationKey) {
   // Spuštění matematických výpočtů délek tras
   prepareRoutes();
 
-  // Vyčištění seznamu a nahrání startovních vlaků z poolu nádraží
+  // Vyčištění seznamu a nahrání vlaků (Uložených z paměti VS Startovních z data.js)
   trains = [];
-  currentStationData.startingTrains.forEach(id => {
-    addNewTrainFromPool(id);
-  });
+
+  if (window.loadedTrainsCache && window.loadedTrainsCache.length > 0) {
+    // 🟢 NAČÍTÁME VLAKY Z ULOŽENÉHO STAVU
+    window.loadedTrainsCache.forEach(saved => {
+      const template = currentStationData.trainsPool[saved.id];
+      if (template) {
+        trains.push({
+          id: saved.id,
+          name: template.name,
+          image: template.image,
+          state: saved.state || "WAIT_ASSIGN",
+          track: null,
+          routeKey: template.routeKey,
+          distance: 0,
+          speed: template.speed,
+          stayTime: template.stayTime,
+          stayTimer: 0,
+          marker: null,
+          progress: { exit: 0, clean: 0, board: 0 },
+          timers: template.timers,
+          pendingAction: saved.pendingAction ?? false,
+          current_turnaround: saved.current_turnaround ?? 0,
+          required_turnaround: saved.required_turnaround ?? template.initialContract,
+          rewardMoney: template.rewardMoney || 1000,
+          rewardXP: template.rewardXP || 1
+        });
+      }
+    });
+    // Po úspěšném nahrání vymažeme cache paměť, aby při dalším ručním přepnutí města jela čistá data
+    window.loadedTrainsCache = null;
+  } else {
+    // 🆕 ŽÁDNÝ SAVE NEEXISTUJE -> NAČTEME POUZE STARTOVNÍ VLAKY Z DATA.JS
+    currentStationData.startingTrains.forEach(id => {
+      addNewTrainFromPool(id);
+    });
+  }
 
   renderSidebar();
   render();

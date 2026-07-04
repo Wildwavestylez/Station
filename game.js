@@ -555,6 +555,19 @@ function loadGameState() {
 }
 
 
+// Funkce pro kompletní smazání postupu a restart hry
+function resetGameState() {
+  if (confirm("⚠️ POZOR! Opravdu chceš smazat veškerý postup, peníze, levely i vlaky a začít úplně od nuly?")) {
+    // 1. Vymažeme komplet data z paměti prohlížeče
+    localStorage.removeItem('trainOps_save');
+    
+    // 2. Smažeme markery jedoucích vlaků, aby nezůstaly viset na mapě
+    trains.forEach(t => { if (t.marker) map.removeLayer(t.marker); });
+    
+    // 3. Tvrdý reload celé stránky do čistého stavu
+    window.location.reload();
+  }
+}
 
 
 // ==========================================

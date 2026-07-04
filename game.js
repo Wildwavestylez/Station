@@ -159,7 +159,11 @@ function addNewTrainFromPool(id) {
     timers: template.timers,
     pendingAction: false,
     current_turnaround: 0,
-    required_turnaround: template.initialContract
+    required_turnaround: template.initialContract,
+    
+    // 🟢 TADY PŘIDÁME PŘENOS ODMĚN Z ŠABLONY DO VLAKU:
+    rewardMoney: template.rewardMoney || 1000, // pokud zapomeneš zapsat, dá jako pojistku 1000
+    rewardXP: template.rewardXP || 1          // pojistka 1 XP
   });
 }
 
@@ -249,17 +253,16 @@ function startTimer(type) {
 function depart() {
   if (!selected || selected.state !== "READY_DEPART") return;
 
-  // Odměna za vypravení se přičte do globální kasy
-  globalMoney += currentStationData.moneyPerDepart || 100;
-
   const t = selected;
-  
-  // Uvolnění kolejového stání v poli
+
+  // 🟢 TADY BEREME PENÍZE DYNAMICKY PODLE KONKRÉTNÍHO VLAKU:
+  globalMoney += t.rewardMoney || 1000; 
+  document.getElementById("money").innerText = globalMoney;
+
   if (t.track) {
     tracks[t.track - 1] = null;
     t.track = null;
   }
-
   const route = currentStationData.routes[t.routeKey];
   t.state = "EN_ROUTE_THERE";
   t.distance = 0;
@@ -293,21 +296,24 @@ function depart() {
 function processTrainReturn(t) {
   t.current_turnaround += 1;
 
-  // Pokud vlak dokončil požadovaný počet otoček (např. 2/2, 3/3)
   if (t.current_turnaround === t.required_turnaround) {
-    let earnedPoints = t.required_turnaround;
+    // 🟢 Místo fixních bodů vynásobíme obtížnost kontraktu základním XP bonusem vlaku:
+    let earnedPoints = t.required_turnaround * (t.rewardXP || 1);
     
-    // Přičteme XP body konkrétnímu městu, kde vlak zrovna jezdí
     stationLevels[currentStationKey].xp += earnedPoints;
     alert(`🎉 Kontrakt kompletní! Vlak ${t.name} přinesl ${earnedPoints} XP bodů pro nádraží ${currentStationData.name}.`);
 
-    // Zvýšíme obtížnost a hodnotu kontraktu pro příště
     t.required_turnaround += 1;
     t.current_turnaround = 0;
 
-    // Spustíme kontrolu, zda nádraží nepostoupilo na nový level
     checkLevelUp();
   }
+
+  t.state = "WAIT_ASSIGN";
+  t.pendingAction = true;
+  render();
+  saveGameState();
+}
 
   // Vlak se vrátí do fronty před stanici a rozsvítí se u něj upozornění
   t.state = "WAIT_ASSIGN";

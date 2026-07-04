@@ -80,6 +80,10 @@ const STATIONS_REGISTRY = {
         initialContract: 1, // Musí udělat 2 otočky pro splnění kontraktu
         timers: { exit: 5, clean: 8, board: 5 }
       },
+
+rewardMoney: 1200,   // 💰 Menší lokálka vydělá míň peněz
+    rewardXP: 1
+
       2: {
         name: "810 → Přeštice",
         image: "https://i.imgur.com/KuMw5ko.jpg",
@@ -87,7 +91,9 @@ const STATIONS_REGISTRY = {
         speed: 80,
         stayTime: 10,
         initialContract: 1,
-        timers: { exit: 30, clean: 120, board: 35 }
+        timers: { exit: 30, clean: 120, board: 35 },
+rewardMoney: 1500,   // 💰 Menší lokálka vydělá míň peněz
+    rewardXP: 2
       },
       3: {
         name: "Rychlík Praha",
@@ -96,7 +102,9 @@ const STATIONS_REGISTRY = {
         speed: 120, // Rychlík pojede o něco rychleji
         stayTime: 15,
         initialContract: 1, // Rychlík má těžší kontrakt na 3 otočky
-        timers: { exit: 108, clean: 182, board: 108 }
+        timers: { exit: 108, clean: 182, board: 108 },
+rewardMoney: 1800,   // 💰 Menší lokálka vydělá míň peněz
+    rewardXP: 3
       }
     }
   },

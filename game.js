@@ -351,12 +351,7 @@ function processTrainReturn(t) {
   saveGameState();
 }
 
-  // Vlak se vrátí do fronty před stanici a rozsvítí se u něj upozornění
-  t.state = "WAIT_ASSIGN";
-  t.pendingAction = true;
-  render();
-  saveGameState();
-}
+  
 
 // 📈 14. KONTROLA ZVÝŠENÍ LEVELU NÁDRAŽÍ
 function checkLevelUp() {

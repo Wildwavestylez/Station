@@ -127,10 +127,13 @@ button {
   margin: 5px 0;
 }
 
+/* Vylepšený styl pro vyplňování progress barů ve style.css */
 .fill {
   height: 100%;
   width: 0%;
   background: limegreen;
+  /* 🟢 TENTO ŘÁDEK ZAŘÍDÍ DOKONALOU PLYNULOST ANIMACE: */
+  transition: width 0.2s linear; 
 }
 
 /* LEAFLET FIX */

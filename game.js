@@ -473,35 +473,30 @@ function renderActions() {
 }
 
 // ==========================================
-// 💾 KUS A: UKLÁDÁNÍ HRY (LOCAL STORAGE)
+// 💾 KUS 1: POKROČILÉ UKLÁDÁNÍ A NAČÍTÁNÍ
 // ==========================================
 
-// Funkce, která vezme aktuální stav a uloží ho do paměti telefonu/PC
+// 1. Vylepšená funkce pro uložení hry (Pamatuje si i vlaky a jejich kontrakty)
 function saveGameState() {
   const saveContainer = {
     globalMoney: globalMoney,
     unlockedStations: GLOBAL_PLAYER_DATA.unlockedStations,
-    stationLevels: stationLevels
+    stationLevels: stationLevels,
+    // 🟢 Tady uložíme i přesný stav vlaků, abychom o ně nepřišli
+    savedTrains: trains.map(t => ({
+      id: t.id,
+      state: t.state,
+      current_turnaround: t.current_turnaround,
+      required_turnaround: t.required_turnaround,
+      pendingAction: t.pendingAction
+    }))
   };
   
-  // Převod dat na text a uložení pod klíčem 'trainOps_save'
   localStorage.setItem('trainOps_save', JSON.stringify(saveContainer));
-  console.log("💾 Hra byla úspěšně uložena!");
+  console.log("💾 Hra a stav vlaků byly úspěšně uloženy!");
 }
 
-// Pomocná funkce, pokud bys chtěl hru někdy resetovat do začátku
-function resetGameState() {
-  if (confirm("Opravdu chceš smazat veškerý postup a začít od nuly?")) {
-    localStorage.removeItem('trainOps_save');
-    window.location.reload(); // Obnoví stránku
-  }
-}
-
-// ==========================================
-// 💾 KUS B: NAČÍTÁNÍ HRY (LOCAL STORAGE)
-// ==========================================
-
-// Funkce, která při startu vytáhne data z paměti prohlížeče
+// 2. Vylepšená funkce pro načtení hry při startu
 function loadGameState() {
   const savedData = localStorage.getItem('trainOps_save');
   
@@ -509,17 +504,17 @@ function loadGameState() {
     try {
       const parsed = JSON.parse(savedData);
       
-      // Obnovíme globální peníze a odemčená nádraží
       globalMoney = parsed.globalMoney ?? 100;
       GLOBAL_PLAYER_DATA.unlockedStations = parsed.unlockedStations ?? ["plzen"];
       stationLevels = parsed.stationLevels ?? {};
       
-      console.log("📂 Uložená hra byla úspěšně načtena!");
+      // Dočasně si schováme načtené vlaky, které pak dosadíme ve funkci loadStation
+      window.loadedTrainsCache = parsed.savedTrains ?? null;
+      
+      console.log("📂 Uložená data kompletně načtena z paměti!");
     } catch (e) {
-      console.error("❌ Chyba při čtení uložené hry, začínáme od nuly.", e);
+      console.error("❌ Chyba při čtení uložené hry:", e);
     }
-  } else {
-    console.log("🆕 Žádné uložení nenalezeno. Start nové hry!");
   }
 }
 

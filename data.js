@@ -72,18 +72,16 @@ const STATIONS_REGISTRY = {
     // 🚂 Katalog všech vlaků, které lze na tomto nádraží získat
     trainsPool: {
       1: {
-        name: "810 → Rokycany",
-        image: "https://i.imgur.com/5upJC9h.jpg",
-        routeKey: "rokycany",
-        speed: 180,
-        stayTime: 10,
-        initialContract: 1, // Musí udělat 2 otočky pro splnění kontraktu
-        timers: { exit: 5, clean: 8, board: 5 }
-      },
-
-rewardMoney: 1200,   // 💰 Menší lokálka vydělá míň peněz
-    rewardXP: 1
-
+  name: "810 → Rokycany",
+  image: "https://i.imgur.com/5upJC9h.jpg",
+  routeKey: "rokycany",
+  speed: 180,
+  stayTime: 10,
+  initialContract: 1,
+  timers: { exit: 5, clean: 8, board: 5 },
+  rewardMoney: 1200,
+  rewardXP: 1
+},
       2: {
         name: "810 → Přeštice",
         image: "https://i.imgur.com/KuMw5ko.jpg",

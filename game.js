@@ -52,10 +52,12 @@ function renderSidebar() {
   if (!list) return;
   list.innerHTML = "";
 
-  // Pojistka pro případ, že registr ještě není v okně načtený
   if (!window.STATIONS_REGISTRY) return;
 
-  // Projdeme všechna nádraží zaregistrovaná v globálním okně
+  // Lokalizace nadpisu sidebaru
+  const headerTitle = document.querySelector(".sidebar-header h3");
+  if (headerTitle) headerTitle.innerText = lang().sidebarTitle;
+
   for (const key in window.STATIONS_REGISTRY) {
     const st = window.STATIONS_REGISTRY[key];
     const isUnlocked = GLOBAL_PLAYER_DATA.unlockedStations.includes(key);
@@ -68,19 +70,20 @@ function renderSidebar() {
       const lvlInfo = stationLevels[key] || { lvl: 0, xp: 0 };
       div.innerHTML = `
         <h4>${st.name} ${st.flag}</h4>
-        <p>⭐️ Level ${lvlInfo.lvl} | Měna: ${st.currency}</p>
+        <p>⭐️ Level ${lvlInfo.lvl} | ${st.currency}</p>
       `;
       div.onclick = () => { loadStation(key); toggleSidebar(); };
     } else {
       div.innerHTML = `
         <h4>${st.name} ${st.flag} 🔒</h4>
-        <p>Cena odemčení: <b>${st.unlockCost} Kč</b><br>Vyžaduje: Plzeň Level ${st.requiredParentLevel}</p>
+        <p>${lang().unlockCostText}: <b>${st.unlockCost} ${st.currency}</b><br>${lang().requiresLvlText}: Plzeň Level ${st.requiredParentLevel}</p>
       `;
       div.onclick = () => { tryUnlockStation(key, st); };
     }
     list.appendChild(div);
   }
 }
+
 
 
 // 💰 5. POKUS O ZAKOUPENÍ UZAMČENÉHO NÁDRAŽÍ
@@ -441,8 +444,7 @@ function checkLevelUp() {
 function render() {
   if (!currentStationData || !stationLevels[currentStationKey]) return;
 
-  // 1. Aktualizace horní lišty podle aktivního balíčku měst
-  const myData = stationLevels[currentStationKey] || { lvl: 0, xp: 0 };
+  const myData = stationLevels[currentStationKey];
   const currentLvlConfig = currentStationData.levels[myData.lvl] || { xpNeeded: "Max" };
 
   document.getElementById("money").innerText = globalMoney;
@@ -450,7 +452,6 @@ function render() {
   document.getElementById("tracks-count").innerText = `${tracks.filter(x => x).length}/${unlockedTracksCount}`;
   document.getElementById("level-info").innerText = `LVL ${myData.lvl} (${myData.xp}/${currentLvlConfig.xpNeeded} XP)`;
 
-  // 2. Vykreslení seznamu vlaků v levém panelu (frontě)
   let q = document.getElementById("queue");
   if (!q) return;
   q.innerHTML = "";
@@ -464,16 +465,18 @@ function render() {
     let showDot = t.pendingAction && !isSelected;
 
     let statusText = t.state;
-    if (t.state === "WAIT_ASSIGN") statusText = `Čeká před stanicí [${t.current_turnaround}/${t.required_turnaround}] ⏳`;
-    if (t.state === "ARRIVED") statusText = `Na stanici (Kolej ${t.track})`;
-    if (t.state === "UNLOADING") statusText = `Vykládání (${Math.max(0, Math.ceil(t.timer))}s)`;
-    if (t.state === "WAIT_CLEAN") statusText = "Čeká na úklid 🧽";
-    if (t.state === "CLEANING") statusText = `Úklid (${Math.max(0, Math.ceil(t.timer))}s)`;
-    if (t.state === "WAIT_BOARD") statusText = "Čeká na nástup 👥";
-    if (t.state === "BOARDING") statusText = `Nástup (${Math.max(0, Math.ceil(t.timer))}s)`;
-    if (t.state === "READY_DEPART") statusText = "PŘIPRAVEN K ODJEZDU 🟢";
-    if (t.state === "EN_ROUTE_THERE") statusText = "Jede do cíle ➔";
-    if (t.state === "AT_DESTINATION") statusText = `V cílové stanici (${Math.max(0, Math.ceil(t.stayTimer))}s)`;
+    if (t.state === "WAIT_ASSIGN") statusText = `${lang().waitClean.split(" ")[0]} [${t.current_turnaround}/${t.required_turnaround}] ⏳`; // Čeká [0/2]
+    if (t.state === "COMING") statusText = `${lang().incoming} ${t.track} (${Math.max(0, Math.ceil(t.timer))}s)`;
+    if (t.state === "ARRIVED") statusText = lang().arrived;
+    if (t.state === "UNLOADING") statusText = `${lang().unloading} (${Math.max(0, Math.ceil(t.timer))}s)`;
+    if (t.state === "WAIT_CLEAN") statusText = lang().waitClean;
+    if (t.state === "CLEANING") statusText = `${lang().cleaning} (${Math.max(0, Math.ceil(t.timer))}s)`;
+    if (t.state === "WAIT_BOARD") statusText = lang().waitBoard;
+    if (t.state === "BOARDING") statusText = `${lang().boarding} (${Math.max(0, Math.ceil(t.timer))}s)`;
+    if (t.state === "READY_DEPART") statusText = lang().readyDepart;
+    if (t.state === "EN_ROUTE_THERE") statusText = lang().enRouteThere;
+    if (t.state === "AT_DESTINATION") statusText = `${lang().atDestination} (${Math.max(0, Math.ceil(t.stayTimer))}s)`;
+    if (t.state === "EN_ROUTE_BACK") statusText = lang().enRouteBack;
 
     d.innerHTML = `
       ${showDot ? '<div class="dot"></div>' : ''}
@@ -487,6 +490,7 @@ function render() {
 
   updateDetail();
 }
+
 
 // 🎯 16. DETAIL VYBRANÉHO VLAKU A PROGRESS BARY
 function updateDetail() {
@@ -529,43 +533,33 @@ function renderActions() {
   let a = document.getElementById("actions");
   if (!a) return;
   a.innerHTML = "";
-  
   if (!selected) return;
 
-  // 🚉 Pokud vlak čeká před stanicí, nabídneme mu konkrétní nástupiště
   if (selected.state === "WAIT_ASSIGN") {
-    let htmlButtons = "<h5>Zvol cílové nástupiště:</h5>";
-    
-    // Projdeme všechny aktuálně odemčené koleje na nádraží
+    let htmlButtons = `<h5>${lang().assignTrack}</h5>`;
     for (let i = 0; i < unlockedTracksCount; i++) {
-      const isOccupied = tracks[i] !== null;
-      
-      if (isOccupied) {
-        // Obsazená kolej dostane zašedlé nefunkční tlačítko
-        htmlButtons += `<button class="r" style="opacity: 0.4; cursor: not-allowed;" disabled>Kolej ${i+1} (Obsazeno)</button>`;
+      if (tracks[i] !== null) {
+        htmlButtons += `<button class="r" style="opacity: 0.4; cursor: not-allowed;" disabled>Kolej ${i+1} (${lang().occupied})</button>`;
       } else {
-        // Volná kolej vygeneruje zelené tlačítko, které předá index koleje do assignTrack
         htmlButtons += `<button class="g" onclick="assignTrack(${i})">Kolej ${i+1}</button>`;
       }
     }
     a.innerHTML = htmlButtons;
   } 
-  
-  // Ostatní stavy odbavení na kolejích včetně nové fáze COMING
   else if (selected.state === "COMING") {
-    a.innerHTML = `<em>Vlak plynule vjíždí na kolej ${selected.track}... (${Math.max(0, Math.ceil(selected.timer))}s)</em>`;
+    a.innerHTML = `<em>${lang().incoming} ${selected.track}... (${Math.max(0, Math.ceil(selected.timer))}s)</em>`;
   } else if (selected.state === "ARRIVED") {
-    a.innerHTML = `<button class="g" onclick="startTimer('exit')">VYLOŽIT</button>`;
+    a.innerHTML = `<button class="g" onclick="startTimer('exit')">${lang().btnUnload}</button>`;
   } else if (selected.state === "UNLOADING" || selected.state === "CLEANING" || selected.state === "BOARDING") {
-    a.innerHTML = `<em>Vlak momentálně pracuje...</em>`;
+    a.innerHTML = `<em>${lang().working}</em>`;
   } else if (selected.state === "WAIT_CLEAN") {
-    a.innerHTML = `<button class="y" onclick="startTimer('clean')">ÚKLID</button>`;
+    a.innerHTML = `<button class="y" onclick="startTimer('clean')">${lang().btnClean}</button>`;
   } else if (selected.state === "WAIT_BOARD") {
-    a.innerHTML = `<button class="b" onclick="startTimer('board')">NÁSTUP</button>`;
+    a.innerHTML = `<button class="b" onclick="startTimer('board')">${lang().btnBoard}</button>`;
   } else if (selected.state === "READY_DEPART") {
-    a.innerHTML = `<button class="r" onclick="depart()">ODJEZD</button>`;
+    a.innerHTML = `<button class="r" onclick="depart()">${lang().btnDepart}</button>`;
   } else {
-    a.innerHTML = `<em>Vlak na trati...</em>`;
+    a.innerHTML = `<em>${lang().onRoute}</em>`;
   }
 }
 

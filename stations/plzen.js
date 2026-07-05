@@ -61,7 +61,7 @@ window.STATIONS_REGISTRY["plzen"] = {
   trainsPool: {
     1: {
       name: "810 → Rokycany",
-      image: "https://imgur.com",
+      image: "image: "https://i.imgur.com/FApj7Eq.jpg"",
       routeKey: "rokycany",
       speed: 180,
       stayTime: 10,
@@ -72,7 +72,7 @@ window.STATIONS_REGISTRY["plzen"] = {
     },
     2: {
       name: "810 → Přeštice",
-      image: "https://imgur.com",
+      image: "https://i.imgur.com/neFFZgt.jpg",
       routeKey: "prestice",
       speed: 80,
       stayTime: 10,
@@ -83,7 +83,7 @@ window.STATIONS_REGISTRY["plzen"] = {
     },
     3: {
       name: "Rychlík Praha",
-      image: "https://imgur.com",
+      image: "https://i.imgur.com/tw5kV39.jpg",
       routeKey: "praha",
       speed: 120,
       stayTime: 15,

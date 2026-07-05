@@ -12,7 +12,7 @@ window.STATIONS_REGISTRY["plzen"] = {
   mapZoom: 11,
   startingTracks: 1,
   moneyPerDepart: 2500,
-  startingTrains:,
+  startingTrains: [1],
 
   routes: {
     rokycany: [

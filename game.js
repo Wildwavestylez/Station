@@ -8,6 +8,9 @@ const map = L.map('map').setView([49.7410, 13.3860], 11);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
 // 💰 2. Základní stav herní session
+// Zkontroluj začátek game.js a přidej tam tento řádek pod inicializaci mapy:
+if (!window.STATIONS_REGISTRY) window.STATIONS_REGISTRY = {};
+
 let globalMoney = 100;          // Globální kasa pro nákup nových měst (World of Airports styl)
 let currentStationKey = null;   // ID aktuálního nádraží (např. "plzen")
 let currentStationData = null;  // Celý objekt dat aktivního nádraží
@@ -29,15 +32,18 @@ function toggleSidebar() {
 // 🧱 KUS 2: BOČNÍ MENU A NAKUPOVÁNÍ NÁDRAŽÍ
 // ==========================================
 
-// 📂 4. GENEROVÁNÍ SEZNAMU NÁDRAŽÍ DO MENU
+// 📂 4. GENEROVÁNÍ SEZNAMU NÁDRAŽÍ DO MENU (CELÁ FUNKCE)
 function renderSidebar() {
   const list = document.getElementById("station-list");
   if (!list) return;
   list.innerHTML = "";
 
-  // Projdeme všechna nádraží zaregistrovaná v data.js
-  for (const key in STATIONS_REGISTRY) {
-    const st = STATIONS_REGISTRY[key];
+  // Pojistka pro případ, že registr ještě není v okně načtený
+  if (!window.STATIONS_REGISTRY) return;
+
+  // Projdeme všechna nádraží zaregistrovaná v globálním okně
+  for (const key in window.STATIONS_REGISTRY) {
+    const st = window.STATIONS_REGISTRY[key];
     const isUnlocked = GLOBAL_PLAYER_DATA.unlockedStations.includes(key);
     const isActive = currentStationKey === key;
 
@@ -61,6 +67,7 @@ function renderSidebar() {
     list.appendChild(div);
   }
 }
+
 
 // 💰 5. POKUS O ZAKOUPENÍ UZAMČENÉHO NÁDRAŽÍ
 function tryUnlockStation(key, st) {
@@ -95,17 +102,28 @@ function tryUnlockStation(key, st) {
 // ==========================================
 // 🚉 NAČÍTÁNÍ A PŘEPNÁNÍ NÁDRAŽÍ (KOMPLETNÍ)
 // ==========================================
+// ==========================================
+// 🚉 NAČÍTÁNÍ A PŘEPNÁNÍ NÁDRAŽÍ (CELÁ FUNKCE)
+// ==========================================
 function loadStation(stationKey) {
   // Smazání starých jedoucích vlaků z mapy, aby nezůstaly v jiném městě
-  trains.forEach(t => { 
-    if (t.marker) { 
-      map.removeLayer(t.marker); 
-      t.marker = null; 
-    } 
-  });
+  if (trains && trains.length > 0) {
+    trains.forEach(t => { 
+      if (t.marker) { 
+        map.removeLayer(t.marker); 
+        t.marker = null; 
+      } 
+    });
+  }
+
+  // Bezpečnostní kontrola, zda máme data v globálním okně
+  if (!window.STATIONS_REGISTRY || !window.STATIONS_REGISTRY[stationKey]) {
+    console.error(`❌ Stanice ${stationKey} nebyla nalezena v globálním registru!`);
+    return;
+  }
 
   currentStationKey = stationKey;
-  currentStationData = STATIONS_REGISTRY[stationKey];
+  currentStationData = window.STATIONS_REGISTRY[stationKey];
 
   // Přesun kamery a zoomu mapy na zvolené souřadnice
   map.setView(currentStationData.mapCenter, currentStationData.mapZoom);
@@ -135,7 +153,7 @@ function loadStation(stationKey) {
   trains = [];
 
   if (window.loadedTrainsCache && window.loadedTrainsCache.length > 0) {
-    // 🟢 NAČÍTÁME VLAKY Z ULOŽENÉHO STAVU
+    // NAČÍTÁME VLAKY Z ULOŽENÉHO STAVU
     window.loadedTrainsCache.forEach(saved => {
       const template = currentStationData.trainsPool[saved.id];
       if (template) {
@@ -161,18 +179,20 @@ function loadStation(stationKey) {
         });
       }
     });
-    // Po úspěšném nahrání vymažeme cache paměť, aby při dalším ručním přepnutí města jela čistá data
     window.loadedTrainsCache = null;
   } else {
-    // 🆕 ŽÁDNÝ SAVE NEEXISTUJE -> NAČTEME POUZE STARTOVNÍ VLAKY Z DATA.JS
-    currentStationData.startingTrains.forEach(id => {
-      addNewTrainFromPool(id);
-    });
+    // ŽÁDNÝ SAVE NEEXISTUJE -> NAČTEME POUZE STARTOVNÍ VLAKY Z DATA.JS
+    if (currentStationData.startingTrains) {
+      currentStationData.startingTrains.forEach(id => {
+        addNewTrainFromPool(id);
+      });
+    }
   }
 
   renderSidebar();
   render();
 }
+
 
 // 🚂 7. VYTAŽENÍ VLAKU Z KATALOGU NÁDRAŽÍ DO AKTIVNÍ FRONTY
 function addNewTrainFromPool(id) {

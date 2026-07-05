@@ -275,23 +275,31 @@ function getPositionOnRoute(route, distance) {
 // 🧱 KUS 5: LOGIKA ODBAVENÍ A ODJEZD VLAKU
 // ==========================================
 
-// 🚉 10. PŘIDĚLENÍ VOLNÉ KOLEJE VLAKU
-function assignTrack() {
+// 🚉 10. PŘIDĚLENÍ KONKRÉTNÍ KOLEJE (Hráčem vybrané z UI)
+function assignTrack(trackIndex) {
   if (!selected || selected.state !== "WAIT_ASSIGN") return;
 
-  // Procházíme pouze koleje, které má stanice momentálně odemčené
-  for (let i = 0; i < tracks.length; i++) {
-    if (!tracks[i]) {
-      tracks[i] = selected.id;
-      selected.track = i + 1;
-      selected.state = "ARRIVED";
-      selected.pendingAction = true;
-      render();
-      return;
-    }
+  // Kontrola, zda vybraná kolej není obsazená nebo zarezervovaná
+  if (tracks[trackIndex] !== null) {
+    alert("Tato kolej je již obsazená jiným vlakem!");
+    return;
   }
-  alert("Všechny odemčené koleje jsou obsazené!");
+
+  // Zarezervujeme kolej pro tento vlak (uložíme jeho ID)
+  tracks[trackIndex] = selected.id;
+  
+  // Koleje v UI číslujeme od 1, indexy v poli jedou od 0
+  selected.track = trackIndex + 1; 
+  
+  // Přepneme vlak do příjezdové fáze na 15 sekund
+  selected.state = "COMING";
+  selected.timer = 15; // ⏳ 15 sekund odstup před fyzickým příjezdem
+  selected.pendingAction = false;
+
+  render();
+  saveGameState(); // Uložíme zarezervovanou kolej do paměti
 }
+
 
 // ⏳ 11. SPUŠTĚNÍ ČASOVAČŮ ODBAVENÍ
 function startTimer(type) {
@@ -506,13 +514,37 @@ function updateDetail() {
 // ⚙️ 17. GENERATOR TLAČÍTEK AKCÍ PODLE STAVU VLAKU
 function renderActions() {
   let a = document.getElementById("actions");
+  if (!a) return;
   a.innerHTML = "";
+  
   if (!selected) return;
 
+  // 🚉 Pokud vlak čeká před stanicí, nabídneme mu konkrétní nástupiště
   if (selected.state === "WAIT_ASSIGN") {
-    a.innerHTML = `<button class="g" onclick="assignTrack()">PŘIDĚLIT KOLEJ</button>`;
+    let htmlButtons = "<h5>Zvol cílové nástupiště:</h5>";
+    
+    // Projdeme všechny aktuálně odemčené koleje na nádraží
+    for (let i = 0; i < unlockedTracksCount; i++) {
+      const isOccupied = tracks[i] !== null;
+      
+      if (isOccupied) {
+        // Obsazená kolej dostane zašedlé nefunkční tlačítko
+        htmlButtons += `<button class="r" style="opacity: 0.4; cursor: not-allowed;" disabled>Kolej ${i+1} (Obsazeno)</button>`;
+      } else {
+        // Volná kolej vygeneruje zelené tlačítko, které předá index koleje do assignTrack
+        htmlButtons += `<button class="g" onclick="assignTrack(${i})">Kolej ${i+1}</button>`;
+      }
+    }
+    a.innerHTML = htmlButtons;
+  } 
+  
+  // Ostatní stavy odbavení na kolejích včetně nové fáze COMING
+  else if (selected.state === "COMING") {
+    a.innerHTML = `<em>Vlak plynule vjíždí na kolej ${selected.track}... (${Math.max(0, Math.ceil(selected.timer))}s)</em>`;
   } else if (selected.state === "ARRIVED") {
     a.innerHTML = `<button class="g" onclick="startTimer('exit')">VYLOŽIT</button>`;
+  } else if (selected.state === "UNLOADING" || selected.state === "CLEANING" || selected.state === "BOARDING") {
+    a.innerHTML = `<em>Vlak momentálně pracuje...</em>`;
   } else if (selected.state === "WAIT_CLEAN") {
     a.innerHTML = `<button class="y" onclick="startTimer('clean')">ÚKLID</button>`;
   } else if (selected.state === "WAIT_BOARD") {
@@ -520,9 +552,10 @@ function renderActions() {
   } else if (selected.state === "READY_DEPART") {
     a.innerHTML = `<button class="r" onclick="depart()">ODJEZD</button>`;
   } else {
-    a.innerHTML = `<em>Vlak momentálně pracuje...</em>`;
+    a.innerHTML = `<em>Vlak na trati...</em>`;
   }
 }
+
 
 // ==========================================
 // 💾 KUS 1: POKROČILÉ UKLÁDÁNÍ A NAČÍTÁNÍ
@@ -605,6 +638,16 @@ function gameLoop(now) {
 
   trains.forEach(t => {
     const route = currentStationData.routes[t.routeKey];
+
+// 🟢 TUTO PODMÍNKU SEM VLOŽ JAKO PRVNÍ:
+    // ⏳ PROGRESS: PŘÍJEZD VLAKU NA URČENOU KOLEJ
+    if (t.state === "COMING" && t.timer != null) {
+      t.timer -= dt;
+      if (t.timer <= 0) {
+        t.state = "ARRIVED";    // Vlak fyzicky dorazil k nástupišti
+        t.pendingAction = true;  // Rozsvítí se upozornění pro Vyložení
+      }
+    }
 
     // 🚂 JÍZDA TAM (Z Plzně do cíle)
     if (t.state === "EN_ROUTE_THERE") {

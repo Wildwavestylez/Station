@@ -12,7 +12,7 @@ window.STATIONS_REGISTRY["karlsruhe"] = {
   mapZoom: 12,
   startingTracks: 1,
   moneyPerDepart: 3500,       // Vyšší odměna pro pokročilejší nádraží
-  startingTrains:,       // Začíná s vlakem ID 101
+  startingTrains: [101],       // Začíná s vlakem ID 101
 
   // 🛤️ Trasy vedoucí z Karlsruhe
   routes: {
@@ -36,7 +36,7 @@ window.STATIONS_REGISTRY["karlsruhe"] = {
   trainsPool: {
     101: {
       name: "AVG S1 → Ettlingen",
-      image: "https://imgur.com", 
+      image: "https://i.imgur.com/FApj7Eq.jpg", 
       routeKey: "ettlingen",
       speed: 180,
       stayTime: 8,

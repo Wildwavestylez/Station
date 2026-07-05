@@ -19,6 +19,19 @@ let selected = null;            // Právě vybraný vlak hráčem
 let tracks = [null, null];      // Pole kolejí aktivního nádraží
 let trains = [];                // Seznam vlaků aktivního nádraží
 let unlockedTracksCount = 1;    // Počet aktuálně odemčených kolejí v daném městě
+// 🟢 PŘIDAT DO GLOBÁLNÍCH PROMĚNNÝCH V GAME.JS:
+let currentLanguage = localStorage.getItem('trainOps_lang') || navigator.language.slice(0, 2) || 'cs';
+
+// Pojistka: pokud zjištěný jazyk v tabulce nemáme, přepneme na češtinu
+if (!window.LANGUAGES[currentLanguage]) {
+  currentLanguage = 'cs'; 
+}
+
+// Pomocná zkratka, abychom nemuseli pokaždé psát dlouhý řetězec
+function lang() {
+  return window.LANGUAGES[currentLanguage];
+}
+
 
 // 🍔 3. FUNKCE PRO VYSUNUTÍ / ZASUNUTÍ BOČNÍHO MENU
 function toggleSidebar() {

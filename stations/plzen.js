@@ -61,7 +61,7 @@ window.STATIONS_REGISTRY["plzen"] = {
   trainsPool: {
     1: {
       name: "810 → Rokycany",
-      image: "image: "https://i.imgur.com/FApj7Eq.jpg"",
+      image: "https://i.imgur.com/FApj7Eq.jpg",
       routeKey: "rokycany",
       speed: 180,
       stayTime: 10,

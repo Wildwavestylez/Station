@@ -15,17 +15,9 @@ window.STATIONS_REGISTRY["plzen"] = {
   startingTrains: [1, 2],
 
   routes: {
-    rokycany: [
-      [49.7414, 13.3866],
-      [49.7540, 13.4350],
-      [49.7470, 13.5150],
-      [49.7420, 13.5950]
-    ],
-    prestice: [
-      [49.7414, 13.3866],
-      [49.6640, 13.3610],
-      [49.5710, 13.3320]
-    ],
+    // Předpřipravené skutečné OSM trasy; načítají se z stations/preparedRoutes.js.
+    rokycany: window.STATION_PREPARED_ROUTES["plzen:rokycany"],
+    prestice: window.STATION_PREPARED_ROUTES["plzen:prestice"],
     praha: [
       [49.7414, 13.3866],
       [49.7420, 13.5950],

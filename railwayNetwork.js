@@ -1,8 +1,6 @@
 /* Shared railway network for Station.
  * Downloads OSM railway ways once per area, caches the raw network in IndexedDB,
  * then routes trains over connected rail segments with Dijkstra.
- * This module is intentionally not wired into train movement until the first route
- * is validated end-to-end; existing routes remain the fallback.
  */
 (function () {
   "use strict";
@@ -10,9 +8,13 @@
   const DB_NAME = "station-railway-cache";
   const STORE_NAME = "networks";
   const CACHE_VERSION = 1;
+  // Public Overpass servers can be overloaded; try several independent instances.
   const OVERPASS_ENDPOINTS = [
     "https://overpass-api.de/api/interpreter",
-    "https://overpass.kumi.systems/api/interpreter"
+    "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://api.openstreetmap.fr/oapi/interpreter",
+    "https://overpass.osm.vi-di.fr/api/interpreter"
   ];
 
   function openDb() {
@@ -64,19 +66,30 @@
     let lastError;
     for (const endpoint of OVERPASS_ENDPOINTS) {
       try {
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-          body: "data=" + encodeURIComponent(query)
-        });
-        if (!response.ok) throw new Error("Overpass HTTP " + response.status);
+        const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+        const timeout = controller ? setTimeout(() => controller.abort(), 25000) : null;
+        let response;
+        try {
+          response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+            body: "data=" + encodeURIComponent(query),
+            signal: controller ? controller.signal : undefined
+          });
+        } finally {
+          if (timeout !== null) clearTimeout(timeout);
+        }
+        if (!response.ok) throw new Error("Overpass HTTP " + response.status + " (" + new URL(endpoint).host + ")");
         const data = await response.json();
         if (!data || !Array.isArray(data.elements)) throw new Error("Neplatná data z Overpass API.");
         const network = { version: CACHE_VERSION, fetchedAt: Date.now(), elements: data.elements };
         await cacheSet(areaKey(bounds), network);
         return network;
       } catch (error) {
-        lastError = error;
+        lastError = error && error.name === "AbortError"
+          ? new Error("Časový limit při načítání " + new URL(endpoint).host)
+          : error;
+        console.warn("Načtení OSM sítě selhalo přes " + endpoint, lastError);
       }
     }
     throw lastError || new Error("Železniční síť se nepodařila načíst.");

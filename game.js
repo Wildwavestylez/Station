@@ -417,7 +417,7 @@ async function depart() {
   // a nevyvolává opakované dotazy na Overpass při každém dalším odjezdu.
   if (!window.__stationRouteAttempts) window.__stationRouteAttempts = new Set();
   const routeCacheKey = currentStationKey + ":" + t.routeKey;
-  if (window.RailwayNetwork && !window.__stationRouteAttempts.has(routeCacheKey)) {
+  if (window.RailwayNetwork && !window.__stationRouteAttempts.has(routeCacheKey) && !(window.STATION_BUNDLED_ROUTE_KEYS && window.STATION_BUNDLED_ROUTE_KEYS.has(routeCacheKey))) {
     const route = currentStationData.routes[t.routeKey];
     if (Array.isArray(route) && route.length >= 2) {
       const button = document.querySelector('#actions button');

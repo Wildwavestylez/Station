@@ -359,7 +359,6 @@ async function depart() {
   if (window.RailwayNetwork && !window.__stationRouteAttempts.has(routeCacheKey)) {
     const route = currentStationData.routes[t.routeKey];
     if (Array.isArray(route) && route.length >= 2) {
-      window.__stationRouteAttempts.add(routeCacheKey);
       const button = document.querySelector('#actions button');
       if (button) { button.disabled = true; button.textContent = "Hledám skutečné koleje…"; }
       try {
@@ -379,6 +378,7 @@ async function depart() {
         }
 
         currentStationData.routes[t.routeKey] = result.coordinates;
+        window.__stationRouteAttempts.add(routeCacheKey);
         prepareRoutes();
         console.info("🛤️ Skutečná OSM trasa připravena", {
           station: currentStationKey,
@@ -391,8 +391,14 @@ async function depart() {
           snapEndMeters: Math.round(result.snapDistances.end)
         });
       } catch (error) {
-        // Záložní trasa zůstává použitelná. Žádné rušivé alerty hráči.
-        console.warn("OSM plánování selhalo; používá se záložní trasa pro " + routeCacheKey, error);
+        // Skutečná trasa je povinná: nikdy potichu neposílat vlak po testovací geometrii.
+        // Neúspěšný pokus se neukládá do Setu, takže hráč může zkusit plánování znovu.
+        console.error("Skutečnou OSM trasu se nepodařilo sestavit pro " + routeCacheKey, error);
+        const reason = error && error.message ? error.message : "neznámá chyba";
+        alert("Odjezd zastaven: nepodařilo se připravit skutečnou kolejovou trasu pro " + t.name +
+          ". Vlak zůstává na nádraží. Důvod: " + reason +
+          ". Zkus odjezd znovu později; testovací trasa se nepoužije.");
+        return;
       } finally {
         render();
       }

@@ -212,6 +212,15 @@ function loadStation(stationKey) {
         });
       }
     });
+
+    // Doplň nově nakonfigurované startovní vlaky i do starších uložených her,
+    // ale nikdy nepřidávej stejný vlak dvakrát.
+    (currentStationData.startingTrains || []).forEach(id => {
+      if (!trains.some(train => String(train.id) === String(id))) {
+        addNewTrainFromPool(id);
+      }
+    });
+
     window.loadedTrainsCache = null;
   } else {
     // ŽÁDNÝ SAVE NEEXISTUJE -> NAČTEME POUZE STARTOVNÍ VLAKY Z DATA.JS

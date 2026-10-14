@@ -351,18 +351,20 @@ async function depart() {
   if (!selected || selected.state !== "READY_DEPART") return;
 
   const t = selected;
-  // Společný plánovač: každý vlak použije OSM koleje podle výchozího a cílového bodu.
-  // Původní trasa z konfigurace zůstává jako bezpečná záloha, pokud OSM/API selže.
-  if (window.RailwayNetwork && !t.railwayRouteLoaded) {
+  // Společný plánovač: každou linku zkusíme naplánovat nejvýše jednou za herní session.
+  // Úspěšná geometrie se sdílí mezi všemi vlaky stejné linky; chyba neblokuje odjezd
+  // a nevyvolává opakované dotazy na Overpass při každém dalším odjezdu.
+  if (!window.__stationRouteAttempts) window.__stationRouteAttempts = new Set();
+  const routeCacheKey = currentStationKey + ":" + t.routeKey;
+  if (window.RailwayNetwork && !window.__stationRouteAttempts.has(routeCacheKey)) {
     const route = currentStationData.routes[t.routeKey];
     if (Array.isArray(route) && route.length >= 2) {
+      window.__stationRouteAttempts.add(routeCacheKey);
       const button = document.querySelector('#actions button');
       if (button) { button.disabled = true; button.textContent = "Hledám skutečné koleje…"; }
       try {
         const start = route[0];
         const end = route[route.length - 1];
-
-        // Dynamická oblast kolem spojnice; funguje i pro delší linky, např. Praha.
         const padding = 0.08;
         const bounds = [
           Math.min(start[0], end[0]) - padding,
@@ -378,7 +380,6 @@ async function depart() {
 
         currentStationData.routes[t.routeKey] = result.coordinates;
         prepareRoutes();
-        t.railwayRouteLoaded = true;
         console.info("🛤️ Skutečná OSM trasa připravena", {
           station: currentStationKey,
           train: t.name,
@@ -390,9 +391,8 @@ async function depart() {
           snapEndMeters: Math.round(result.snapDistances.end)
         });
       } catch (error) {
-        console.error("OSM trasu se nepodařilo připravit; použije se původní trasa.", error);
-        const reason = error && error.message ? error.message : "neznámá chyba";
-        alert("Nepodařilo se najít skutečné koleje pro spoj " + t.name + ". Důvod: " + reason + ". Tento odjezd použije původní testovací trasu.");
+        // Záložní trasa zůstává použitelná. Žádné rušivé alerty hráči.
+        console.warn("OSM plánování selhalo; používá se záložní trasa pro " + routeCacheKey, error);
       } finally {
         render();
       }

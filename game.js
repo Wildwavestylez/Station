@@ -145,13 +145,20 @@ function loadStation(stationKey) {
   // Přesun kamery a zoomu mapy na zvolené souřadnice
   map.setView(currentStationData.mapCenter, currentStationData.mapZoom);
 
-  // Inicializace paměti levelů pro nové město, pokud ji ještě nemá
-  if (!stationLevels[stationKey]) {
+  // Inicializace a oprava uložených levelů (starý/poškozený save nesmí šířit NaN)
+  if (!stationLevels[stationKey] || typeof stationLevels[stationKey] !== "object") {
     stationLevels[stationKey] = { lvl: 0, xp: 0 };
   }
+  const savedLvl = Number(stationLevels[stationKey].lvl);
+  const savedXp = Number(stationLevels[stationKey].xp);
+  stationLevels[stationKey].lvl = Number.isFinite(savedLvl) && savedLvl >= 0 ? Math.floor(savedLvl) : 0;
+  stationLevels[stationKey].xp = Number.isFinite(savedXp) && savedXp >= 0 ? savedXp : 0;
 
-  // Zjištění počtu kolejí podle aktuálního levelu nádraží
-  unlockedTracksCount = currentStationData.startingTracks;
+  // Počet kolejí vždy musí být konečné kladné číslo.
+  const configuredTracks = Number(currentStationData.startingTracks);
+  unlockedTracksCount = Number.isFinite(configuredTracks) && configuredTracks >= 1
+    ? Math.floor(configuredTracks)
+    : 1;
   const myLvl = stationLevels[stationKey].lvl;
   for (let l = 0; l <= myLvl; l++) {
     if (currentStationData.levels[l] && currentStationData.levels[l].unlocksTrack) {
@@ -449,7 +456,11 @@ function render() {
 
   document.getElementById("money").innerText = globalMoney;
   document.getElementById("station-name").innerText = currentStationData.name;
-  document.getElementById("tracks-count").innerText = `${tracks.filter(x => x).length}/${unlockedTracksCount}`;
+  const safeTrackCapacity = Number.isFinite(Number(unlockedTracksCount)) && Number(unlockedTracksCount) >= 1
+    ? Math.floor(Number(unlockedTracksCount))
+    : 1;
+  const occupiedTracks = Array.isArray(tracks) ? tracks.filter(x => x !== null && x !== undefined).length : 0;
+  document.getElementById("tracks-count").innerText = `${occupiedTracks}/${safeTrackCapacity}`;
   document.getElementById("level-info").innerText = `LVL ${myData.lvl} (${myData.xp}/${currentLvlConfig.xpNeeded} XP)`;
 
   let q = document.getElementById("queue");
@@ -596,12 +607,19 @@ function loadGameState() {
     try {
       const parsed = JSON.parse(savedData);
       
-      globalMoney = parsed.globalMoney ?? 100;
-      GLOBAL_PLAYER_DATA.unlockedStations = parsed.unlockedStations ?? ["plzen"];
-      stationLevels = parsed.stationLevels ?? {};
-      
-      // Dočasně si schováme načtené vlaky, které pak dosadíme ve funkci loadStation
-      window.loadedTrainsCache = parsed.savedTrains ?? null;
+      const savedMoney = Number(parsed.globalMoney);
+      globalMoney = Number.isFinite(savedMoney) && savedMoney >= 0 ? savedMoney : 100;
+      GLOBAL_PLAYER_DATA.unlockedStations = Array.isArray(parsed.unlockedStations)
+        ? parsed.unlockedStations.filter(key => typeof key === "string")
+        : ["plzen"];
+
+      // Ověříme uložené levely; neplatné hodnoty opravíme při načtení konkrétní stanice.
+      stationLevels = parsed.stationLevels && typeof parsed.stationLevels === "object" && !Array.isArray(parsed.stationLevels)
+        ? parsed.stationLevels
+        : {};
+
+      // Neplatný formát save ignorujeme, ale nemažeme uložená data automaticky.
+      window.loadedTrainsCache = Array.isArray(parsed.savedTrains) ? parsed.savedTrains : null;
       
       console.log("📂 Uložená data kompletně načtena z paměti!");
     } catch (e) {

@@ -7,14 +7,13 @@
 
   const DB_NAME = "station-railway-cache";
   const STORE_NAME = "networks";
-  const CACHE_VERSION = 3;
-  // Public Overpass servers can be overloaded; try several independent instances.
+  const CACHE_VERSION = 4;
+  // Keep fallback attempts short. Production routes should be bundled with the game,
+  // not downloaded by every player from public Overpass servers.
   const OVERPASS_ENDPOINTS = [
     "https://overpass-api.de/api/interpreter",
-    "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter",
-    "https://api.openstreetmap.fr/oapi/interpreter",
-    "https://overpass.osm.vi-di.fr/api/interpreter"
+    "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
   ];
 
   function openDb() {
@@ -67,7 +66,7 @@
     for (const endpoint of OVERPASS_ENDPOINTS) {
       try {
         const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
-        const timeout = controller ? setTimeout(() => controller.abort(), 25000) : null;
+        const timeout = controller ? setTimeout(() => controller.abort(), 9000) : null;
         let response;
         try {
           response = await fetch(endpoint, {

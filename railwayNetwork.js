@@ -66,7 +66,7 @@
     for (const endpoint of OVERPASS_ENDPOINTS) {
       try {
         const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
-        const timeout = controller ? setTimeout(() => controller.abort(), 9000) : null;
+        const timeout = controller ? setTimeout(() => controller.abort(), 6000) : null;
         let response;
         try {
           response = await fetch(endpoint, {

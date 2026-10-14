@@ -405,8 +405,8 @@ async function depart() {
       icon: L.divIcon({
         html: `<img src="${t.image}" class="train-map-image">`,
         className: 'train-div-icon',
-        iconSize: [100, 100],
-        iconAnchor: [100, 100] // Vycentrování na střed, aby jel přesně po čáře
+        iconSize: [80, 80],
+        iconAnchor: [40, 40] // Souřadnice trati míří doprostřed ikony vlaku
       })
     }).addTo(map);
   } else {

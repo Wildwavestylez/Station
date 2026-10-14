@@ -7,7 +7,7 @@
 
   const DB_NAME = "station-railway-cache";
   const STORE_NAME = "networks";
-  const CACHE_VERSION = 1;
+  const CACHE_VERSION = 2;
   // Public Overpass servers can be overloaded; try several independent instances.
   const OVERPASS_ENDPOINTS = [
     "https://overpass-api.de/api/interpreter",
@@ -148,6 +148,8 @@
       nearestNode(point, maxDistance) {
         let best = null, bestDistance = Infinity;
         for (const node of nodes.values()) {
+          // Snap only to a node that belongs to an actual connected rail segment.
+          if (!node.edges.length) continue;
           const distance = haversine(node, { lat: point[0], lon: point[1] });
           if (distance < bestDistance) { best = node; bestDistance = distance; }
         }
@@ -205,7 +207,10 @@
             }
           }
         }
-        if (!distances.has(endId)) throw new Error("Mezi výchozím bodem a cílem nebyla nalezena souvislá železniční trasa.");
+        if (!distances.has(endId)) {
+          throw new Error("OSM síť je přerušená mezi přichycenými kolejemi (uzly " +
+            startId + " → " + endId + "; načteno " + nodes.size + " uzlů a " + ways.length + " úseků).");
+        }
         const ids = [endId], wayIds = [];
         let cursor = endId;
         while (cursor !== startId) {

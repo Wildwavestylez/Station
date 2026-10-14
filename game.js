@@ -347,10 +347,43 @@ function startTimer(type) {
 }
 
 // 🚂 12. ODJEZD VLAKU Z NÁDRAŽÍ NA TRAŤ
-function depart() {
+async function depart() {
   if (!selected || selected.state !== "READY_DEPART") return;
 
   const t = selected;
+  // První integrační test: vlak 810 do Rokycan si zkusí najít trasu v OSM kolejové síti.
+  // Když síť/API selže, zachováme původní trasu, aby hra zůstala hratelná.
+  if (currentStationKey === "plzen" && t.routeKey === "rokycany" &&
+      window.RailwayNetwork && !t.railwayRouteLoaded) {
+    const button = document.querySelector('#actions button');
+    if (button) { button.disabled = true; button.textContent = "Načítám železniční síť…"; }
+    try {
+      const bounds = [49.70, 13.32, 49.79, 13.63];
+      const network = await window.RailwayNetwork.load(bounds);
+      const start = currentStationData.routes[t.routeKey][0];
+      const end = [49.74018, 13.59187]; // železniční stanice Rokycany
+      const result = network.findRoute(start, end, { maxSnapDistance: 3000 });
+      if (!Array.isArray(result.coordinates) || result.coordinates.length < 2) {
+        throw new Error("Nalezená trasa nemá dostatek bodů.");
+      }
+      currentStationData.routes[t.routeKey] = result.coordinates;
+      prepareRoutes();
+      t.railwayRouteLoaded = true;
+      console.info("🛤️ OSM trasa do Rokycan připravena", {
+        source: network.metadata.source,
+        nodes: result.coordinates.length,
+        distanceKm: (result.distanceMeters / 1000).toFixed(2),
+        snapStartMeters: Math.round(result.snapDistances.start),
+        snapEndMeters: Math.round(result.snapDistances.end)
+      });
+    } catch (error) {
+      console.error("OSM trasu do Rokycan se nepodařilo připravit; použije se původní trasa.", error);
+      alert("Nepodařilo se načíst skutečné koleje pro Rokycany. Tento odjezd použije původní testovací trasu. Zkus to prosím později.");
+    } finally {
+      render();
+    }
+    if (t.state !== "READY_DEPART") return;
+  }
 
   // 🟢 TADY BEREME PENÍZE DYNAMICKY PODLE KONKRÉTNÍHO VLAKU:
   globalMoney += t.rewardMoney || 1000; 

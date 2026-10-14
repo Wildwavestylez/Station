@@ -185,17 +185,20 @@ function loadStation(stationKey) {
           id: saved.id,
           name: template.name,
           image: template.image,
-          state: saved.state || "WAIT_ASSIGN",
+          // Po obnovení stránky bezpečně vracíme vlak do fronty.
+          // Starší savy ukládaly stav COMING bez timeru a koleje, což způsobilo NaN.
+          state: "WAIT_ASSIGN",
           track: null,
           routeKey: template.routeKey,
           distance: 0,
-          speed: template.speed,
-          stayTime: template.stayTime,
+          speed: Number.isFinite(Number(template.speed)) ? Number(template.speed) : 0,
+          stayTime: Number.isFinite(Number(template.stayTime)) ? Number(template.stayTime) : 0,
           stayTimer: 0,
+          timer: 0,
           marker: null,
           progress: { exit: 0, clean: 0, board: 0 },
-          timers: template.timers,
-          pendingAction: saved.pendingAction ?? false,
+          timers: template.timers || { exit: 5, clean: 8, board: 5 },
+          pendingAction: false,
           current_turnaround: Number.isFinite(Number(saved.current_turnaround)) && Number(saved.current_turnaround) >= 0
             ? Math.floor(Number(saved.current_turnaround))
             : 0,
@@ -594,10 +597,11 @@ function saveGameState() {
     // 🟢 Tady uložíme i přesný stav vlaků, abychom o ně nepřišli
     savedTrains: trains.map(t => ({
       id: t.id,
-      state: t.state,
+      // Ukládáme jen stabilní stav; probíhající příjezd/jízda se po reloadu bezpečně vrátí do fronty.
+      state: "WAIT_ASSIGN",
       current_turnaround: t.current_turnaround,
       required_turnaround: t.required_turnaround,
-      pendingAction: t.pendingAction
+      pendingAction: false
     }))
   };
   

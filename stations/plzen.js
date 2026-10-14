@@ -12,7 +12,7 @@ window.STATIONS_REGISTRY["plzen"] = {
   mapZoom: 11,
   startingTracks: 1,
   moneyPerDepart: 2500,
-  startingTrains: [1],
+  startingTrains: [1, 2],
 
   routes: {
     rokycany: [
@@ -37,8 +37,8 @@ window.STATIONS_REGISTRY["plzen"] = {
   levels: {
     0: { 
       xpNeeded: 2, 
-      rewardText: "Odemčen nový vlak: 810 → Přeštice!", 
-      action: () => { addNewTrainFromPool(2); } 
+      rewardText: "Získáváš zkušenosti za provoz vlaků.", 
+      action: () => {}  
     },
     1: { 
       xpNeeded: 4, 
@@ -76,7 +76,7 @@ window.STATIONS_REGISTRY["plzen"] = {
       routeKey: "prestice",
       speed: 80,
       stayTime: 10,
-      initialContract: 2,
+      initialContract: 1,
       timers: { exit: 5, clean: 8, board: 5 },
       rewardMoney: 1500,
       rewardXP: 1

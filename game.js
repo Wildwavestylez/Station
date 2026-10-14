@@ -181,6 +181,19 @@ function loadStation(stationKey) {
   currentStationKey = stationKey;
   currentStationData = window.STATIONS_REGISTRY[stationKey];
 
+  // Použij připravené kolejové trasy zabalené přímo ve hře, pokud jsou dostupné.
+  // Nezapisujeme je do savu hráče a neměníme ostatní data stanice.
+  const bundledRoutes = window.PREPARED_RAILWAY_ROUTES || {};
+  for (const [key, coordinates] of Object.entries(bundledRoutes)) {
+    const prefix = stationKey + ":";
+    if (!key.startsWith(prefix) || !Array.isArray(coordinates) || coordinates.length < 2) continue;
+    const routeKey = key.slice(prefix.length);
+    if (currentStationData.routes && Object.prototype.hasOwnProperty.call(currentStationData.routes, routeKey)) {
+      currentStationData.routes[routeKey] = coordinates.map(point => [Number(point[0]), Number(point[1])]);
+      console.info("Načtena zabalená železniční trasa:", key, currentStationData.routes[routeKey].length, "bodů");
+    }
+  }
+
   // Přesun kamery a zoomu mapy na zvolené souřadnice
   map.setView(currentStationData.mapCenter, currentStationData.mapZoom);
 

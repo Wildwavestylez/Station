@@ -147,17 +147,38 @@
         const startId = startMatch.node.id, endId = endMatch.node.id;
         const distances = new Map([[startId, 0]]);
         const previous = new Map();
-        const unvisited = new Set([startId]);
-        // Simple binary-heap-free Dijkstra; suitable for a first regional network.
         const visited = new Set();
-        while (unvisited.size) {
-          let currentId = null, currentDistance = Infinity;
-          for (const id of unvisited) {
-            const distance = distances.get(id);
-            if (distance < currentDistance) { currentDistance = distance; currentId = id; }
+        // Min-heap keeps route search fast on real OSM networks with thousands of nodes.
+        const heap = [{ id: startId, distance: 0 }];
+        const push = item => {
+          heap.push(item);
+          let i = heap.length - 1;
+          while (i > 0) {
+            const p = Math.floor((i - 1) / 2);
+            if (heap[p].distance <= heap[i].distance) break;
+            [heap[p], heap[i]] = [heap[i], heap[p]];
+            i = p;
           }
-          if (currentId === null || !Number.isFinite(currentDistance)) break;
-          unvisited.delete(currentId);
+        };
+        const pop = () => {
+          const first = heap[0], last = heap.pop();
+          if (heap.length) {
+            heap[0] = last;
+            let i = 0;
+            while (true) {
+              let smallest = i, left = i * 2 + 1, right = left + 1;
+              if (left < heap.length && heap[left].distance < heap[smallest].distance) smallest = left;
+              if (right < heap.length && heap[right].distance < heap[smallest].distance) smallest = right;
+              if (smallest === i) break;
+              [heap[i], heap[smallest]] = [heap[smallest], heap[i]];
+              i = smallest;
+            }
+          }
+          return first;
+        };
+        while (heap.length) {
+          const item = pop(), currentId = item.id, currentDistance = item.distance;
+          if (visited.has(currentId) || currentDistance !== distances.get(currentId)) continue;
           if (currentId === endId) break;
           visited.add(currentId);
           const current = nodes.get(currentId);
@@ -167,7 +188,7 @@
             if (candidate < (distances.get(edge.to) ?? Infinity)) {
               distances.set(edge.to, candidate);
               previous.set(edge.to, { from: currentId, wayId: edge.wayId });
-              unvisited.add(edge.to);
+              push({ id: edge.to, distance: candidate });
             }
           }
         }

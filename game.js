@@ -351,39 +351,53 @@ async function depart() {
   if (!selected || selected.state !== "READY_DEPART") return;
 
   const t = selected;
-  // První integrační test: vlak 810 do Rokycan si zkusí najít trasu v OSM kolejové síti.
-  // Když síť/API selže, zachováme původní trasu, aby hra zůstala hratelná.
-  if (currentStationKey === "plzen" && t.routeKey === "rokycany" &&
-      window.RailwayNetwork && !t.railwayRouteLoaded) {
-    const button = document.querySelector('#actions button');
-    if (button) { button.disabled = true; button.textContent = "Načítám železniční síť…"; }
-    try {
-      const bounds = [49.70, 13.32, 49.79, 13.63];
-      const network = await window.RailwayNetwork.load(bounds);
-      const start = currentStationData.routes[t.routeKey][0];
-      const end = [49.74018, 13.59187]; // železniční stanice Rokycany
-      const result = network.findRoute(start, end, { maxSnapDistance: 3000 });
-      if (!Array.isArray(result.coordinates) || result.coordinates.length < 2) {
-        throw new Error("Nalezená trasa nemá dostatek bodů.");
+  // Společný plánovač: každý vlak použije OSM koleje podle výchozího a cílového bodu.
+  // Původní trasa z konfigurace zůstává jako bezpečná záloha, pokud OSM/API selže.
+  if (window.RailwayNetwork && !t.railwayRouteLoaded) {
+    const route = currentStationData.routes[t.routeKey];
+    if (Array.isArray(route) && route.length >= 2) {
+      const button = document.querySelector('#actions button');
+      if (button) { button.disabled = true; button.textContent = "Hledám skutečné koleje…"; }
+      try {
+        const start = route[0];
+        const end = route[route.length - 1];
+
+        // Dynamická oblast kolem spojnice; funguje i pro delší linky, např. Praha.
+        const padding = 0.08;
+        const bounds = [
+          Math.min(start[0], end[0]) - padding,
+          Math.min(start[1], end[1]) - padding,
+          Math.max(start[0], end[0]) + padding,
+          Math.max(start[1], end[1]) + padding
+        ];
+        const network = await window.RailwayNetwork.load(bounds);
+        const result = network.findRoute(start, end, { maxSnapDistance: 3000 });
+        if (!Array.isArray(result.coordinates) || result.coordinates.length < 2) {
+          throw new Error("Nalezená trasa nemá dostatek bodů.");
+        }
+
+        currentStationData.routes[t.routeKey] = result.coordinates;
+        prepareRoutes();
+        t.railwayRouteLoaded = true;
+        console.info("🛤️ Skutečná OSM trasa připravena", {
+          station: currentStationKey,
+          train: t.name,
+          routeKey: t.routeKey,
+          source: network.metadata.source,
+          nodes: result.coordinates.length,
+          distanceKm: (result.distanceMeters / 1000).toFixed(2),
+          snapStartMeters: Math.round(result.snapDistances.start),
+          snapEndMeters: Math.round(result.snapDistances.end)
+        });
+      } catch (error) {
+        console.error("OSM trasu se nepodařilo připravit; použije se původní trasa.", error);
+        const reason = error && error.message ? error.message : "neznámá chyba";
+        alert("Nepodařilo se najít skutečné koleje pro spoj " + t.name + ". Důvod: " + reason + ". Tento odjezd použije původní testovací trasu.");
+      } finally {
+        render();
       }
-      currentStationData.routes[t.routeKey] = result.coordinates;
-      prepareRoutes();
-      t.railwayRouteLoaded = true;
-      console.info("🛤️ OSM trasa do Rokycan připravena", {
-        source: network.metadata.source,
-        nodes: result.coordinates.length,
-        distanceKm: (result.distanceMeters / 1000).toFixed(2),
-        snapStartMeters: Math.round(result.snapDistances.start),
-        snapEndMeters: Math.round(result.snapDistances.end)
-      });
-    } catch (error) {
-      console.error("OSM trasu do Rokycan se nepodařilo připravit; použije se původní trasa.", error);
-      const reason = error && error.message ? error.message : "neznámá chyba";
-      alert("Nepodařilo se načíst skutečné koleje pro Rokycany. Důvod: " + reason + ". Tento odjezd použije původní testovací trasu.");
-    } finally {
-      render();
+      if (t.state !== "READY_DEPART") return;
     }
-    if (t.state !== "READY_DEPART") return;
   }
 
   // 🟢 TADY BEREME PENÍZE DYNAMICKY PODLE KONKRÉTNÍHO VLAKU:

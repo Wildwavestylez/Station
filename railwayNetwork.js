@@ -1,0 +1,197 @@
+/* Shared railway network for Station.
+ * Downloads OSM railway ways once per area, caches the raw network in IndexedDB,
+ * then routes trains over connected rail segments with Dijkstra.
+ * This module is intentionally not wired into train movement until the first route
+ * is validated end-to-end; existing routes remain the fallback.
+ */
+(function () {
+  "use strict";
+
+  const DB_NAME = "station-railway-cache";
+  const STORE_NAME = "networks";
+  const CACHE_VERSION = 1;
+  const OVERPASS_ENDPOINTS = [
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter"
+  ];
+
+  function openDb() {
+    return new Promise((resolve, reject) => {
+      if (!("indexedDB" in window)) return resolve(null);
+      const request = indexedDB.open(DB_NAME, 1);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME);
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function cacheGet(key) {
+    const db = await openDb().catch(() => null);
+    if (!db) return null;
+    return new Promise(resolve => {
+      const request = db.transaction(STORE_NAME, "readonly").objectStore(STORE_NAME).get(key);
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => resolve(null);
+    });
+  }
+
+  async function cacheSet(key, value) {
+    const db = await openDb().catch(() => null);
+    if (!db) return false;
+    return new Promise(resolve => {
+      const tx = db.transaction(STORE_NAME, "readwrite");
+      tx.objectStore(STORE_NAME).put(value, key);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+    });
+  }
+
+  function areaKey(bounds) {
+    return "v" + CACHE_VERSION + ":" + bounds.map(n => Number(n).toFixed(3)).join(",");
+  }
+
+  function makeQuery(bounds) {
+    const [south, west, north, east] = bounds;
+    return '[out:json][timeout:60];(way["railway"~"^(rail|light_rail|narrow_gauge|tram)$"](' +
+      south + "," + west + "," + north + "," + east + '););out body;>;out skel qt;';
+  }
+
+  async function downloadNetwork(bounds) {
+    const query = makeQuery(bounds);
+    let lastError;
+    for (const endpoint of OVERPASS_ENDPOINTS) {
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+          body: "data=" + encodeURIComponent(query)
+        });
+        if (!response.ok) throw new Error("Overpass HTTP " + response.status);
+        const data = await response.json();
+        if (!data || !Array.isArray(data.elements)) throw new Error("Neplatná data z Overpass API.");
+        const network = { version: CACHE_VERSION, fetchedAt: Date.now(), elements: data.elements };
+        await cacheSet(areaKey(bounds), network);
+        return network;
+      } catch (error) {
+        lastError = error;
+      }
+    }
+    throw lastError || new Error("Železniční síť se nepodařila načíst.");
+  }
+
+  async function load(bounds, options) {
+    if (!Array.isArray(bounds) || bounds.length !== 4 || !bounds.every(Number.isFinite) ||
+        bounds[0] >= bounds[2] || bounds[1] >= bounds[3]) {
+      throw new Error("Neplatné hranice oblasti železniční sítě.");
+    }
+    const key = areaKey(bounds);
+    if (!(options && options.refresh)) {
+      const cached = await cacheGet(key);
+      if (cached && cached.version === CACHE_VERSION && Array.isArray(cached.elements)) {
+        return buildGraph(cached.elements, { source: "cache", fetchedAt: cached.fetchedAt });
+      }
+    }
+    const raw = await downloadNetwork(bounds);
+    return buildGraph(raw.elements, { source: "overpass", fetchedAt: raw.fetchedAt });
+  }
+
+  function haversine(a, b) {
+    const rad = Math.PI / 180;
+    const dLat = (b.lat - a.lat) * rad;
+    const dLon = (b.lon - a.lon) * rad;
+    const lat1 = a.lat * rad, lat2 = b.lat * rad;
+    const h = Math.sin(dLat / 2) ** 2 +
+      Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+    return 6371000 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(Math.max(0, 1 - h)));
+  }
+
+  function buildGraph(elements, metadata) {
+    const nodes = new Map();
+    const ways = [];
+    for (const element of elements) {
+      if (element.type === "node" && Number.isFinite(element.lat) && Number.isFinite(element.lon)) {
+        nodes.set(element.id, { id: element.id, lat: element.lat, lon: element.lon, edges: [] });
+      } else if (element.type === "way" && Array.isArray(element.nodes) && element.nodes.length > 1) {
+        ways.push(element);
+      }
+    }
+
+    for (const way of ways) {
+      for (let i = 1; i < way.nodes.length; i++) {
+        const a = nodes.get(way.nodes[i - 1]);
+        const b = nodes.get(way.nodes[i]);
+        if (!a || !b) continue;
+        const distance = haversine(a, b);
+        if (!Number.isFinite(distance) || distance <= 0) continue;
+        a.edges.push({ to: b.id, distance, wayId: way.id });
+        b.edges.push({ to: a.id, distance, wayId: way.id });
+      }
+    }
+    return {
+      nodes, ways, metadata: Object.assign({ nodeCount: nodes.size, wayCount: ways.length }, metadata || {}),
+      nearestNode(point, maxDistance) {
+        let best = null, bestDistance = Infinity;
+        for (const node of nodes.values()) {
+          const distance = haversine(node, { lat: point[0], lon: point[1] });
+          if (distance < bestDistance) { best = node; bestDistance = distance; }
+        }
+        return best && bestDistance <= (maxDistance || 3000) ? { node: best, distance: bestDistance } : null;
+      },
+      findRoute(start, end, options) {
+        const startMatch = this.nearestNode(start, options && options.maxSnapDistance);
+        const endMatch = this.nearestNode(end, options && options.maxSnapDistance);
+        if (!startMatch || !endMatch) throw new Error("V blízkosti začátku nebo cíle nebyla nalezena kolej.");
+        const startId = startMatch.node.id, endId = endMatch.node.id;
+        const distances = new Map([[startId, 0]]);
+        const previous = new Map();
+        const unvisited = new Set([startId]);
+        // Simple binary-heap-free Dijkstra; suitable for a first regional network.
+        const visited = new Set();
+        while (unvisited.size) {
+          let currentId = null, currentDistance = Infinity;
+          for (const id of unvisited) {
+            const distance = distances.get(id);
+            if (distance < currentDistance) { currentDistance = distance; currentId = id; }
+          }
+          if (currentId === null || !Number.isFinite(currentDistance)) break;
+          unvisited.delete(currentId);
+          if (currentId === endId) break;
+          visited.add(currentId);
+          const current = nodes.get(currentId);
+          for (const edge of current.edges) {
+            if (visited.has(edge.to)) continue;
+            const candidate = currentDistance + edge.distance;
+            if (candidate < (distances.get(edge.to) ?? Infinity)) {
+              distances.set(edge.to, candidate);
+              previous.set(edge.to, { from: currentId, wayId: edge.wayId });
+              unvisited.add(edge.to);
+            }
+          }
+        }
+        if (!distances.has(endId)) throw new Error("Mezi výchozím bodem a cílem nebyla nalezena souvislá železniční trasa.");
+        const ids = [endId], wayIds = [];
+        let cursor = endId;
+        while (cursor !== startId) {
+          const step = previous.get(cursor);
+          if (!step) throw new Error("Trasu se nepodařilo sestavit.");
+          wayIds.push(step.wayId);
+          cursor = step.from;
+          ids.push(cursor);
+        }
+        ids.reverse(); wayIds.reverse();
+        return {
+          coordinates: ids.map(id => [nodes.get(id).lat, nodes.get(id).lon]),
+          nodeIds: ids,
+          wayIds: Array.from(new Set(wayIds)),
+          distanceMeters: distances.get(endId),
+          snapDistances: { start: startMatch.distance, end: endMatch.distance }
+        };
+      }
+    };
+  }
+
+  window.RailwayNetwork = { load, buildGraph, cacheVersion: CACHE_VERSION };
+})();

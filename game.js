@@ -1,3 +1,42 @@
+// Export úspěšně vypočítaných skutečných tras pro zabalení do herních dat.
+const PREPARED_ROUTE_STORAGE_KEY = "station-prepared-railway-routes-v1";
+function rememberPreparedRailwayRoute(stationKey, routeKey, coordinates, metadata) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PREPARED_ROUTE_STORAGE_KEY) || "{}");
+    saved[stationKey + ":" + routeKey] = {
+      station: stationKey,
+      routeKey,
+      coordinates,
+      distanceMeters: metadata.distanceMeters,
+      nodes: coordinates.length,
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem(PREPARED_ROUTE_STORAGE_KEY, JSON.stringify(saved));
+    window.__stationPreparedRoutes = saved;
+  } catch (error) {
+    console.warn("Nepodařilo se uložit trasu pro export.", error);
+  }
+}
+window.downloadPreparedRailwayRoutes = function () {
+  const saved = JSON.parse(localStorage.getItem(PREPARED_ROUTE_STORAGE_KEY) || "{}");
+  const entries = Object.values(saved);
+  if (!entries.length) {
+    console.warn("Zatím není uložená žádná trasa. Nejdřív úspěšně naplánuj Rokycany nebo Přeštice.");
+    return false;
+  }
+  const blob = new Blob([JSON.stringify(saved, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "station-prepared-railway-routes.json";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  console.info("Exportováno připravených tras:", entries.map(x => x.station + ":" + x.routeKey + " (" + x.nodes + " uzlů)"));
+  return true;
+};
+
 // ==========================================
 // 🧭 KROK 1: INICIALIZACE A PROMĚNNÉ
 // ==========================================
@@ -387,6 +426,7 @@ async function depart() {
         }
 
         currentStationData.routes[t.routeKey] = result.coordinates;
+        rememberPreparedRailwayRoute(currentStationKey, t.routeKey, result.coordinates, result);
         window.__stationRouteAttempts.add(routeCacheKey);
         prepareRoutes();
         console.info("🛤️ Skutečná OSM trasa připravena", {

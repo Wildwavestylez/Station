@@ -196,9 +196,15 @@ function loadStation(stationKey) {
           progress: { exit: 0, clean: 0, board: 0 },
           timers: template.timers,
           pendingAction: saved.pendingAction ?? false,
-          current_turnaround: saved.current_turnaround ?? 0,
-          required_turnaround: saved.required_turnaround ?? template.initialContract,
-          rewardMoney: template.rewardMoney || 1000,
+          current_turnaround: Number.isFinite(Number(saved.current_turnaround)) && Number(saved.current_turnaround) >= 0
+            ? Math.floor(Number(saved.current_turnaround))
+            : 0,
+          required_turnaround: Number.isFinite(Number(saved.required_turnaround)) && Number(saved.required_turnaround) >= 1
+            ? Math.floor(Number(saved.required_turnaround))
+            : (Number.isFinite(Number(template.initialContract)) && Number(template.initialContract) >= 1
+                ? Math.floor(Number(template.initialContract))
+                : 1),
+          rewardMoney: Number.isFinite(Number(template.rewardMoney)) && Number(template.rewardMoney) > 0 ? Number(template.rewardMoney) : 1000,
           rewardXP: template.rewardXP || 1
         });
       }

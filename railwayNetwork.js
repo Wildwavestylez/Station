@@ -7,7 +7,7 @@
 
   const DB_NAME = "station-railway-cache";
   const STORE_NAME = "networks";
-  const CACHE_VERSION = 2;
+  const CACHE_VERSION = 3;
   // Public Overpass servers can be overloaded; try several independent instances.
   const OVERPASS_ENDPOINTS = [
     "https://overpass-api.de/api/interpreter",
@@ -143,12 +143,32 @@
         b.edges.push({ to: a.id, distance, wayId: way.id });
       }
     }
+    // Label connected components once so start/end snapping selects nodes on the
+    // same connected railway component instead of two individually-nearest sidings.
+    const componentByNode = new Map();
+    let componentId = 0;
+    for (const node of nodes.values()) {
+      if (!node.edges.length || componentByNode.has(node.id)) continue;
+      componentId++;
+      const stack = [node.id];
+      componentByNode.set(node.id, componentId);
+      while (stack.length) {
+        const id = stack.pop();
+        const current = nodes.get(id);
+        for (const edge of current.edges) {
+          if (!componentByNode.has(edge.to)) {
+            componentByNode.set(edge.to, componentId);
+            stack.push(edge.to);
+          }
+        }
+      }
+    }
+
     return {
-      nodes, ways, metadata: Object.assign({ nodeCount: nodes.size, wayCount: ways.length }, metadata || {}),
+      nodes, ways, metadata: Object.assign({ nodeCount: nodes.size, wayCount: ways.length, componentCount: componentId }, metadata || {}),
       nearestNode(point, maxDistance) {
         let best = null, bestDistance = Infinity;
         for (const node of nodes.values()) {
-          // Snap only to a node that belongs to an actual connected rail segment.
           if (!node.edges.length) continue;
           const distance = haversine(node, { lat: point[0], lon: point[1] });
           if (distance < bestDistance) { best = node; bestDistance = distance; }
@@ -156,9 +176,26 @@
         return best && bestDistance <= (maxDistance || 3000) ? { node: best, distance: bestDistance } : null;
       },
       findRoute(start, end, options) {
-        const startMatch = this.nearestNode(start, options && options.maxSnapDistance);
-        const endMatch = this.nearestNode(end, options && options.maxSnapDistance);
-        if (!startMatch || !endMatch) throw new Error("V blízkosti začátku nebo cíle nebyla nalezena kolej.");
+        const maxSnap = (options && options.maxSnapDistance) || 3000;
+        const candidates = point => {
+          const found = [];
+          for (const node of nodes.values()) {
+            const component = componentByNode.get(node.id);
+            if (!component) continue;
+            const distance = haversine(node, { lat: point[0], lon: point[1] });
+            if (distance <= maxSnap) found.push({ node, distance, component });
+          }
+          return found.sort((a, b) => a.distance - b.distance).slice(0, 80);
+        };
+        const starts = candidates(start), ends = candidates(end);
+        let pair = null, bestCost = Infinity;
+        for (const a of starts) for (const b of ends) {
+          if (a.component !== b.component) continue;
+          const cost = a.distance + b.distance;
+          if (cost < bestCost) { pair = { startMatch: a, endMatch: b }; bestCost = cost; }
+        }
+        if (!pair) throw new Error("Začátek a cíl nebylo možné přichytit ke stejné souvislé kolejové síti (komponenty: " + componentId + ").");
+        const startMatch = pair.startMatch, endMatch = pair.endMatch;
         const startId = startMatch.node.id, endId = endMatch.node.id;
         const distances = new Map([[startId, 0]]);
         const previous = new Map();

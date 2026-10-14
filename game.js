@@ -378,7 +378,8 @@ async function depart() {
       });
     } catch (error) {
       console.error("OSM trasu do Rokycan se nepodařilo připravit; použije se původní trasa.", error);
-      alert("Nepodařilo se načíst skutečné koleje pro Rokycany. Tento odjezd použije původní testovací trasu. Zkus to prosím později.");
+      const reason = error && error.message ? error.message : "neznámá chyba";
+      alert("Nepodařilo se načíst skutečné koleje pro Rokycany. Důvod: " + reason + ". Tento odjezd použije původní testovací trasu.");
     } finally {
       render();
     }

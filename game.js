@@ -708,7 +708,8 @@ function renderShop() {
     const locked = level < requiredLevel;
     const cost = Math.max(0, Number(item.purchaseCost) || 0);
     const categoryName = item.category === "local" ? "Místní osobní vlak" :
-      item.category === "express" ? "Rychlík / expres" :
+      item.category === "rapid" ? "Rychlík" :
+      item.category === "express" ? "Expres" :
       item.category === "longDistance" ? "Dálkový vlak" :
       item.category === "international" ? "Mezinárodní vlak" : "Železniční výkon";
     const detail = `${categoryName} · ${cost === 0 ? "Zdarma" : cost.toLocaleString("cs-CZ") + " Kč"} · ${(Number(item.rewardMoney) || 0).toLocaleString("cs-CZ")} Kč za dokončenou otočku`;

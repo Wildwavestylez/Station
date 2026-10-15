@@ -121,7 +121,7 @@ window.STATIONS_REGISTRY["plzen"] = {
     3: {
       name: "ČD rychlík · Brejlovec + 3 vozy → Praha",
       operator: "České dráhy",
-      category: "express",
+      category: "rapid",
       routeLabel: "Plzeň–Praha",
       purchaseCost: 18000,
       requiredLevel: 7,
@@ -137,7 +137,7 @@ window.STATIONS_REGISTRY["plzen"] = {
     4: {
       name: "ČD RegioFox → Praha",
       operator: "České dráhy",
-      category: "express",
+      category: "rapid",
       routeLabel: "Plzeň–Praha",
       purchaseCost: 26000,
       requiredLevel: 7,
@@ -153,7 +153,7 @@ window.STATIONS_REGISTRY["plzen"] = {
     5: {
       name: "Arriva · dálkový výkon → Praha",
       operator: "Arriva",
-      category: "express",
+      category: "rapid",
       routeLabel: "Plzeň–Praha",
       purchaseCost: 23000,
       requiredLevel: 7,

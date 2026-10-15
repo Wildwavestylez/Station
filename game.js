@@ -60,6 +60,9 @@ let trains = [];                // Seznam vlaků aktivního nádraží
 let unlockedTracksCount = 1;    // Počet aktuálně odemčených kolejí v daném městě
 let unlockedCleaningTeamsCount = 1; // Počet úklidových týmů odemčených na nádraží
 let cleaningTeamsInUse = 0;          // Počet týmů právě uklízejících vlak
+let ownedPerformancesByStation = {}; // Zakoupené výkony pro jednotlivá nádraží
+let unlockedTracksByStation = {};    // Trvale zakoupená kapacita nástupišť
+let shopOpen = false;
 // 🟢 PŘIDAT DO GLOBÁLNÍCH PROMĚNNÝCH V GAME.JS:
 let currentLanguage = localStorage.getItem('trainOps_lang') || navigator.language.slice(0, 2) || 'cs';
 
@@ -208,17 +211,22 @@ function loadStation(stationKey) {
   stationLevels[stationKey].lvl = Number.isFinite(savedLvl) && savedLvl >= 0 ? Math.floor(savedLvl) : 0;
   stationLevels[stationKey].xp = Number.isFinite(savedXp) && savedXp >= 0 ? savedXp : 0;
 
-  // Počet kolejí vždy musí být konečné kladné číslo.
+  // Kapacita nástupišť se kupuje a ukládá samostatně.
   const configuredTracks = Number(currentStationData.startingTracks);
-  unlockedTracksCount = Number.isFinite(configuredTracks) && configuredTracks >= 1
+  const baseTracks = Number.isFinite(configuredTracks) && configuredTracks >= 1
     ? Math.floor(configuredTracks)
     : 1;
-  const myLvl = stationLevels[stationKey].lvl;
-  for (let l = 0; l <= myLvl; l++) {
-    if (currentStationData.levels[l] && currentStationData.levels[l].unlocksTrack) {
-      unlockedTracksCount = currentStationData.levels[l].unlocksTrack;
-    }
+  const savedTrackCount = Number(unlockedTracksByStation[stationKey]);
+  if (Number.isFinite(savedTrackCount) && savedTrackCount >= baseTracks) {
+    unlockedTracksCount = Math.floor(savedTrackCount);
+  } else {
+    // Migrace starých savů: dříve mohl level 2 automaticky odemknout druhé nástupiště.
+    unlockedTracksCount = baseTracks;
+    const oldLevel = stationLevels[stationKey].lvl;
+    if (oldLevel >= 2) unlockedTracksCount = Math.max(unlockedTracksCount, 2);
+    unlockedTracksByStation[stationKey] = unlockedTracksCount;
   }
+  const myLvl = stationLevels[stationKey].lvl;
 
   // Úklidové týmy se při přepnutí/obnovení nádraží bezpečně resetují.
   const configuredTeams = Number(currentStationData.startingCleaningTeams);
@@ -228,6 +236,18 @@ function loadStation(stationKey) {
     if (Number.isFinite(teamsAtLevel) && teamsAtLevel >= 1) unlockedCleaningTeamsCount = Math.floor(teamsAtLevel);
   }
   cleaningTeamsInUse = 0;
+
+  // Zachovej vlastnictví výkonů. Starší savy migruj podle již uložených vlaků,
+  // aby hráč nepřišel o dříve získaný obsah.
+  if (!Array.isArray(ownedPerformancesByStation[stationKey])) {
+    const legacyIds = Array.isArray(window.loadedTrainsCache)
+      ? window.loadedTrainsCache.map(saved => Number(saved.id)).filter(Number.isFinite)
+      : [];
+    ownedPerformancesByStation[stationKey] = [...new Set([
+      ...(currentStationData.startingTrains || []).map(Number),
+      ...legacyIds
+    ])];
+  }
 
   // Vytvoření čistého kolejového pole a reset výběru
   tracks = Array(unlockedTracksCount).fill(null);
@@ -276,9 +296,8 @@ function loadStation(stationKey) {
       }
     });
 
-    // Doplň nově nakonfigurované startovní vlaky i do starších uložených her,
-    // ale nikdy nepřidávej stejný vlak dvakrát.
-    (currentStationData.startingTrains || []).forEach(id => {
+    // Přidej pouze výkony, které hráč skutečně vlastní; starter se doplní při migraci.
+    (ownedPerformancesByStation[stationKey] || []).forEach(id => {
       if (!trains.some(train => String(train.id) === String(id))) {
         addNewTrainFromPool(id);
       }
@@ -498,9 +517,8 @@ async function depart() {
     }
   }
 
-  // 🟢 TADY BEREME PENÍZE DYNAMICKY PODLE KONKRÉTNÍHO VLAKU:
-  globalMoney += t.rewardMoney || 1000; 
-  document.getElementById("money").innerText = globalMoney;
+  // Odměna za výkon se připíše až po dokončení celé otočky (tam i zpět).
+  // Samotný odjezd z nádraží peníze nepřidává.
 
   if (t.track) {
     tracks[t.track - 1] = null;
@@ -537,6 +555,11 @@ async function depart() {
 
 // 🏆 13. ZPRACOVÁNÍ NÁVRATU VLAKU (WoA KONTRAKT)
 function processTrainReturn(t) {
+  // Pevná odměna za každou dokončenou otočku, bez složitého provozního výpočtu.
+  globalMoney += Number(t.rewardMoney) || 0;
+  const moneyElement = document.getElementById("money");
+  if (moneyElement) moneyElement.innerText = globalMoney;
+
   t.current_turnaround += 1;
 
   if (t.current_turnaround === t.required_turnaround) {
@@ -608,6 +631,178 @@ function checkLevelUp() {
   }
 }
 // ==========================================
+// 🛒 OBCHOD: VÝKONY A KAPACITA NÁSTUPIŠŤ
+// ==========================================
+function ensureShopUI() {
+  const top = document.getElementById("top");
+  if (top && !document.getElementById("station-shop-button")) {
+    const button = document.createElement("button");
+    button.id = "station-shop-button";
+    button.className = "y";
+    button.textContent = "🛒 Obchod";
+    button.style.marginLeft = "8px";
+    button.onclick = toggleShop;
+    top.appendChild(button);
+  }
+
+  if (!document.getElementById("station-shop-modal")) {
+    const overlay = document.createElement("div");
+    overlay.id = "station-shop-modal";
+    overlay.style.cssText = "display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.78);padding:16px;box-sizing:border-box;overflow:auto;";
+    overlay.innerHTML = `
+      <div style="max-width:760px;margin:5vh auto;background:#151515;color:#fff;border:1px solid #444;border-radius:14px;padding:16px;max-height:85vh;overflow:auto;box-shadow:0 10px 35px rgba(0,0,0,.6)">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <h2 style="margin:0;color:#4caf50">Obchod nádraží</h2>
+          <button class="r" id="station-shop-close">✕ Zavřít</button>
+        </div>
+        <p id="station-shop-summary" style="color:#bbb"></p>
+        <div id="station-shop-content"></div>
+      </div>`;
+    overlay.addEventListener("click", event => {
+      if (event.target === overlay) toggleShop(false);
+    });
+    document.body.appendChild(overlay);
+    document.getElementById("station-shop-close").onclick = () => toggleShop(false);
+  }
+}
+
+function toggleShop(forceOpen) {
+  ensureShopUI();
+  shopOpen = typeof forceOpen === "boolean" ? forceOpen : !shopOpen;
+  const modal = document.getElementById("station-shop-modal");
+  if (modal) modal.style.display = shopOpen ? "block" : "none";
+  if (shopOpen) renderShop();
+}
+
+function shopSection(title, body) {
+  return `<section style="margin:16px 0"><h3 style="margin:0 0 8px;color:#ddd">${title}</h3>${body}</section>`;
+}
+
+function shopCard(title, subtitle, detail, actionLabel, action, disabled = false) {
+  const button = disabled
+    ? `<button disabled style="opacity:.45;cursor:not-allowed">${actionLabel}</button>`
+    : `<button class="g" onclick="${action}">${actionLabel}</button>`;
+  return `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;background:#222;border:1px solid #383838;border-radius:10px;padding:12px;margin:8px 0">
+    <div style="min-width:0"><b>${title}</b><div style="color:#aaa;font-size:13px;margin-top:3px">${subtitle}</div><div style="font-size:13px;margin-top:5px">${detail}</div></div>
+    <div style="flex-shrink:0">${button}</div>
+  </div>`;
+}
+
+function renderShop() {
+  const content = document.getElementById("station-shop-content");
+  const summary = document.getElementById("station-shop-summary");
+  if (!content || !currentStationData || !currentStationKey) return;
+
+  const level = Number((stationLevels[currentStationKey] || {}).lvl) || 0;
+  const owned = new Set((ownedPerformancesByStation[currentStationKey] || []).map(Number));
+  if (summary) summary.textContent = `${currentStationData.name} · Level ${level} · Pokladna: ${globalMoney} Kč`;
+
+  let performanceCards = "";
+  const catalog = currentStationData.trainsPool || {};
+  Object.entries(catalog).forEach(([idText, item]) => {
+    const id = Number(idText);
+    const isOwned = owned.has(id);
+    const requiredLevel = Number(item.requiredLevel) || 0;
+    const locked = level < requiredLevel;
+    const cost = Math.max(0, Number(item.purchaseCost) || 0);
+    const categoryName = item.category === "local" ? "Místní osobní vlak" :
+      item.category === "express" ? "Rychlík / expres" :
+      item.category === "longDistance" ? "Dálkový vlak" :
+      item.category === "international" ? "Mezinárodní vlak" : "Železniční výkon";
+    const detail = `${categoryName} · ${cost === 0 ? "Zdarma" : cost.toLocaleString("cs-CZ") + " Kč"} · ${(Number(item.rewardMoney) || 0).toLocaleString("cs-CZ")} Kč za dokončenou otočku`;
+    let label = isOwned ? "Zakoupeno" : locked ? `Odemkne se na levelu ${requiredLevel}` : globalMoney < cost ? "Nedostatek peněz" : "Koupit výkon";
+    let action = isOwned || locked || globalMoney < cost ? "" : `buyPerformance(${id})`;
+    performanceCards += shopCard(item.name, `${item.operator || "Dopravce"} · ${item.routeLabel || item.routeKey}`, detail, label, action, isOwned || locked || globalMoney < cost);
+  });
+
+  const trackCosts = currentStationData.trackPurchaseCosts || [];
+  const nextTrackCost = Number(trackCosts[unlockedTracksCount]);
+  let trackDetail;
+  let trackLabel;
+  let trackAction = "";
+  let trackDisabled = false;
+  if (Number.isFinite(nextTrackCost) && unlockedTracksCount < trackCosts.length) {
+    trackDetail = `Aktuální kapacita: ${unlockedTracksCount} · Cena dalšího nástupiště: ${nextTrackCost.toLocaleString("cs-CZ")} Kč`;
+    trackLabel = globalMoney >= nextTrackCost ? "Koupit nástupiště" : "Nedostatek peněz";
+    trackAction = globalMoney >= nextTrackCost ? "buyTrack()" : "";
+    trackDisabled = globalMoney < nextTrackCost;
+  } else {
+    trackDetail = `Aktuální kapacita: ${unlockedTracksCount} · Pro tuto stanici už není nastaven další nákupní stupeň.`;
+    trackLabel = "Maximum";
+    trackDisabled = true;
+  }
+  const trackCard = shopCard("Další nástupiště", "Rozšíření kapacity nádraží", trackDetail, trackLabel, trackAction, trackDisabled);
+
+  const categoryCards = [
+    ["Místní osobní vlaky", 0],
+    ["Rychlíky", 7],
+    ["Expresní výkony", 12],
+    ["Mezinárodní výkony", 15]
+  ].map(([name, required]) => {
+    const available = level >= required;
+    return shopCard(name, available ? "Kategorie odemčena" : `Odemkne se na levelu ${required}`,
+      available ? "Konkrétní výkony vybíráš a kupuješ výše." : "Postupuj kampaní, aby se nabídka zpřístupnila.",
+      available ? "Dostupné" : "Zamčeno", "", true);
+  }).join("");
+
+  content.innerHTML =
+    shopSection("Železniční výkony", performanceCards) +
+    shopSection("Infrastruktura", trackCard) +
+    shopSection("Postup kampaní", categoryCards) +
+    `<p style="color:#999;font-size:12px">Pevná odměna se připíše po návratu vlaku na nádraží, tedy po celé otočce tam i zpět. Level odemyká kategorii; konkrétní výkon se kupuje samostatně.</p>`;
+}
+
+function buyPerformance(id) {
+  if (!currentStationData || !currentStationKey) return;
+  const item = currentStationData.trainsPool[id];
+  if (!item) return;
+  const owned = ownedPerformancesByStation[currentStationKey] || [];
+  if (owned.map(Number).includes(Number(id))) return;
+
+  const level = Number((stationLevels[currentStationKey] || {}).lvl) || 0;
+  const requiredLevel = Number(item.requiredLevel) || 0;
+  if (level < requiredLevel) {
+    alert(`Tento výkon se odemkne na levelu ${requiredLevel}.`);
+    return;
+  }
+
+  const cost = Math.max(0, Number(item.purchaseCost) || 0);
+  if (globalMoney < cost) {
+    alert("Na tento výkon nemáš dost peněz.");
+    return;
+  }
+
+  globalMoney -= cost;
+  ownedPerformancesByStation[currentStationKey] = [...owned, Number(id)];
+  if (!trains.some(train => Number(train.id) === Number(id))) addNewTrainFromPool(Number(id));
+  saveGameState();
+  render();
+  renderShop();
+}
+
+function buyTrack() {
+  if (!currentStationData || !currentStationKey) return;
+  const costs = currentStationData.trackPurchaseCosts || [];
+  const cost = Number(costs[unlockedTracksCount]);
+  if (!Number.isFinite(cost) || unlockedTracksCount >= costs.length) {
+    alert("Další nástupiště pro toto nádraží není v obchodě dostupné.");
+    return;
+  }
+  if (globalMoney < cost) {
+    alert("Na další nástupiště nemáš dost peněz.");
+    return;
+  }
+
+  globalMoney -= cost;
+  unlockedTracksCount += 1;
+  unlockedTracksByStation[currentStationKey] = unlockedTracksCount;
+  tracks.push(null);
+  saveGameState();
+  render();
+  renderShop();
+}
+
+// ==========================================
 // 🧱 KUS 7: RENDEROVÁNÍ UI (SEZNAMY, DETAILY A AKCE)
 // ==========================================
 
@@ -618,6 +813,7 @@ function render() {
   const myData = stationLevels[currentStationKey];
   const currentLvlConfig = currentStationData.levels[myData.lvl] || { xpNeeded: "Max" };
 
+  ensureShopUI();
   document.getElementById("money").innerText = globalMoney;
   document.getElementById("station-name").innerText = currentStationData.name;
   const safeTrackCapacity = Number.isFinite(Number(unlockedTracksCount)) && Number(unlockedTracksCount) >= 1
@@ -626,6 +822,7 @@ function render() {
   const occupiedTracks = Array.isArray(tracks) ? tracks.filter(x => x !== null && x !== undefined).length : 0;
   document.getElementById("tracks-count").innerText = `${occupiedTracks}/${safeTrackCapacity}`;
   document.getElementById("level-info").innerText = `LVL ${myData.lvl} (${myData.xp}/${currentLvlConfig.xpNeeded} XP)`;
+  if (shopOpen) renderShop();
 
   let q = document.getElementById("queue");
   if (!q) return;
@@ -752,9 +949,12 @@ function renderActions() {
 // 1. Vylepšená funkce pro uložení hry (Pamatuje si i vlaky a jejich kontrakty)
 function saveGameState() {
   const saveContainer = {
+    saveVersion: 2,
     globalMoney: globalMoney,
     unlockedStations: GLOBAL_PLAYER_DATA.unlockedStations,
     stationLevels: stationLevels,
+    ownedPerformancesByStation: ownedPerformancesByStation,
+    unlockedTracksByStation: unlockedTracksByStation,
     // 🟢 Tady uložíme i přesný stav vlaků, abychom o ně nepřišli
     savedTrains: trains.map(t => ({
       id: t.id,
@@ -787,6 +987,14 @@ function loadGameState() {
       // Ověříme uložené levely; neplatné hodnoty opravíme při načtení konkrétní stanice.
       stationLevels = parsed.stationLevels && typeof parsed.stationLevels === "object" && !Array.isArray(parsed.stationLevels)
         ? parsed.stationLevels
+        : {};
+      ownedPerformancesByStation = parsed.ownedPerformancesByStation &&
+        typeof parsed.ownedPerformancesByStation === "object" && !Array.isArray(parsed.ownedPerformancesByStation)
+        ? parsed.ownedPerformancesByStation
+        : {};
+      unlockedTracksByStation = parsed.unlockedTracksByStation &&
+        typeof parsed.unlockedTracksByStation === "object" && !Array.isArray(parsed.unlockedTracksByStation)
+        ? parsed.unlockedTracksByStation
         : {};
 
       // Neplatný formát save ignorujeme, ale nemažeme uložená data automaticky.

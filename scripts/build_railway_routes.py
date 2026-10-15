@@ -6,10 +6,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BUNDLE = ROOT / "stations" / "preparedRoutes.js"
 ROUTES = {
-    "plzen:plasy": {
+    "plzen:tremosna": {
         "start": [49.74354, 13.38803],
+        "end": [49.81914, 13.39459],
+        "label": "Plzeň hl.n. → Třemošná u Plzně",
+    },
+    "tremosna:plasy": {
+        "start": [49.81914, 13.39459],
         "end": [49.93090, 13.37964],
-        "label": "Plzeň hl.n. → Plasy",
+        "label": "Třemošná u Plzně → Plasy",
     },
     # Official station coordinates; snapped to the nearest connected railway nodes.
     "rokycany:horovice": {
@@ -132,9 +137,13 @@ def route(elements, start, end):
 def main():
     if not BUNDLE.exists(): raise RuntimeError(f"Missing bundle: {BUNDLE}")
     source = BUNDLE.read_text()
-    # Preserve all existing route payloads; update/add only routes in ROUTES.
+    # Preserve existing payloads and build only missing route keys. This keeps
+    # retries small and avoids re-querying routes that are already bundled.
     payloads = dict(re.findall(r'"([^"]+)": decodePolylineBase64\("([^"]+)"\)', source))
     for key, spec in ROUTES.items():
+        if key in payloads:
+            print("Already bundled; keeping", spec["label"])
+            continue
         print("Building", spec["label"])
         coords = route(query_osm(spec["start"], spec["end"]), spec["start"], spec["end"])
         payloads[key] = encode_polyline(coords)

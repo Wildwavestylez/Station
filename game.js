@@ -603,8 +603,8 @@ function checkLevelUp() {
 
   if (myData.xp < Number(currentLevelConfig.xpNeeded)) return;
 
-  // Každý level má vlastní cíl. Po postupu se XP vynulují; přebytek se nepřenáší.
-  myData.xp = 0;
+  // Každý level má vlastní cíl; odečteme dosažený cíl a přebytečné XP se přenesou dál.
+  myData.xp -= Number(currentLevelConfig.xpNeeded);
   myData.lvl += 1;
   const reachedLevel = myData.lvl;
   const reachedConfig = currentStationData.levels[reachedLevel] || {};

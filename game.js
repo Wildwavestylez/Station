@@ -635,16 +635,9 @@ function checkLevelUp() {
 // 🛒 OBCHOD: VÝKONY A KAPACITA NÁSTUPIŠŤ
 // ==========================================
 function ensureShopUI() {
-  const top = document.getElementById("top");
-  if (top && !document.getElementById("station-shop-button")) {
-    const button = document.createElement("button");
-    button.id = "station-shop-button";
-    button.className = "y";
-    button.textContent = "🛒 Obchod";
-    button.style.marginLeft = "8px";
-    button.onclick = toggleShop;
-    top.appendChild(button);
-  }
+  // Tlačítko obchodu je součástí HTML menu; zde jen bezpečně navážeme akci.
+  const button = document.getElementById("station-shop-button");
+  if (button) button.onclick = () => toggleShop();
 
   if (!document.getElementById("station-shop-modal")) {
     const overlay = document.createElement("div");

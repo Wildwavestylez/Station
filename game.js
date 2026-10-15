@@ -217,15 +217,19 @@ function loadStation(stationKey) {
     ? Math.floor(configuredTracks)
     : 1;
   const savedTrackCount = Number(unlockedTracksByStation[stationKey]);
-  if (Number.isFinite(savedTrackCount) && savedTrackCount >= baseTracks) {
-    unlockedTracksCount = Math.floor(savedTrackCount);
-  } else {
-    // Migrace starých savů: dříve mohl level 2 automaticky odemknout druhé nástupiště.
-    unlockedTracksCount = baseTracks;
-    const oldLevel = stationLevels[stationKey].lvl;
-    if (oldLevel >= 2) unlockedTracksCount = Math.max(unlockedTracksCount, 2);
-    unlockedTracksByStation[stationKey] = unlockedTracksCount;
+  const currentLevel = stationLevels[stationKey].lvl;
+  let levelTrackCount = baseTracks;
+  for (let level = 0; level <= currentLevel; level++) {
+    const count = Number(currentStationData.levels[level] && currentStationData.levels[level].unlocksTrack);
+    if (Number.isFinite(count) && count >= 1) levelTrackCount = Math.max(levelTrackCount, Math.floor(count));
   }
+  // Zachovej koupené koleje a zároveň přiznej odměny odemčené levelem i ve starších savech.
+  unlockedTracksCount = Math.max(
+    baseTracks,
+    levelTrackCount,
+    Number.isFinite(savedTrackCount) ? Math.floor(savedTrackCount) : baseTracks
+  );
+  unlockedTracksByStation[stationKey] = unlockedTracksCount;
   const myLvl = stationLevels[stationKey].lvl;
 
   // Úklidové týmy se při přepnutí/obnovení nádraží bezpečně resetují.
@@ -247,10 +251,12 @@ function loadStation(stationKey) {
     : [];
   // Oprava starších savů: startovní výkony se vždy doplní, i když save už
   // obsahuje seznam vlastněných výkonů. Jinak může bezplatná Přeštická linka zmizet.
+  const automaticLevelRewards = stationKey === "plzen" && stationLevels[stationKey].lvl >= 1 ? [6] : [];
   ownedPerformancesByStation[stationKey] = [...new Set([
     ...(currentStationData.startingTrains || []).map(Number),
     ...savedOwnedIds,
-    ...legacyIds
+    ...legacyIds,
+    ...automaticLevelRewards
   ])];
 
   // Vytvoření čistého kolejového pole a reset výběru
@@ -591,51 +597,61 @@ function processTrainReturn(t) {
 
 // 📈 14. KONTROLA ZVÝŠENÍ LEVELU NÁDRAŽÍ
 function checkLevelUp() {
-  let myData = stationLevels[currentStationKey];
-  let config = currentStationData.levels[myData.lvl];
+  const myData = stationLevels[currentStationKey];
+  const currentLevelConfig = currentStationData.levels[myData.lvl];
+  if (!currentLevelConfig) return;
 
-  if (!config) return;
+  if (myData.xp < Number(currentLevelConfig.xpNeeded)) return;
 
-  // Pokud máme dostatek XP, postoupíme o úroveň výš
-  if (myData.xp >= config.xpNeeded) {
-    myData.xp -= config.xpNeeded;
-    myData.lvl += 1;
+  // Každý level má vlastní cíl. Po postupu se XP vynulují; přebytek se nepřenáší.
+  myData.xp = 0;
+  myData.lvl += 1;
+  const reachedLevel = myData.lvl;
+  const reachedConfig = currentStationData.levels[reachedLevel] || {};
+  const rewards = [];
 
-    // Pokud má tento level v konfiguráku nadefinovanou speciální funkci, spustíme ji
-    if (config.action) {
-      config.action();
+  if (typeof reachedConfig.action === "function") reachedConfig.action();
+
+  // Level 1: automaticky přiděl bezplatný výkon Arriva Stadler do Plas.
+  if (currentStationKey === "plzen" && reachedLevel === 1) {
+    const id = 6;
+    const owned = ownedPerformancesByStation[currentStationKey] || [];
+    if (!owned.map(Number).includes(id)) {
+      ownedPerformancesByStation[currentStationKey] = [...owned, id];
     }
-
-    alert(`⭐️ LEVEL UP! Nádraží ${currentStationData.name} postoupilo na Level ${myData.lvl}!\nOdměna: ${config.rewardText}`);
-    
-    // Přepočítáme kapacitu kolejí, pokud nová úroveň nějaké odemkla
-    let nextTracks = currentStationData.startingTracks;
-    for (let l = 0; l <= myData.lvl; l++) {
-      if (currentStationData.levels[l] && currentStationData.levels[l].unlocksTrack) {
-        nextTracks = currentStationData.levels[l].unlocksTrack;
-      }
-    }
-    
-    // Rozšíříme pole kolejí, pokud se kapacita zvětšila
-    if (nextTracks > unlockedTracksCount) {
-      unlockedTracksCount = nextTracks;
-      while (tracks.length < unlockedTracksCount) tracks.push(null);
-    }
-
-    // Přepočet počtu úklidových týmů podle konfigurace odemčených levelů.
-    let nextTeams = Number(currentStationData.startingCleaningTeams);
-    if (!Number.isFinite(nextTeams) || nextTeams < 1) nextTeams = 1;
-    for (let l = 0; l <= myData.lvl; l++) {
-      const teamsAtLevel = Number(currentStationData.levels[l] && currentStationData.levels[l].unlocksCleaningTeams);
-      if (Number.isFinite(teamsAtLevel) && teamsAtLevel >= 1) nextTeams = Math.floor(teamsAtLevel);
-    }
-    unlockedCleaningTeamsCount = Math.max(unlockedCleaningTeamsCount, Math.floor(nextTeams));
-
-    // Aktualizujeme menu a celé UI
-    renderSidebar();
-    saveGameState();
-    if (shopOpen) renderShop();
+    if (!trains.some(train => Number(train.id) === id)) addNewTrainFromPool(id);
+    rewards.push("Automaticky získáváš Arrivu Stadler na trase do Plas");
+    rewards.push("Odemčeny nákupy místních vlaků v obchodě");
   }
+
+  // Kapacita nástupišť se automaticky přepočítá podle dosaženého levelu.
+  let nextTracks = Number(currentStationData.startingTracks) || 1;
+  for (let level = 0; level <= reachedLevel; level++) {
+    const count = Number(currentStationData.levels[level] && currentStationData.levels[level].unlocksTrack);
+    if (Number.isFinite(count) && count >= 1) nextTracks = Math.max(nextTracks, Math.floor(count));
+  }
+  if (nextTracks > unlockedTracksCount) {
+    unlockedTracksCount = nextTracks;
+    while (tracks.length < unlockedTracksCount) tracks.push(null);
+    unlockedTracksByStation[currentStationKey] = unlockedTracksCount;
+    if (reachedLevel === 2) rewards.push("Automaticky získáváš druhou kolej");
+  }
+
+  let nextTeams = Number(currentStationData.startingCleaningTeams);
+  if (!Number.isFinite(nextTeams) || nextTeams < 1) nextTeams = 1;
+  for (let level = 0; level <= reachedLevel; level++) {
+    const teamsAtLevel = Number(currentStationData.levels[level] && currentStationData.levels[level].unlocksCleaningTeams);
+    if (Number.isFinite(teamsAtLevel) && teamsAtLevel >= 1) nextTeams = Math.max(nextTeams, Math.floor(teamsAtLevel));
+  }
+  unlockedCleaningTeamsCount = Math.max(unlockedCleaningTeamsCount, Math.floor(nextTeams));
+
+  const rewardText = [reachedConfig.rewardText, ...rewards].filter(Boolean).join("\n• ");
+  alert(`⭐️ LEVEL UP! ${currentStationData.name} postoupilo na Level ${reachedLevel}!\n\nOdměna:\n• ${rewardText || "Pokračuj v rozvoji nádraží."}\n\nPostup XP se resetoval na 0.`);
+
+  renderSidebar();
+  saveGameState();
+  render();
+  if (shopOpen) renderShop();
 }
 // ==========================================
 // 🛒 OBCHOD: VÝKONY A KAPACITA NÁSTUPIŠŤ

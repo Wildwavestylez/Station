@@ -26,13 +26,13 @@ function buildPlzenPrahaRoute() {
     const previous = joined[joined.length - 1];
     const nextStart = segments[i][0];
     const gap = distanceMeters(previous, nextStart);
-    if (gap > 75) {
+    if (gap > 250) {
       console.error("Pražská linka zastavena: mezera mezi OSM segmenty je příliš velká.", {
         from: keys[i - 1], to: keys[i], gapMeters: Math.round(gap)
       });
       return [];
     }
-    joined.push(...segments[i].slice(1).map(point => [point[0], point[1]]));
+    joined.push(...segments[i].map(point => [point[0], point[1]]));
   }
   console.info("Pražská linka spojena z pěti OSM úseků:", joined.length, "bodů.");
   return joined;

@@ -305,12 +305,11 @@ function loadStation(stationKey) {
 
     window.loadedTrainsCache = null;
   } else {
-    // ŽÁDNÝ SAVE NEEXISTUJE -> NAČTEME POUZE STARTOVNÍ VLAKY Z DATA.JS
-    if (currentStationData.startingTrains) {
-      currentStationData.startingTrains.forEach(id => {
-        addNewTrainFromPool(id);
-      });
-    }
+    // Při prvním spuštění i při návratu do již navštíveného nádraží načti
+    // všechny výkony, které hráč vlastní.
+    (ownedPerformancesByStation[stationKey] || currentStationData.startingTrains || []).forEach(id => {
+      addNewTrainFromPool(id);
+    });
   }
 
   renderSidebar();

@@ -51,6 +51,7 @@ window.STATIONS_REGISTRY["plzen"] = {
   mapCenter: [49.7410, 13.3860],
   mapZoom: 11,
   startingTracks: 1,
+  startingCleaningTeams: 1,
   moneyPerDepart: 2500,
   startingTrains: [1, 2],
 

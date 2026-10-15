@@ -1,3 +1,43 @@
+// Spojí pouze ověřené OSM segmenty do souvislé linky Plzeň → Praha.
+function buildPlzenPrahaRoute() {
+  const prepared = window.STATION_PREPARED_ROUTES || {};
+  const keys = [
+    "plzen:rokycany",
+    "rokycany:horovice",
+    "horovice:beroun",
+    "beroun:dobrichovice",
+    "dobrichovice:praha"
+  ];
+  const segments = keys.map(key => prepared[key]);
+  if (segments.some(segment => !Array.isArray(segment) || segment.length < 2)) {
+    console.error("Pražská linka není připravena: chybí některý skutečný železniční úsek.");
+    return [];
+  }
+  const distanceMeters = (a, b) => {
+    const rad = Math.PI / 180;
+    const dLat = (b[0] - a[0]) * rad;
+    const dLon = (b[1] - a[1]) * rad;
+    const q = Math.sin(dLat / 2) ** 2 +
+      Math.cos(a[0] * rad) * Math.cos(b[0] * rad) * Math.sin(dLon / 2) ** 2;
+    return 6371000 * 2 * Math.atan2(Math.sqrt(q), Math.sqrt(Math.max(0, 1 - q)));
+  };
+  const joined = segments[0].map(point => [point[0], point[1]]);
+  for (let i = 1; i < segments.length; i++) {
+    const previous = joined[joined.length - 1];
+    const nextStart = segments[i][0];
+    const gap = distanceMeters(previous, nextStart);
+    if (gap > 75) {
+      console.error("Pražská linka zastavena: mezera mezi OSM segmenty je příliš velká.", {
+        from: keys[i - 1], to: keys[i], gapMeters: Math.round(gap)
+      });
+      return [];
+    }
+    joined.push(...segments[i].slice(1).map(point => [point[0], point[1]]));
+  }
+  console.info("Pražská linka spojena z pěti OSM úseků:", joined.length, "bodů.");
+  return joined;
+}
+
 // Inicializace globálního registru stanic, pokud neexistuje
 if (!window.STATIONS_REGISTRY) window.STATIONS_REGISTRY = {};
 
@@ -18,12 +58,7 @@ window.STATIONS_REGISTRY["plzen"] = {
     // Předpřipravené skutečné OSM trasy; načítají se z stations/preparedRoutes.js.
     rokycany: window.STATION_PREPARED_ROUTES["plzen:rokycany"],
     prestice: window.STATION_PREPARED_ROUTES["plzen:prestice"],
-    praha: [
-      [49.7414, 13.3866],
-      [49.7420, 13.5950],
-      [49.9630, 14.0720],
-      [50.0830, 14.4350]
-    ]
+    praha: buildPlzenPrahaRoute()
   },
 
   levels: {

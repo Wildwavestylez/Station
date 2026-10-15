@@ -559,6 +559,7 @@ function processTrainReturn(t) {
   globalMoney += Number(t.rewardMoney) || 0;
   const moneyElement = document.getElementById("money");
   if (moneyElement) moneyElement.innerText = globalMoney;
+  if (shopOpen) renderShop();
 
   t.current_turnaround += 1;
 
@@ -696,7 +697,7 @@ function renderShop() {
   Object.entries(catalog).forEach(([idText, item]) => {
     const id = Number(idText);
     const isOwned = owned.has(id);
-    const requiredLevel = Number(item.requiredLevel) || 0;
+    const requiredLevel = Math.max(Number(item.requiredLevel) || 0, item.category === "local" ? 1 : 0);
     const locked = level < requiredLevel;
     const cost = Math.max(0, Number(item.purchaseCost) || 0);
     const categoryName = item.category === "local" ? "Místní osobní vlak" :
@@ -729,7 +730,7 @@ function renderShop() {
   const trackCard = shopCard("Další nástupiště", "Rozšíření kapacity nádraží", trackDetail, trackLabel, trackAction, trackDisabled);
 
   const categoryCards = [
-    ["Místní osobní vlaky", 0],
+    ["Místní osobní vlaky", 1],
     ["Rychlíky", 7],
     ["Expresní výkony", 12],
     ["Mezinárodní výkony", 15]
@@ -755,7 +756,7 @@ function buyPerformance(id) {
   if (owned.map(Number).includes(Number(id))) return;
 
   const level = Number((stationLevels[currentStationKey] || {}).lvl) || 0;
-  const requiredLevel = Number(item.requiredLevel) || 0;
+  const requiredLevel = Math.max(Number(item.requiredLevel) || 0, item.category === "local" ? 1 : 0);
   if (level < requiredLevel) {
     alert(`Tento výkon se odemkne na levelu ${requiredLevel}.`);
     return;

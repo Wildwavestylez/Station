@@ -1,4 +1,31 @@
 // Spojí pouze ověřené OSM segmenty do souvislé linky Plzeň → Praha.
+function buildPlzenPlasyRoute() {
+  const prepared = window.STATION_PREPARED_ROUTES || {};
+  const keys = ["plzen:tremosna", "tremosna:plasy"];
+  const segments = keys.map(key => prepared[key]);
+  if (segments.some(segment => !Array.isArray(segment) || segment.length < 2)) {
+    console.error("Linka do Plas není připravena: chybí skutečný železniční úsek.");
+    return [];
+  }
+  const distanceMeters = (a, b) => {
+    const rad = Math.PI / 180;
+    const dLat = (b[0] - a[0]) * rad;
+    const dLon = (b[1] - a[1]) * rad;
+    const q = Math.sin(dLat / 2) ** 2 +
+      Math.cos(a[0] * rad) * Math.cos(b[0] * rad) * Math.sin(dLon / 2) ** 2;
+    return 6371000 * 2 * Math.atan2(Math.sqrt(q), Math.sqrt(Math.max(0, 1 - q)));
+  };
+  const joined = segments[0].map(point => [point[0], point[1]]);
+  const gap = distanceMeters(joined[joined.length - 1], segments[1][0]);
+  if (gap > 250) {
+    console.error("Linka do Plas zastavena: mezi OSM úseky je mezera.", { gapMeters: Math.round(gap) });
+    return [];
+  }
+  joined.push(...segments[1].map(point => [point[0], point[1]]));
+  console.info("Linka Plzeň–Plasy spojena ze dvou OSM úseků:", joined.length, "bodů.");
+  return joined;
+}
+
 function buildPlzenPrahaRoute() {
   const prepared = window.STATION_PREPARED_ROUTES || {};
   const keys = [
@@ -59,6 +86,7 @@ window.STATIONS_REGISTRY["plzen"] = {
   routes: {
     rokycany: window.STATION_PREPARED_ROUTES["plzen:rokycany"],
     prestice: window.STATION_PREPARED_ROUTES["plzen:prestice"],
+    plasy: buildPlzenPlasyRoute(),
     praha: buildPlzenPrahaRoute()
   },
 
@@ -165,6 +193,22 @@ window.STATIONS_REGISTRY["plzen"] = {
       timers: { exit: 8, clean: 12, board: 8 },
       rewardMoney: 6800,
       rewardXP: 3
+    },
+    6: {
+      name: "Arriva · regionální spoj → Plasy",
+      operator: "Arriva",
+      category: "local",
+      routeLabel: "Plzeň–Třemošná–Plasy",
+      purchaseCost: 0,
+      requiredLevel: 1,
+      image: "https://i.imgur.com/neFFZgt.jpg",
+      routeKey: "plasy",
+      speed: 90,
+      stayTime: 10,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, board: 5 },
+      rewardMoney: 2200,
+      rewardXP: 1
     }
   }
 };
@@ -172,4 +216,10 @@ window.STATIONS_REGISTRY["plzen"] = {
 // Celá pražská linka je sestavena z předpřipravených OSM segmentů.
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.praha.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:praha");
+}
+
+ 
+// Trasa Plzeň–Plasy je dostupná až po ověření spojení obou reálných OSM segmentů.
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.plasy.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:plasy");
 }

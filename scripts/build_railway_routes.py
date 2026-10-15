@@ -8,7 +8,7 @@ BUNDLE = ROOT / "stations" / "preparedRoutes.js"
 ROUTES = {
     # Official station coordinates; snapped to the nearest connected railway nodes.
     "rokycany:horovice": {
-        "start": [49.74047, 13.59215],
+        "start": [49.73969, 13.59422],
         "end": [49.84319, 13.89905],
         "label": "Rokycany → Hořovice",
     },

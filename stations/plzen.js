@@ -121,3 +121,8 @@ window.STATIONS_REGISTRY["plzen"] = {
     }
   }
 };
+
+// Celá pražská linka je sestavena z předpřipravených OSM segmentů.
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.praha.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:praha");
+}

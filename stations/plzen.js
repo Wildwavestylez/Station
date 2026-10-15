@@ -195,13 +195,13 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardXP: 3
     },
     6: {
-      name: "Arriva · regionální spoj → Plasy",
+      name: "Arriva · Stadler → Plasy",
       operator: "Arriva",
       category: "local",
       routeLabel: "Plzeň–Třemošná–Plasy",
       purchaseCost: 0,
       requiredLevel: 1,
-      image: "https://i.imgur.com/neFFZgt.jpg",
+      image: "https://i.imgur.com/950q8oA.jpg",
       routeKey: "plasy",
       speed: 90,
       stayTime: 10,

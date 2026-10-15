@@ -12,6 +12,11 @@ ROUTES = {
         "end": [49.84319, 13.89905],
         "label": "Rokycany → Hořovice",
     },
+    "horovice:beroun": {
+        "start": [49.84319, 13.89905],
+        "end": [49.96390, 14.07240],
+        "label": "Hořovice → Beroun",
+    },
 }
 
 def haversine(a, b):

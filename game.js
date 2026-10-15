@@ -315,6 +315,7 @@ function loadStation(stationKey) {
 
   renderSidebar();
   render();
+  if (shopOpen) renderShop();
 }
 
 
@@ -628,6 +629,7 @@ function checkLevelUp() {
     // Aktualizujeme menu a celé UI
     renderSidebar();
     saveGameState();
+    if (shopOpen) renderShop();
   }
 }
 // ==========================================
@@ -822,7 +824,6 @@ function render() {
   const occupiedTracks = Array.isArray(tracks) ? tracks.filter(x => x !== null && x !== undefined).length : 0;
   document.getElementById("tracks-count").innerText = `${occupiedTracks}/${safeTrackCapacity}`;
   document.getElementById("level-info").innerText = `LVL ${myData.lvl} (${myData.xp}/${currentLvlConfig.xpNeeded} XP)`;
-  if (shopOpen) renderShop();
 
   let q = document.getElementById("queue");
   if (!q) return;

@@ -58,6 +58,9 @@ let selected = null;            // Právě vybraný vlak hráčem
 let tracks = [null, null];      // Pole kolejí aktivního nádraží
 let trains = [];                // Seznam vlaků aktivního nádraží
 let unlockedTracksCount = 1;    // Počet aktuálně odemčených kolejí v daném městě
+let unlockedCleaningTeamsCount = 1; // Počet úklidových týmů odemčených na nádraží
+let cleaningTeamsInUse = 0;          // Počet týmů právě uklízejících vlak
+let cleaningQueue = [];              // FIFO fronta vlaků, které hráč požádal uklidit
 // 🟢 PŘIDAT DO GLOBÁLNÍCH PROMĚNNÝCH V GAME.JS:
 let currentLanguage = localStorage.getItem('trainOps_lang') || navigator.language.slice(0, 2) || 'cs';
 
@@ -217,6 +220,16 @@ function loadStation(stationKey) {
       unlockedTracksCount = currentStationData.levels[l].unlocksTrack;
     }
   }
+
+  // Úklidové týmy se při přepnutí/obnovení nádraží bezpečně resetují.
+  const configuredTeams = Number(currentStationData.startingCleaningTeams);
+  unlockedCleaningTeamsCount = Number.isFinite(configuredTeams) && configuredTeams >= 1 ? Math.floor(configuredTeams) : 1;
+  for (let l = 0; l <= myLvl; l++) {
+    const teamsAtLevel = Number(currentStationData.levels[l] && currentStationData.levels[l].unlocksCleaningTeams);
+    if (Number.isFinite(teamsAtLevel) && teamsAtLevel >= 1) unlockedCleaningTeamsCount = Math.floor(teamsAtLevel);
+  }
+  cleaningTeamsInUse = 0;
+  cleaningQueue = [];
 
   // Vytvoření čistého kolejového pole a reset výběru
   tracks = Array(unlockedTracksCount).fill(null);
@@ -398,10 +411,32 @@ function assignTrack(trackIndex) {
 function startTimer(type) {
   if (!selected) return;
 
-  if (type === "exit") selected.state = "UNLOADING";
-  if (type === "clean") selected.state = "CLEANING";
-  if (type === "board") selected.state = "BOARDING";
+  if (type === "clean") {
+    const train = selected;
+    const queueIndex = cleaningQueue.findIndex(id => String(id) === String(train.id));
+    if (queueIndex !== -1) {
+      // Fronta je FIFO: pouze první čekající vlak může využít uvolněný tým.
+      if (queueIndex !== 0 || cleaningTeamsInUse >= unlockedCleaningTeamsCount) { render(); return; }
+      cleaningQueue.shift();
+    } else if (cleaningTeamsInUse >= unlockedCleaningTeamsCount || cleaningQueue.length > 0) {
+      cleaningQueue.push(train.id);
+      train.state = "WAIT_CLEAN_TEAM";
+      train.timer = 0;
+      train.pendingAction = true;
+      render();
+      return;
+    }
+    cleaningTeamsInUse++;
+    train.hasCleaningTeam = true;
+    train.state = "CLEANING";
+    train.timer = Number(train.timers && train.timers.clean) || 0;
+    train.pendingAction = false;
+    render();
+    return;
+  }
 
+  if (type === "exit") selected.state = "UNLOADING";
+  if (type === "board") selected.state = "BOARDING";
   selected.timer = selected.timers[type];
   selected.pendingAction = false;
   render();
@@ -563,6 +598,15 @@ function checkLevelUp() {
       while (tracks.length < unlockedTracksCount) tracks.push(null);
     }
 
+    // Přepočet počtu úklidových týmů podle konfigurace odemčených levelů.
+    let nextTeams = Number(currentStationData.startingCleaningTeams);
+    if (!Number.isFinite(nextTeams) || nextTeams < 1) nextTeams = 1;
+    for (let l = 0; l <= myData.lvl; l++) {
+      const teamsAtLevel = Number(currentStationData.levels[l] && currentStationData.levels[l].unlocksCleaningTeams);
+      if (Number.isFinite(teamsAtLevel) && teamsAtLevel >= 1) nextTeams = Math.floor(teamsAtLevel);
+    }
+    unlockedCleaningTeamsCount = Math.max(unlockedCleaningTeamsCount, Math.floor(nextTeams));
+
     // Aktualizujeme menu a celé UI
     renderSidebar();
     saveGameState();
@@ -606,6 +650,10 @@ function render() {
     if (t.state === "ARRIVED") statusText = lang().arrived;
     if (t.state === "UNLOADING") statusText = `${lang().unloading} (${Math.max(0, Math.ceil(t.timer))}s)`;
     if (t.state === "WAIT_CLEAN") statusText = lang().waitClean;
+    if (t.state === "WAIT_CLEAN_TEAM") {
+      const queuePosition = cleaningQueue.findIndex(id => String(id) === String(t.id)) + 1;
+      statusText = `Čeká na úklidový tým${queuePosition > 0 ? ` (fronta ${queuePosition})` : ""}`;
+    }
     if (t.state === "CLEANING") statusText = `${lang().cleaning} (${Math.max(0, Math.ceil(t.timer))}s)`;
     if (t.state === "WAIT_BOARD") statusText = lang().waitBoard;
     if (t.state === "BOARDING") statusText = `${lang().boarding} (${Math.max(0, Math.ceil(t.timer))}s)`;
@@ -689,7 +737,12 @@ function renderActions() {
   } else if (selected.state === "UNLOADING" || selected.state === "CLEANING" || selected.state === "BOARDING") {
     a.innerHTML = `<em>${lang().working}</em>`;
   } else if (selected.state === "WAIT_CLEAN") {
-    a.innerHTML = `<button class="y" onclick="startTimer('clean')">${lang().btnClean}</button>`;
+    a.innerHTML = `<p>Úklidové týmy: ${cleaningTeamsInUse}/${unlockedCleaningTeamsCount} obsazeno</p><button class="y" onclick="startTimer('clean')">${lang().btnClean}</button>`;
+  } else if (selected.state === "WAIT_CLEAN_TEAM") {
+    const queuePosition = cleaningQueue.findIndex(id => String(id) === String(selected.id));
+    const canStart = queuePosition === 0 && cleaningTeamsInUse < unlockedCleaningTeamsCount;
+    a.innerHTML = `<p>Úklidové týmy: ${cleaningTeamsInUse}/${unlockedCleaningTeamsCount} obsazeno</p>` +
+      (canStart ? `<button class="y" onclick="startTimer('clean')">Zahájit úklid</button>` : `<em>Čeká na volný tým a potvrzení hráčem.</em>`);
   } else if (selected.state === "WAIT_BOARD") {
     a.innerHTML = `<button class="b" onclick="startTimer('board')">${lang().btnBoard}</button>`;
   } else if (selected.state === "READY_DEPART") {
@@ -834,10 +887,18 @@ function gameLoop(now) {
     // 🧽 PROGRESS BAR: ÚKLID SOUPRAVY
     if (t.state === "CLEANING" && t.timer != null) {
       t.timer -= dt;
-      t.progress.clean = (1 - t.timer / t.timers.clean) * 100;
+      const cleanDuration = Math.max(1, Number(t.timers && t.timers.clean) || 1);
+      t.progress.clean = Math.max(0, Math.min(100, (1 - t.timer / cleanDuration) * 100));
       if (t.timer <= 0) {
+        t.timer = 0;
         t.state = "WAIT_BOARD";
         t.pendingAction = true;
+        if (t.hasCleaningTeam) {
+          t.hasCleaningTeam = false;
+          cleaningTeamsInUse = Math.max(0, cleaningTeamsInUse - 1);
+        }
+        // Další vlak se nikdy nespouští automaticky; hráč musí kliknout.
+        render();
       }
     }
 

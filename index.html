@@ -12,7 +12,7 @@
   />
 
  <!-- 🎨 Hlavní styl -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 
 <body>
@@ -26,9 +26,18 @@
       <h3>Moje Impérium</h3>
       <button class="close-btn" onclick="toggleSidebar()">✕</button>
     </div>
-    <!-- Sem JavaScript dynamicky vykreslí seznam všech nádraží ve hře -->
+    <!-- Hlavní akce nádraží -->
+    <div class="sidebar-actions">
+      <button id="station-shop-button" class="sidebar-shop-button" type="button">
+        <span class="sidebar-action-icon">🛒</span>
+        <span><strong>Obchod nádraží</strong><small>Koupit vlak nebo nástupiště</small></span>
+        <span class="sidebar-action-arrow">›</span>
+      </button>
+    </div>
+
+    <div class="sidebar-section-title">MOJE NÁDRAŽÍ</div>
     <div id="station-list"></div>
-<button id="reset-btn" onclick="resetGameState()">☢️ RESETOVAT HRU</button>
+    <button id="reset-btn" onclick="resetGameState()">☢️ RESETOVAT HRU</button>
   
   </div>
 
@@ -84,7 +93,7 @@
   <script src="railwayNetwork.js?v=7"></script>
 
   <!-- 🎮 Hlavní herní motor (Engine) -->
-  <script src="game.js?v=12"></script>
+  <script src="game.js?v=13"></script>
 
 </body>
 </html>

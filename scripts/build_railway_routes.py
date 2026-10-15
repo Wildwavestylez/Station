@@ -6,6 +6,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BUNDLE = ROOT / "stations" / "preparedRoutes.js"
 ROUTES = {
+    "plzen:plasy": {
+        "start": [49.74354, 13.38803],
+        "end": [49.93090, 13.37964],
+        "label": "Plzeň hl.n. → Plasy",
+    },
     # Official station coordinates; snapped to the nearest connected railway nodes.
     "rokycany:horovice": {
         "start": [49.73969, 13.59422],

@@ -93,22 +93,22 @@ window.STATIONS_REGISTRY["plzen"] = {
   // Level odemyká kategorie a možnosti. Konkrétní výkony se kupují v obchodě.
   // xpNeeded je počet XP potřebný k postupu z aktuálního levelu na další.
   levels: {
-    0: { xpNeeded: 2, rewardText: "Získáváš zkušenosti za provoz vlaků.", action: () => {} },
-    1: { xpNeeded: 4, rewardText: "Odemčeny další možnosti rozvoje nádraží.", action: () => {} },
-    2: { xpNeeded: 6, rewardText: "Odemčeny další regionální výkony v obchodě.", action: () => {} },
-    3: { xpNeeded: 8, rewardText: "Pokračuj v rozšiřování provozu a kapacity nádraží.", action: () => {} },
-    4: { xpNeeded: 10, rewardText: "Odemčeny další investiční možnosti.", action: () => {} },
-    5: { xpNeeded: 12, rewardText: "Odemčeny další možnosti rozvoje nádraží.", action: () => {} },
-    6: { xpNeeded: 14, rewardText: "Odemčena kategorie rychlíků! Sleduj obchod a kup si konkrétní výkon.", action: () => {} },
-    7: { xpNeeded: 16, rewardText: "Další možnosti rozvoje nádraží.", action: () => {} },
-    8: { xpNeeded: 18, rewardText: "Další rozvoj nádraží.", action: () => {} },
-    9: { xpNeeded: 20, rewardText: "Odemčeny nové možnosti pro rozšířený provoz.", action: () => {} },
-    10: { xpNeeded: 22, rewardText: "Odemčeny další regionální a dálkové možnosti.", action: () => {} },
-    11: { xpNeeded: 24, rewardText: "Odemčena kategorie expresních výkonů.", action: () => {} },
-    12: { xpNeeded: 26, rewardText: "Rozvíjej služby a kapacitu pro náročnější provoz.", action: () => {} },
-    13: { xpNeeded: 28, rewardText: "Odemčeny další možnosti dálkové dopravy.", action: () => {} },
-    14: { xpNeeded: 30, rewardText: "Odemčena kategorie mezinárodních výkonů.", action: () => {} },
-    15: { xpNeeded: 32, rewardText: "Další krok v rozvoji plzeňského nádraží.", action: () => {} }
+    0: { xpNeeded: 2, rewardText: "První krok v rozvoji nádraží.", action: () => {} },
+    1: { xpNeeded: 5, rewardText: "Automaticky získáváš Arrivu Stadler do Plas. Odemčeny nákupy místních vlaků.", action: () => {} },
+    2: { xpNeeded: 10, unlocksTrack: 2, rewardText: "Automaticky odemčena druhá kolej.", action: () => {} },
+    3: { xpNeeded: 15, rewardText: "Pokračuj v rozšiřování provozu a kapacity nádraží.", action: () => {} },
+    4: { xpNeeded: 20, rewardText: "Odemčeny další investiční možnosti.", action: () => {} },
+    5: { xpNeeded: 25, rewardText: "Odemčeny další možnosti rozvoje nádraží.", action: () => {} },
+    6: { xpNeeded: 30, rewardText: "Odemčena kategorie rychlíků! Sleduj obchod a kup si konkrétní výkon.", action: () => {} },
+    7: { xpNeeded: 35, rewardText: "Další možnosti rozvoje nádraží.", action: () => {} },
+    8: { xpNeeded: 40, rewardText: "Další rozvoj nádraží.", action: () => {} },
+    9: { xpNeeded: 45, rewardText: "Odemčeny nové možnosti pro rozšířený provoz.", action: () => {} },
+    10: { xpNeeded: 50, rewardText: "Odemčeny další regionální a dálkové možnosti.", action: () => {} },
+    11: { xpNeeded: 55, rewardText: "Odemčena kategorie expresních výkonů.", action: () => {} },
+    12: { xpNeeded: 60, rewardText: "Rozvíjej služby a kapacitu nádraží.", action: () => {} },
+    13: { xpNeeded: 65, rewardText: "Odemčeny další možnosti dálkové dopravy.", action: () => {} },
+    14: { xpNeeded: 70, rewardText: "Odemčena kategorie mezinárodních výkonů.", action: () => {} },
+    15: { xpNeeded: 75, rewardText: "Další krok v rozvoji plzeňského nádraží.", action: () => {} }
   },
 
   // Každá položka je konkrétní výkon: trasa + dopravce + typ soupravy.

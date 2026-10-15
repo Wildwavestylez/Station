@@ -228,7 +228,6 @@ function loadStation(stationKey) {
     if (Number.isFinite(teamsAtLevel) && teamsAtLevel >= 1) unlockedCleaningTeamsCount = Math.floor(teamsAtLevel);
   }
   cleaningTeamsInUse = 0;
-  cleaningQueue = [];
 
   // Vytvoření čistého kolejového pole a reset výběru
   tracks = Array(unlockedTracksCount).fill(null);

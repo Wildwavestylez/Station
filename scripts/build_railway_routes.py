@@ -17,6 +17,11 @@ ROUTES = {
         "end": [49.96390, 14.07240],
         "label": "Hořovice → Beroun",
     },
+    "beroun:praha": {
+        "start": [49.96390, 14.07240],
+        "end": [50.08300, 14.43500],
+        "label": "Beroun → Praha hl.n.",
+    },
 }
 
 def haversine(a, b):

@@ -17,10 +17,15 @@ ROUTES = {
         "end": [49.96390, 14.07240],
         "label": "Hořovice → Beroun",
     },
-    "beroun:praha": {
+    "beroun:dobrichovice": {
         "start": [49.96390, 14.07240],
+        "end": [49.92750, 14.27400],
+        "label": "Beroun → Dobřichovice",
+    },
+    "dobrichovice:praha": {
+        "start": [49.92750, 14.27400],
         "end": [50.08300, 14.43500],
-        "label": "Beroun → Praha hl.n.",
+        "label": "Dobřichovice → Praha hl.n.",
     },
 }
 
@@ -32,7 +37,7 @@ def haversine(a, b):
     return 6371000 * 2 * math.atan2(math.sqrt(q), math.sqrt(max(0, 1-q)))
 
 def query_osm(start, end):
-    pad = 0.10
+    pad = 0.06
     south, west = min(start[0], end[0])-pad, min(start[1], end[1])-pad
     north, east = max(start[0], end[0])+pad, max(start[1], end[1])+pad
     q = f'[out:json][timeout:90];(way["railway"~"^(rail|light_rail|narrow_gauge|tram)$"]({south},{west},{north},{east}););out body;>;out skel qt;'

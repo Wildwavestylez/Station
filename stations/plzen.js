@@ -50,11 +50,11 @@ window.STATIONS_REGISTRY["plzen"] = {
   mapCenter: [49.7410, 13.3860],
   mapZoom: 11,
 
-  // Začátek: jedno bezplatné nástupiště a jeden bezplatný výkon.
+  // Začátek: jedno bezplatné nástupiště a dva bezplatné místní výkony.
   startingTracks: 1,
   startingCleaningTeams: 1,
   trackPurchaseCosts: [0, 5000, 12000, 22000, 35000],
-  startingTrains: [1],
+  startingTrains: [1, 2],
 
   routes: {
     rokycany: window.STATION_PREPARED_ROUTES["plzen:rokycany"],
@@ -107,7 +107,7 @@ window.STATIONS_REGISTRY["plzen"] = {
       operator: "České dráhy",
       category: "local",
       routeLabel: "Plzeň–Přeštice",
-      purchaseCost: 4500,
+      purchaseCost: 0,
       requiredLevel: 0,
       image: "https://i.imgur.com/neFFZgt.jpg",
       routeKey: "prestice",

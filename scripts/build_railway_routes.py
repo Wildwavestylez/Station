@@ -53,18 +53,21 @@ def query_osm(start, end):
     ]
     errors = []
     for endpoint in endpoints:
-        try:
-            req = urllib.request.Request(endpoint, data=body, headers={
-                "Content-Type": "application/x-www-form-urlencoded",
-                "User-Agent": "StationGameRouteBuilder/1.0 (GitHub Actions)"
-            })
-            with urllib.request.urlopen(req, timeout=110) as response:
-                data = json.loads(response.read().decode())
-            if not isinstance(data.get("elements"), list):
-                raise RuntimeError("Overpass response did not contain elements")
-            return data["elements"]
-        except Exception as exc:
-            errors.append(f"{endpoint}: {exc}")
+        for attempt in range(1, 4):
+            try:
+                req = urllib.request.Request(endpoint, data=body, headers={
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "User-Agent": "StationGameRouteBuilder/1.0 (GitHub Actions)"
+                })
+                with urllib.request.urlopen(req, timeout=110) as response:
+                    data = json.loads(response.read().decode())
+                if not isinstance(data.get("elements"), list):
+                    raise RuntimeError("Overpass response did not contain elements")
+                return data["elements"]
+            except Exception as exc:
+                errors.append(f"{endpoint} (attempt {attempt}/3): {exc}")
+                if attempt < 3:
+                    time.sleep(2 * attempt)
     raise RuntimeError("All Overpass endpoints failed: " + " | ".join(errors))
 
 def encode_polyline(coords):

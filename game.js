@@ -620,8 +620,7 @@ function checkLevelUp() {
       ownedPerformancesByStation[currentStationKey] = [...owned, id];
     }
     if (!trains.some(train => Number(train.id) === id)) addNewTrainFromPool(id);
-    rewards.push("Automaticky získáváš Arrivu Stadler na trase do Plas");
-    rewards.push("Odemčeny nákupy místních vlaků v obchodě");
+    // Konkrétní odměny jsou vypsané v textu dosaženého levelu níže.
   }
 
   // Kapacita nástupišť se automaticky přepočítá podle dosaženého levelu.
@@ -634,7 +633,7 @@ function checkLevelUp() {
     unlockedTracksCount = nextTracks;
     while (tracks.length < unlockedTracksCount) tracks.push(null);
     unlockedTracksByStation[currentStationKey] = unlockedTracksCount;
-    if (reachedLevel === 2) rewards.push("Automaticky získáváš druhou kolej");
+    // Druhá kolej je oznámená v textu odměny levelu 2.
   }
 
   let nextTeams = Number(currentStationData.startingCleaningTeams);

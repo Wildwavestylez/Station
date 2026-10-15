@@ -60,7 +60,6 @@ let trains = [];                // Seznam vlaků aktivního nádraží
 let unlockedTracksCount = 1;    // Počet aktuálně odemčených kolejí v daném městě
 let unlockedCleaningTeamsCount = 1; // Počet úklidových týmů odemčených na nádraží
 let cleaningTeamsInUse = 0;          // Počet týmů právě uklízejících vlak
-let cleaningQueue = [];              // FIFO fronta vlaků, které hráč požádal uklidit
 // 🟢 PŘIDAT DO GLOBÁLNÍCH PROMĚNNÝCH V GAME.JS:
 let currentLanguage = localStorage.getItem('trainOps_lang') || navigator.language.slice(0, 2) || 'cs';
 
@@ -413,19 +412,16 @@ function startTimer(type) {
 
   if (type === "clean") {
     const train = selected;
-    const queueIndex = cleaningQueue.findIndex(id => String(id) === String(train.id));
-    if (queueIndex !== -1) {
-      // Fronta je FIFO: pouze první čekající vlak může využít uvolněný tým.
-      if (queueIndex !== 0 || cleaningTeamsInUse >= unlockedCleaningTeamsCount) { render(); return; }
-      cleaningQueue.shift();
-    } else if (cleaningTeamsInUse >= unlockedCleaningTeamsCount || cleaningQueue.length > 0) {
-      cleaningQueue.push(train.id);
+
+    // Hráč si sám vybírá, který vlak začne uklízet jako další.
+    if (cleaningTeamsInUse >= unlockedCleaningTeamsCount) {
       train.state = "WAIT_CLEAN_TEAM";
       train.timer = 0;
       train.pendingAction = true;
       render();
       return;
     }
+
     cleaningTeamsInUse++;
     train.hasCleaningTeam = true;
     train.state = "CLEANING";
@@ -650,10 +646,7 @@ function render() {
     if (t.state === "ARRIVED") statusText = lang().arrived;
     if (t.state === "UNLOADING") statusText = `${lang().unloading} (${Math.max(0, Math.ceil(t.timer))}s)`;
     if (t.state === "WAIT_CLEAN") statusText = lang().waitClean;
-    if (t.state === "WAIT_CLEAN_TEAM") {
-      const queuePosition = cleaningQueue.findIndex(id => String(id) === String(t.id)) + 1;
-      statusText = `Čeká na úklidový tým${queuePosition > 0 ? ` (fronta ${queuePosition})` : ""}`;
-    }
+    if (t.state === "WAIT_CLEAN_TEAM") statusText = "Čeká na volný úklidový tým";
     if (t.state === "CLEANING") statusText = `${lang().cleaning} (${Math.max(0, Math.ceil(t.timer))}s)`;
     if (t.state === "WAIT_BOARD") statusText = lang().waitBoard;
     if (t.state === "BOARDING") statusText = `${lang().boarding} (${Math.max(0, Math.ceil(t.timer))}s)`;
@@ -739,10 +732,10 @@ function renderActions() {
   } else if (selected.state === "WAIT_CLEAN") {
     a.innerHTML = `<p>Úklidové týmy: ${cleaningTeamsInUse}/${unlockedCleaningTeamsCount} obsazeno</p><button class="y" onclick="startTimer('clean')">${lang().btnClean}</button>`;
   } else if (selected.state === "WAIT_CLEAN_TEAM") {
-    const queuePosition = cleaningQueue.findIndex(id => String(id) === String(selected.id));
-    const canStart = queuePosition === 0 && cleaningTeamsInUse < unlockedCleaningTeamsCount;
     a.innerHTML = `<p>Úklidové týmy: ${cleaningTeamsInUse}/${unlockedCleaningTeamsCount} obsazeno</p>` +
-      (canStart ? `<button class="y" onclick="startTimer('clean')">Zahájit úklid</button>` : `<em>Čeká na volný tým a potvrzení hráčem.</em>`);
+      (cleaningTeamsInUse < unlockedCleaningTeamsCount
+        ? `<button class="y" onclick="startTimer('clean')">Zahájit úklid</button>`
+        : `<em>Čeká na uvolnění týmu. Potom si vybereš vlak sám.</em>`);
   } else if (selected.state === "WAIT_BOARD") {
     a.innerHTML = `<button class="b" onclick="startTimer('board')">${lang().btnBoard}</button>`;
   } else if (selected.state === "READY_DEPART") {

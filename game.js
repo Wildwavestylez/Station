@@ -239,15 +239,19 @@ function loadStation(stationKey) {
 
   // Zachovej vlastnictví výkonů. Starší savy migruj podle již uložených vlaků,
   // aby hráč nepřišel o dříve získaný obsah.
-  if (!Array.isArray(ownedPerformancesByStation[stationKey])) {
-    const legacyIds = Array.isArray(window.loadedTrainsCache)
-      ? window.loadedTrainsCache.map(saved => Number(saved.id)).filter(Number.isFinite)
-      : [];
-    ownedPerformancesByStation[stationKey] = [...new Set([
-      ...(currentStationData.startingTrains || []).map(Number),
-      ...legacyIds
-    ])];
-  }
+  const legacyIds = Array.isArray(window.loadedTrainsCache)
+    ? window.loadedTrainsCache.map(saved => Number(saved.id)).filter(Number.isFinite)
+    : [];
+  const savedOwnedIds = Array.isArray(ownedPerformancesByStation[stationKey])
+    ? ownedPerformancesByStation[stationKey].map(Number).filter(Number.isFinite)
+    : [];
+  // Oprava starších savů: startovní výkony se vždy doplní, i když save už
+  // obsahuje seznam vlastněných výkonů. Jinak může bezplatná Přeštická linka zmizet.
+  ownedPerformancesByStation[stationKey] = [...new Set([
+    ...(currentStationData.startingTrains || []).map(Number),
+    ...savedOwnedIds,
+    ...legacyIds
+  ])];
 
   // Vytvoření čistého kolejového pole a reset výběru
   tracks = Array(unlockedTracksCount).fill(null);
@@ -315,6 +319,7 @@ function loadStation(stationKey) {
   renderSidebar();
   render();
   if (shopOpen) renderShop();
+  saveGameState();
 }
 
 

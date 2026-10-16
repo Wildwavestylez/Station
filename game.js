@@ -77,6 +77,140 @@ function lang() {
 }
 
 
+
+let departureBoardOpen = false;
+let departureBoardClockInterval = null;
+
+function openDepartureBoard() {
+  const modal = document.getElementById("departure-board-modal");
+  if (!modal) return;
+  departureBoardOpen = true;
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+  renderDepartureBoard();
+  if (departureBoardClockInterval) clearInterval(departureBoardClockInterval);
+  departureBoardClockInterval = setInterval(() => {
+    const clock = document.getElementById("departure-board-clock");
+    if (clock) clock.textContent = new Date().toLocaleTimeString(currentLanguage || "cs", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    renderDepartureBoard();
+  }, 1000);
+}
+
+function closeDepartureBoard() {
+  const modal = document.getElementById("departure-board-modal");
+  if (!modal) return;
+  departureBoardOpen = false;
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden", "true");
+  if (departureBoardClockInterval) {
+    clearInterval(departureBoardClockInterval);
+    departureBoardClockInterval = null;
+  }
+}
+
+function departureStatus(t) {
+  const labels = {
+    WAIT_ASSIGN: "Čeká na přidělení koleje",
+    COMING: "Příjezd na nástupiště",
+    ARRIVED: "Ve stanici",
+    UNLOADING: "Výstup cestujících",
+    WAIT_CLEAN: "Čeká na úklid",
+    WAIT_CLEAN_TEAM: "Čeká na úklidový tým",
+    CLEANING: "Probíhá úklid",
+    WAIT_BOARD: "Čeká na nástup",
+    BOARDING: "Nástup cestujících",
+    READY_DEPART: "Připraven k odjezdu",
+    EN_ROUTE_THERE: "Na cestě do cíle",
+    AT_DESTINATION: "Pobyt v cílové stanici",
+    EN_ROUTE_BACK: "Na cestě zpět"
+  };
+  return labels[t.state] || String(t.state || "Neznámý stav");
+}
+
+function departureTimeLabel(t) {
+  if (["COMING", "UNLOADING", "CLEANING", "BOARDING", "AT_DESTINATION"].includes(t.state)) {
+    const seconds = t.state === "AT_DESTINATION" ? t.stayTimer : t.timer;
+    if (Number.isFinite(Number(seconds))) return "za " + Math.max(0, Math.ceil(Number(seconds))) + " s";
+  }
+  if (t.state === "READY_DEPART") return "nyní";
+  if (t.state === "EN_ROUTE_THERE" || t.state === "EN_ROUTE_BACK") return "na trati";
+  return "—";
+}
+
+function escapeBoardText(value) {
+  return String(value == null ? "" : value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[char]));
+}
+
+function renderDepartureBoard() {
+  if (!departureBoardOpen) return;
+  const rows = document.getElementById("departure-board-rows");
+  const title = document.getElementById("departure-board-title");
+  const clock = document.getElementById("departure-board-clock");
+  const count = document.getElementById("departure-board-count");
+  if (!rows || !currentStationData) return;
+
+  if (title) title.textContent = "Odjezdy · " + currentStationData.name;
+  if (clock) clock.textContent = new Date().toLocaleTimeString(currentLanguage || "cs", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+  const activeTrains = [...trains].sort((a, b) => {
+    const rank = t => t.state === "READY_DEPART" ? 0 : t.state === "COMING" ? 1 : t.state === "WAIT_ASSIGN" ? 2 : 3;
+    return rank(a) - rank(b) || String(a.name).localeCompare(String(b.name), "cs");
+  });
+  if (count) count.textContent = activeTrains.length + (activeTrains.length === 1 ? " vlak" : activeTrains.length >= 2 && activeTrains.length <= 4 ? " vlaky" : " vlaků");
+
+  if (!activeTrains.length) {
+    rows.innerHTML = '<tr><td colspan="5" class="departure-board-empty">Momentálně nejsou v provozu žádné vlaky.</td></tr>';
+    return;
+  }
+
+  rows.innerHTML = activeTrains.map(t => {
+    const template = currentStationData.trainsPool && currentStationData.trainsPool[t.id] || {};
+    const destination = template.routeLabel || template.routeKey || "Neurčená linka";
+    const line = template.lineCode || String(template.routeKey || "linka").replace(/[^a-z0-9]/gi, "").toUpperCase();
+    const operator = template.operator || "Neurčený dopravce";
+    const status = departureStatus(t);
+    const statusClass = t.state === "READY_DEPART" ? "is-ready" : (t.state === "EN_ROUTE_THERE" || t.state === "EN_ROUTE_BACK" ? "is-moving" : "is-waiting");
+    return '<tr class="' + (selected && selected.id === t.id ? "is-selected" : "") + '">' +
+      '<td class="departure-time-cell">' + escapeBoardText(departureTimeLabel(t)) + '</td>' +
+      '<td><strong>' + escapeBoardText(destination) + '</strong><small class="departure-line-code">' + escapeBoardText(line) + '</small></td>' +
+      '<td>' + escapeBoardText(operator) + '</td>' +
+      '<td><button class="departure-train-select" type="button" data-train-id="' + escapeBoardText(t.id) + '">' + escapeBoardText(t.name) + '</button></td>' +
+      '<td><span class="departure-status ' + statusClass + '">' + escapeBoardText(status) + '</span></td>' +
+      '</tr>';
+  }).join("");
+
+  rows.querySelectorAll("[data-train-id]").forEach(button => {
+    button.addEventListener("click", () => {
+      const train = trains.find(item => String(item.id) === button.getAttribute("data-train-id"));
+      if (!train) return;
+      selected = train;
+      updateDetail();
+      render();
+      if (train.marker && map.hasLayer(train.marker)) {
+        map.panTo(train.marker.getLatLng());
+        train.marker.openPopup();
+      }
+      closeDepartureBoard();
+    });
+  });
+}
+
+function initDepartureBoard() {
+  const button = document.getElementById("departure-board-button");
+  const close = document.getElementById("departure-board-close");
+  const modal = document.getElementById("departure-board-modal");
+  if (button) button.addEventListener("click", openDepartureBoard);
+  if (close) close.addEventListener("click", closeDepartureBoard);
+  if (modal) {
+    modal.querySelectorAll("[data-close-departures]").forEach(el => el.addEventListener("click", closeDepartureBoard));
+  }
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && departureBoardOpen) closeDepartureBoard();
+  });
+}
+
 // 🍔 3. FUNKCE PRO VYSUNUTÍ / ZASUNUTÍ BOČNÍHO MENU
 function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
@@ -939,6 +1073,7 @@ function render() {
   });
 
   updateDetail();
+  if (departureBoardOpen) renderDepartureBoard();
 }
 
 
@@ -1209,6 +1344,8 @@ function gameLoop(now) {
   render();
   requestAnimationFrame(gameLoop);
 }
+
+initDepartureBoard();
 
 // 🚀 19. SPOUŠTĚČ SMYČKY
 // Oficiální nastartování celého herního loopu

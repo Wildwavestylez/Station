@@ -747,7 +747,9 @@ function renderShop() {
     trackLabel = "Maximum";
     trackDisabled = true;
   }
-  const trackCard = shopCard("Další nástupiště", "Rozšíření kapacity nádraží", trackDetail, trackLabel, trackAction, trackDisabled);
+  const trackCard = level >= 2
+    ? shopCard("Další nástupiště", "Rozšíření kapacity nádraží", trackDetail, trackLabel, trackAction, trackDisabled)
+    : "";
 
   const categoryCards = [
     ["Místní osobní vlaky", 1],
@@ -763,7 +765,7 @@ function renderShop() {
 
   content.innerHTML =
     shopSection("Železniční výkony", performanceCards) +
-    shopSection("Infrastruktura", trackCard) +
+    (level >= 2 ? shopSection("Infrastruktura", trackCard) : "") +
     shopSection("Postup kampaní", categoryCards) +
     `<p style="color:#999;font-size:12px">Pevná odměna se připíše po návratu vlaku na nádraží, tedy po celé otočce tam i zpět. Level odemyká kategorii; konkrétní výkon se kupuje samostatně.</p>`;
 }
@@ -798,6 +800,11 @@ function buyPerformance(id) {
 
 function buyTrack() {
   if (!currentStationData || !currentStationKey) return;
+  const level = Number((stationLevels[currentStationKey] || {}).lvl) || 0;
+  if (level < 2) {
+    alert("Další nástupiště se odemkne po dosažení Levelu 2.");
+    return;
+  }
   const costs = currentStationData.trackPurchaseCosts || [];
   const cost = Number(costs[unlockedTracksCount]);
   if (!Number.isFinite(cost) || unlockedTracksCount >= costs.length) {

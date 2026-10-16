@@ -1073,7 +1073,6 @@ function render() {
   });
 
   updateDetail();
-  if (departureBoardOpen) renderDepartureBoard();
 }
 
 

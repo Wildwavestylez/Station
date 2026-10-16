@@ -120,27 +120,25 @@ function departureTimeLabel(t) {
 
 // Odhad do návratu na aktuální nádraží podle herní vzdálenosti, rychlosti a pobytu v cíli.
 function getReturnEtaSeconds(t) {
+  if (Number.isFinite(Number(t.returnCountdownSeconds))) {
+    return Math.max(0, Number(t.returnCountdownSeconds));
+  }
+
+  // Zpětná kompatibilita pro vlak, který byl na trati uložen před zavedením odpočtu.
   const route = currentStationData && currentStationData.routes
     ? currentStationData.routes[t.routeKey]
     : null;
   const speed = Number(t.speed);
   const length = route && Number(route.totalLength);
   if (!route || !Number.isFinite(length) || length <= 0 || !Number.isFinite(speed) || speed <= 0) return null;
-
   if (t.state === "EN_ROUTE_THERE") {
     return Math.max(0, length - (Number(t.distance) || 0)) / speed
-      + Math.max(0, Number(t.stayTime) || 0)
-      + length / speed;
+      + Math.max(0, Number(t.stayTime) || 0) + length / speed;
   }
   if (t.state === "AT_DESTINATION") {
     return Math.max(0, Number(t.stayTimer) || 0) + length / speed;
   }
-  if (t.state === "EN_ROUTE_BACK") {
-    return Math.max(0, Number(t.distance) || 0) / speed;
-  }
-  if (t.state === "READY_DEPART") {
-    return length / speed + Math.max(0, Number(t.stayTime) || 0) + length / speed;
-  }
+  if (t.state === "EN_ROUTE_BACK") return Math.max(0, Number(t.distance) || 0) / speed;
   return null;
 }
 
@@ -688,6 +686,13 @@ async function depart() {
     t.track = null;
   }
   const route = currentStationData.routes[t.routeKey];
+  const routeLength = Number(route && route.totalLength);
+  const trainSpeed = Number(t.speed);
+  // Při kliknutí na ODJEZD se založí odpočet celé otočky: cesta tam + pobyt + cesta zpět.
+  t.returnCountdownSeconds = Number.isFinite(routeLength) && routeLength > 0 &&
+    Number.isFinite(trainSpeed) && trainSpeed > 0
+      ? (routeLength / trainSpeed) * 2 + Math.max(0, Number(t.stayTime) || 0)
+      : null;
   t.state = "EN_ROUTE_THERE";
   t.distance = 0;
   t.pendingAction = false;
@@ -1271,6 +1276,12 @@ function gameLoop(now) {
 
   trains.forEach(t => {
     const route = currentStationData.routes[t.routeKey];
+
+    // Odpočet otočky běží od okamžiku stisku ODJEZD až do návratu do výchozí stanice.
+    if (["EN_ROUTE_THERE", "AT_DESTINATION", "EN_ROUTE_BACK"].includes(t.state) &&
+        Number.isFinite(Number(t.returnCountdownSeconds))) {
+      t.returnCountdownSeconds = Math.max(0, Number(t.returnCountdownSeconds) - dt);
+    }
 
 // 🟢 TUTO PODMÍNKU SEM VLOŽ JAKO PRVNÍ:
     // ⏳ PROGRESS: PŘÍJEZD VLAKU NA URČENOU KOLEJ

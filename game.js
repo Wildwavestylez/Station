@@ -570,6 +570,41 @@ function getPositionOnRoute(route, distance) {
   return route[route.length - 1];
 }
 
+// Natoč vlak podle směru kolejí. Obrázek je ve výchozím stavu natočený doprava
+// (východ); Leaflet kotví celý obrázek středem, ne levým horním rohem.
+function getTrainHeadingDegrees(route, distance, reverse) {
+  if (!route || route.length < 2) return 0;
+  let passed = 0;
+  let segmentIndex = route.length - 2;
+  for (let i = 0; i < route.segmentLengths.length; i++) {
+    const length = Number(route.segmentLengths[i]) || 0;
+    if (distance <= passed + length || i === route.segmentLengths.length - 1) {
+      segmentIndex = i;
+      break;
+    }
+    passed += length;
+  }
+  const a = route[segmentIndex];
+  const b = route[segmentIndex + 1];
+  const lat = (Number(b[0]) - Number(a[0])) * (reverse ? -1 : 1);
+  const lng = (Number(b[1]) - Number(a[1])) * (reverse ? -1 : 1);
+  const east = lng * Math.cos((Number(a[0]) + Number(b[0])) * Math.PI / 360);
+  const north = lat;
+  // Heading 0° = sever, 90° = východ. Ikona původně míří na východ.
+  const headingFromNorth = Math.atan2(east, north) * 180 / Math.PI;
+  return headingFromNorth - 90;
+}
+
+function updateTrainMarker(t, route, distance, reverse) {
+  if (!t.marker || !route) return;
+  t.marker.setLatLng(getPositionOnRoute(route, distance));
+  const image = t.marker.getElement() && t.marker.getElement().querySelector(".train-map-image");
+  if (image) {
+    image.style.transformOrigin = "50% 50%";
+    image.style.transform = "rotate(" + getTrainHeadingDegrees(route, distance, reverse) + "deg)";
+  }
+}
+
 
 // ==========================================
 // 🧱 KUS 5: LOGIKA ODBAVENÍ A ODJEZD VLAKU
@@ -1328,7 +1363,7 @@ function gameLoop(now) {
     if (t.state === "EN_ROUTE_THERE") {
       t.distance += t.speed * dt;
       if (t.distance < route.totalLength) {
-        t.marker.setLatLng(getPositionOnRoute(route, t.distance));
+        updateTrainMarker(t, route, t.distance, false);
       } else {
         t.distance = route.totalLength;
         t.state = "AT_DESTINATION";
@@ -1387,7 +1422,7 @@ function gameLoop(now) {
     if (t.state === "EN_ROUTE_BACK") {
       t.distance -= t.speed * dt;
       if (t.distance > 0) {
-        t.marker.setLatLng(getPositionOnRoute(route, t.distance));
+        updateTrainMarker(t, route, t.distance, true);
       } else {
         // Vlak úspěšně dorazil zpět na výchozí nádraží
         if (t.marker) {

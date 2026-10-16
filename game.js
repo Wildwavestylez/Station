@@ -873,7 +873,6 @@ function render() {
       ${showDot ? '<div class="dot"></div>' : ''}
       <b>${t.name}</b><br>
       <small>${statusText}</small>
-      ${showLocalShopNotice ? '<div class="local-shop-notice">NOVĚ: V Obchodě nádraží si můžeš koupit libovolný místní spoj.</div>' : ''}
     `;
 
     d.onclick = () => { selected = t; updateDetail(); render(); };

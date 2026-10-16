@@ -110,14 +110,12 @@ function closeDepartureBoard() {
 
 // Odjezdová tabule zobrazuje pouze vlaky, které jsou fyzicky ve výchozí stanici.
 function isDepartureBoardTrain(t) {
-  return !["EN_ROUTE_THERE", "AT_DESTINATION", "EN_ROUTE_BACK"].includes(t.state);
+  return ["EN_ROUTE_THERE", "AT_DESTINATION", "EN_ROUTE_BACK"].includes(t.state);
 }
 
-// Odjezd závisí na ručním odbavení hráčem; neuvádíme smyšlený čas.
+// Na tabuli ukazujeme odjeté spoje a odpočet do jejich návratu.
 function departureTimeLabel(t) {
-  if (t.state === "READY_DEPART") return "Nyní";
-  if (t.state === "BOARDING") return "Po nástupu";
-  return "Po odbavení";
+  return formatReturnEta(getReturnEtaSeconds(t));
 }
 
 // Odhad do návratu na aktuální nádraží podle herní vzdálenosti, rychlosti a pobytu v cíli.
@@ -174,9 +172,11 @@ function renderDepartureBoard() {
   const activeTrains = [...trains]
     .filter(isDepartureBoardTrain)
     .sort((a, b) => {
-      const readyA = a.state === "READY_DEPART";
-      const readyB = b.state === "READY_DEPART";
-      if (readyA !== readyB) return readyA ? -1 : 1;
+      const etaA = getReturnEtaSeconds(a);
+      const etaB = getReturnEtaSeconds(b);
+      if (Number.isFinite(etaA) && Number.isFinite(etaB)) return etaA - etaB;
+      if (Number.isFinite(etaA)) return -1;
+      if (Number.isFinite(etaB)) return 1;
       return String(a.name).localeCompare(String(b.name), "cs");
     });
   if (count) count.textContent = activeTrains.length + (activeTrains.length === 1 ? " vlak" : activeTrains.length >= 2 && activeTrains.length <= 4 ? " vlaky" : " vlaků");

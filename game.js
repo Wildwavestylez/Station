@@ -108,23 +108,16 @@ function closeDepartureBoard() {
   }
 }
 
-function departureStatus(t) {
-  const labels = {
-    WAIT_ASSIGN: "Čeká na přidělení koleje",
-    COMING: "Příjezd na nástupiště",
-    ARRIVED: "Ve stanici",
-    UNLOADING: "Výstup cestujících",
-    WAIT_CLEAN: "Čeká na úklid",
-    WAIT_CLEAN_TEAM: "Čeká na úklidový tým",
-    CLEANING: "Probíhá úklid",
-    WAIT_BOARD: "Čeká na nástup",
-    BOARDING: "Nástup cestujících",
-    READY_DEPART: "Připraven k odjezdu",
-    EN_ROUTE_THERE: "Na cestě do cíle",
-    AT_DESTINATION: "Pobyt v cílové stanici",
-    EN_ROUTE_BACK: "Na cestě zpět"
-  };
-  return labels[t.state] || String(t.state || "Neznámý stav");
+// Odjezdová tabule zobrazuje pouze vlaky, které jsou fyzicky ve výchozí stanici.
+function isDepartureBoardTrain(t) {
+  return !["EN_ROUTE_THERE", "AT_DESTINATION", "EN_ROUTE_BACK"].includes(t.state);
+}
+
+// Odjezd závisí na ručním odbavení hráčem; neuvádíme smyšlený čas.
+function departureTimeLabel(t) {
+  if (t.state === "READY_DEPART") return "Nyní";
+  if (t.state === "BOARDING") return "Po nástupu";
+  return "Po odbavení";
 }
 
 // Odhad do návratu na aktuální nádraží podle herní vzdálenosti, rychlosti a pobytu v cíli.
@@ -154,22 +147,11 @@ function getReturnEtaSeconds(t) {
 }
 
 function formatReturnEta(seconds) {
-  if (!Number.isFinite(seconds)) return "čeká na odjezd";
+  if (!Number.isFinite(seconds)) return "—";
   const totalMinutes = Math.max(0, Math.ceil(seconds / 60));
   if (totalMinutes < 1) return "za méně než 1 min";
   if (totalMinutes === 1) return "za 1 min";
   return "za " + totalMinutes + " min";
-}
-
-function departureTimeLabel(t) {
-  if (t.state === "READY_DEPART" || t.state === "EN_ROUTE_THERE" ||
-      t.state === "AT_DESTINATION" || t.state === "EN_ROUTE_BACK") {
-    return formatReturnEta(getReturnEtaSeconds(t));
-  }
-  if (t.state === "COMING" && Number.isFinite(Number(t.timer))) {
-    return "příjezd za " + Math.max(0, Math.ceil(Number(t.timer))) + " s";
-  }
-  return "čeká na odjezd";
 }
 
 function escapeBoardText(value) {
@@ -189,20 +171,18 @@ function renderDepartureBoard() {
   if (title) title.textContent = "Odjezdy · " + currentStationData.name;
   if (clock) clock.textContent = new Date().toLocaleTimeString(currentLanguage || "cs", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
-  const activeTrains = [...trains].sort((a, b) => {
-    const etaA = getReturnEtaSeconds(a);
-    const etaB = getReturnEtaSeconds(b);
-    const hasEtaA = Number.isFinite(etaA);
-    const hasEtaB = Number.isFinite(etaB);
-    if (hasEtaA && hasEtaB) return etaA - etaB || String(a.name).localeCompare(String(b.name), "cs");
-    if (hasEtaA !== hasEtaB) return hasEtaA ? -1 : 1;
-    const rank = t => t.state === "COMING" ? 0 : t.state === "WAIT_ASSIGN" ? 1 : 2;
-    return rank(a) - rank(b) || String(a.name).localeCompare(String(b.name), "cs");
-  });
+  const activeTrains = [...trains]
+    .filter(isDepartureBoardTrain)
+    .sort((a, b) => {
+      const readyA = a.state === "READY_DEPART";
+      const readyB = b.state === "READY_DEPART";
+      if (readyA !== readyB) return readyA ? -1 : 1;
+      return String(a.name).localeCompare(String(b.name), "cs");
+    });
   if (count) count.textContent = activeTrains.length + (activeTrains.length === 1 ? " vlak" : activeTrains.length >= 2 && activeTrains.length <= 4 ? " vlaky" : " vlaků");
 
   if (!activeTrains.length) {
-    rows.innerHTML = '<tr><td colspan="5" class="departure-board-empty">Momentálně nejsou v provozu žádné vlaky.</td></tr>';
+    rows.innerHTML = '<tr><td colspan="4" class="departure-board-empty">Momentálně nejsou v provozu žádné vlaky.</td></tr>';
     return;
   }
 
@@ -211,14 +191,11 @@ function renderDepartureBoard() {
     const destination = template.routeLabel || template.routeKey || "Neurčená linka";
     const line = template.lineCode || String(template.routeKey || "linka").replace(/[^a-z0-9]/gi, "").toUpperCase();
     const operator = template.operator || "Neurčený dopravce";
-    const status = departureStatus(t);
-    const statusClass = t.state === "READY_DEPART" ? "is-ready" : (t.state === "EN_ROUTE_THERE" || t.state === "EN_ROUTE_BACK" ? "is-moving" : "is-waiting");
     return '<tr class="' + (selected && selected.id === t.id ? "is-selected" : "") + '">' +
       '<td class="departure-time-cell">' + escapeBoardText(departureTimeLabel(t)) + '</td>' +
       '<td><strong>' + escapeBoardText(destination) + '</strong><small class="departure-line-code">' + escapeBoardText(line) + '</small></td>' +
       '<td>' + escapeBoardText(operator) + '</td>' +
       '<td><button class="departure-train-select" type="button" data-train-id="' + escapeBoardText(t.id) + '">' + escapeBoardText(t.name) + '</button></td>' +
-      '<td><span class="departure-status ' + statusClass + '">' + escapeBoardText(status) + '</span></td>' +
       '</tr>';
   }).join("");
 

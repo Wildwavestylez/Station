@@ -866,10 +866,14 @@ function render() {
     if (t.state === "AT_DESTINATION") statusText = `${lang().atDestination} (${Math.max(0, Math.ceil(t.stayTimer))}s)`;
     if (t.state === "EN_ROUTE_BACK") statusText = lang().enRouteBack;
 
+    const showLocalShopNotice = currentStationKey === "plzen"
+      && (stationLevels.plzen?.lvl || 0) >= 1
+      && Number(t.id) === 6;
     d.innerHTML = `
       ${showDot ? '<div class="dot"></div>' : ''}
       <b>${t.name}</b><br>
       <small>${statusText}</small>
+      ${showLocalShopNotice ? '<div class="local-shop-notice">NOVĚ: V Obchodě nádraží si můžeš koupit libovolný místní spoj.</div>' : ''}
     `;
 
     d.onclick = () => { selected = t; updateDetail(); render(); };

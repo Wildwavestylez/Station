@@ -180,20 +180,27 @@ function renderDepartureBoard() {
   if (count) count.textContent = activeTrains.length + (activeTrains.length === 1 ? " vlak" : activeTrains.length >= 2 && activeTrains.length <= 4 ? " vlaky" : " vlaků");
 
   if (!activeTrains.length) {
-    rows.innerHTML = '<tr><td colspan="4" class="departure-board-empty">Momentálně nejsou v provozu žádné vlaky.</td></tr>';
+    rows.innerHTML = '<tr><td colspan="3" class="departure-board-empty">Momentálně nejsou v provozu žádné vlaky.</td></tr>';
     return;
   }
 
   rows.innerHTML = activeTrains.map(t => {
     const template = currentStationData.trainsPool && currentStationData.trainsPool[t.id] || {};
-    const destination = template.routeLabel || template.routeKey || "Neurčená linka";
-    const line = template.lineCode || String(template.routeKey || "linka").replace(/[^a-z0-9]/gi, "").toUpperCase();
+    const destinations = {
+      rokycany: "Rokycany",
+      prestice: "Přeštice",
+      plasy: "Plasy",
+      praha: "Praha",
+      domazlice: "Domažlice"
+    };
+    const destination = template.boardDestination || destinations[t.routeKey] || template.destination || "Neurčený cíl";
+    const lineCode = String(template.lineCode || "").trim();
+    const displayDestination = (lineCode ? lineCode + " " : "") + destination;
     const operator = template.operator || "Neurčený dopravce";
     return '<tr class="' + (selected && selected.id === t.id ? "is-selected" : "") + '">' +
       '<td class="departure-time-cell">' + escapeBoardText(departureTimeLabel(t)) + '</td>' +
-      '<td><strong>' + escapeBoardText(destination) + '</strong><small class="departure-line-code">' + escapeBoardText(line) + '</small></td>' +
+      '<td><strong>' + escapeBoardText(displayDestination) + '</strong></td>' +
       '<td>' + escapeBoardText(operator) + '</td>' +
-      '<td><button class="departure-train-select" type="button" data-train-id="' + escapeBoardText(t.id) + '">' + escapeBoardText(t.name) + '</button></td>' +
       '</tr>';
   }).join("");
 

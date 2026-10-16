@@ -127,14 +127,49 @@ function departureStatus(t) {
   return labels[t.state] || String(t.state || "Neznámý stav");
 }
 
-function departureTimeLabel(t) {
-  if (["COMING", "UNLOADING", "CLEANING", "BOARDING", "AT_DESTINATION"].includes(t.state)) {
-    const seconds = t.state === "AT_DESTINATION" ? t.stayTimer : t.timer;
-    if (Number.isFinite(Number(seconds))) return "za " + Math.max(0, Math.ceil(Number(seconds))) + " s";
+// Odhad do návratu na aktuální nádraží podle herní vzdálenosti, rychlosti a pobytu v cíli.
+function getReturnEtaSeconds(t) {
+  const route = currentStationData && currentStationData.routes
+    ? currentStationData.routes[t.routeKey]
+    : null;
+  const speed = Number(t.speed);
+  const length = route && Number(route.totalLength);
+  if (!route || !Number.isFinite(length) || length <= 0 || !Number.isFinite(speed) || speed <= 0) return null;
+
+  if (t.state === "EN_ROUTE_THERE") {
+    return Math.max(0, length - (Number(t.distance) || 0)) / speed
+      + Math.max(0, Number(t.stayTime) || 0)
+      + length / speed;
   }
-  if (t.state === "READY_DEPART") return "nyní";
-  if (t.state === "EN_ROUTE_THERE" || t.state === "EN_ROUTE_BACK") return "na trati";
-  return "—";
+  if (t.state === "AT_DESTINATION") {
+    return Math.max(0, Number(t.stayTimer) || 0) + length / speed;
+  }
+  if (t.state === "EN_ROUTE_BACK") {
+    return Math.max(0, Number(t.distance) || 0) / speed;
+  }
+  if (t.state === "READY_DEPART") {
+    return length / speed + Math.max(0, Number(t.stayTime) || 0) + length / speed;
+  }
+  return null;
+}
+
+function formatReturnEta(seconds) {
+  if (!Number.isFinite(seconds)) return "čeká na odjezd";
+  const totalMinutes = Math.max(0, Math.ceil(seconds / 60));
+  if (totalMinutes < 1) return "za méně než 1 min";
+  if (totalMinutes === 1) return "za 1 min";
+  return "za " + totalMinutes + " min";
+}
+
+function departureTimeLabel(t) {
+  if (t.state === "READY_DEPART" || t.state === "EN_ROUTE_THERE" ||
+      t.state === "AT_DESTINATION" || t.state === "EN_ROUTE_BACK") {
+    return formatReturnEta(getReturnEtaSeconds(t));
+  }
+  if (t.state === "COMING" && Number.isFinite(Number(t.timer))) {
+    return "příjezd za " + Math.max(0, Math.ceil(Number(t.timer))) + " s";
+  }
+  return "čeká na odjezd";
 }
 
 function escapeBoardText(value) {
@@ -155,7 +190,13 @@ function renderDepartureBoard() {
   if (clock) clock.textContent = new Date().toLocaleTimeString(currentLanguage || "cs", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
   const activeTrains = [...trains].sort((a, b) => {
-    const rank = t => t.state === "READY_DEPART" ? 0 : t.state === "COMING" ? 1 : t.state === "WAIT_ASSIGN" ? 2 : 3;
+    const etaA = getReturnEtaSeconds(a);
+    const etaB = getReturnEtaSeconds(b);
+    const hasEtaA = Number.isFinite(etaA);
+    const hasEtaB = Number.isFinite(etaB);
+    if (hasEtaA && hasEtaB) return etaA - etaB || String(a.name).localeCompare(String(b.name), "cs");
+    if (hasEtaA !== hasEtaB) return hasEtaA ? -1 : 1;
+    const rank = t => t.state === "COMING" ? 0 : t.state === "WAIT_ASSIGN" ? 1 : 2;
     return rank(a) - rank(b) || String(a.name).localeCompare(String(b.name), "cs");
   });
   if (count) count.textContent = activeTrains.length + (activeTrains.length === 1 ? " vlak" : activeTrains.length >= 2 && activeTrains.length <= 4 ? " vlaky" : " vlaků");

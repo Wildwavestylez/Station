@@ -540,16 +540,23 @@ async function depart() {
   t.distance = 0;
   t.pendingAction = false;
 
-  // Vytvoření markeru s oříznutým průhledným obrázkem vlaku
+  // Vytvoření markeru vlaku; kliknutí otevře provozní informace.
   if (!t.marker) {
     t.marker = L.marker(route[0], {
       icon: L.divIcon({
         html: `<img src="${t.image}" class="train-map-image">`,
         className: 'train-div-icon',
         iconSize: [80, 80],
-        iconAnchor: [40, 40] // Souřadnice trati míří doprostřed ikony vlaku
+        iconAnchor: [40, 40]
       })
     }).addTo(map);
+
+    t.marker.bindPopup(() => getTrainPopupHtml(t), { className: "train-info-popup" });
+    t.marker.on("click", () => {
+      selected = t;
+      updateDetail();
+      render();
+    });
   } else {
     t.marker.setLatLng(route[0]);
   }
@@ -558,6 +565,51 @@ async function depart() {
   selected = null;
   render();
   saveGameState();
+}
+
+
+// Informace zobrazované po kliknutí na vlak na mapě.
+function getTrainPopupHtml(t) {
+  const template = currentStationData && currentStationData.trainsPool
+    ? currentStationData.trainsPool[t.id]
+    : null;
+  const destination = template && template.routeLabel
+    ? template.routeLabel
+    : (template && template.routeKey ? template.routeKey : "Neznámá trasa");
+  const categoryNames = {
+    local: "Místní osobní vlak",
+    regional: "Regionální vlak",
+    rapid: "Rychlík",
+    express: "Expres",
+    international: "Mezinárodní vlak"
+  };
+  const category = categoryNames[(template && template.category) || ""] || "Osobní vlak";
+  const stateNames = {
+    WAIT_ASSIGN: "Čeká na přidělení koleje",
+    COMING: "Přijíždí na nástupiště",
+    ARRIVED: "Ve stanici – čeká na výstup cestujících",
+    UNLOADING: "Vystupují cestující",
+    WAIT_CLEAN: "Čeká na úklid",
+    WAIT_CLEAN_TEAM: "Čeká na volný úklidový tým",
+    CLEANING: "Probíhá úklid",
+    WAIT_BOARD: "Čeká na nástup cestujících",
+    BOARDING: "Nastupují cestující",
+    READY_DEPART: "Připraven k odjezdu",
+    EN_ROUTE_THERE: "Na cestě do cíle",
+    AT_DESTINATION: "Na konečné stanici",
+    EN_ROUTE_BACK: "Na cestě zpět do výchozí stanice"
+  };
+  const turnsDone = Math.max(0, Number(t.current_turnaround) || 0);
+  const turnsRequired = Math.max(1, Number(t.required_turnaround) || 1);
+  return `
+    <div class="train-popup-card">
+      <strong class="train-popup-name">${t.name || "Osobní vlak"}</strong>
+      <div class="train-popup-type">${category}</div>
+      <div class="train-popup-row"><span>Linka</span><b>${destination}</b></div>
+      <div class="train-popup-row"><span>Otočky</span><b>${turnsDone}/${turnsRequired}</b></div>
+      <div class="train-popup-state">${stateNames[t.state] || t.state}</div>
+    </div>
+  `;
 }
 
 // ==========================================

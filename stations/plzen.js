@@ -94,7 +94,7 @@ window.STATIONS_REGISTRY["plzen"] = {
   // xpNeeded je počet XP potřebný k postupu z aktuálního levelu na další.
   levels: {
     0: { xpNeeded: 2, rewardText: "První krok v rozvoji nádraží.", action: () => {} },
-    1: { xpNeeded: 5, rewardText: "Získáváš linku Plzeň–Plasy s vlakem Arriva Stadler.\n\nNOVĚ: ODTEĎ SI MŮŽEŠ V OBCHODĚ NÁDRAŽÍ KOUPIT LIBOVOLNÝ MÍSTNÍ SPOJ.", action: () => {} },
+    1: { xpNeeded: 5, rewardText: "Získáváš linku Plzeň–Plasy s vlakem Arriva Stadler.", action: () => {} },
     2: { xpNeeded: 10, unlocksTrack: 2, rewardText: "Automaticky odemčena druhá kolej.", action: () => {} },
     3: { xpNeeded: 15, rewardText: "Pokračuj v rozšiřování provozu a kapacity nádraží.", action: () => {} },
     4: { xpNeeded: 20, rewardText: "Odemčeny další investiční možnosti.", action: () => {} },

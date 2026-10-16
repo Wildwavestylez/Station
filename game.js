@@ -860,6 +860,7 @@ function processTrainReturn(t) {
     t.nextRouteKey = null;
   }
   t.state = "WAIT_ASSIGN";
+  t.returnedAt = Date.now();
   t.pendingAction = true;
   render();
   saveGameState();
@@ -1122,7 +1123,23 @@ function render() {
   if (!q) return;
   q.innerHTML = "";
 
-  trains.forEach(t => {
+  // Čerstvě vrácené vlaky čekající na odbavení jdou nahoru.
+  // Ostatní si zachovají původní pořadí, aby seznam zůstal stabilní.
+  const orderedTrains = trains
+    .map((train, originalIndex) => ({ train, originalIndex }))
+    .sort((a, b) => {
+      const aWaiting = a.train.state === "WAIT_ASSIGN" ? 1 : 0;
+      const bWaiting = b.train.state === "WAIT_ASSIGN" ? 1 : 0;
+      if (aWaiting !== bWaiting) return bWaiting - aWaiting;
+      if (aWaiting && bWaiting) {
+        const returnedDifference = (Number(b.train.returnedAt) || 0) - (Number(a.train.returnedAt) || 0);
+        if (returnedDifference !== 0) return returnedDifference;
+      }
+      return a.originalIndex - b.originalIndex;
+    })
+    .map(item => item.train);
+
+  orderedTrains.forEach(t => {
     let d = document.createElement("div");
     d.className = "train";
     if (selected && selected.id === t.id) d.className += " selected";

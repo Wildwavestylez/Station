@@ -726,8 +726,8 @@ async function depart() {
       icon: L.divIcon({
         html: `<img src="${t.image}" class="train-map-image">`,
         className: 'train-div-icon',
-        iconSize: [36, 36],
-        iconAnchor: [18, 18]
+        iconSize: [80, 80],
+        iconAnchor: [40, 40]
       })
     }).addTo(map);
 

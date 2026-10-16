@@ -26,6 +26,45 @@ function buildPlzenPlasyRoute() {
   return joined;
 }
 
+function buildJoinedPlzenRoute(keys, label) {
+  const prepared = window.STATION_PREPARED_ROUTES || {};
+  const segments = keys.map(key => prepared[key]);
+  if (segments.some(segment => !Array.isArray(segment) || segment.length < 2)) {
+    console.error(label + ": chybí některý připravený skutečný železniční úsek.");
+    return [];
+  }
+  const distanceMeters = (a, b) => {
+    const rad = Math.PI / 180;
+    const dLat = (b[0] - a[0]) * rad;
+    const dLon = (b[1] - a[1]) * rad;
+    const q = Math.sin(dLat / 2) ** 2 +
+      Math.cos(a[0] * rad) * Math.cos(b[0] * rad) * Math.sin(dLon / 2) ** 2;
+    return 6371000 * 2 * Math.atan2(Math.sqrt(q), Math.sqrt(Math.max(0, 1 - q)));
+  };
+  const joined = segments[0].map(point => [point[0], point[1]]);
+  for (let i = 1; i < segments.length; i++) {
+    const previous = joined[joined.length - 1];
+    const nextStart = segments[i][0];
+    const gap = distanceMeters(previous, nextStart);
+    if (gap > 250) {
+      console.error(label + ": segmenty na sebe nenavazují.", {
+        from: keys[i - 1], to: keys[i], gapMeters: Math.round(gap)
+      });
+      return [];
+    }
+    joined.push(...segments[i].map(point => [point[0], point[1]]));
+  }
+  console.info(label + " spojena z " + segments.length + " OSM úseků:", joined.length, "bodů.");
+  return joined;
+}
+
+function buildPlzenDomazliceRoute() {
+  return buildJoinedPlzenRoute(
+    ["plzen:nyrany", "nyrany:stankov", "stankov:domazlice"],
+    "Trasa Plzeň–Domažlice"
+  );
+}
+
 function buildPlzenPrahaRoute() {
   const prepared = window.STATION_PREPARED_ROUTES || {};
   const keys = [
@@ -87,7 +126,8 @@ window.STATIONS_REGISTRY["plzen"] = {
     rokycany: window.STATION_PREPARED_ROUTES["plzen:rokycany"],
     prestice: window.STATION_PREPARED_ROUTES["plzen:prestice"],
     plasy: buildPlzenPlasyRoute(),
-    praha: buildPlzenPrahaRoute()
+    praha: buildPlzenPrahaRoute(),
+    domazlice: buildPlzenDomazliceRoute()
   },
 
   // Level odemyká kategorie a možnosti. Konkrétní výkony se kupují v obchodě.
@@ -194,6 +234,22 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardMoney: 6800,
       rewardXP: 3
     },
+    7: {
+      name: "TEST · dálkový výkon Praha–Plzeň–Domažlice",
+      operator: "České dráhy",
+      category: "local",
+      routeLabel: "Plzeň–Domažlice (test)",
+      purchaseCost: 1000,
+      requiredLevel: 0,
+      image: "https://i.imgur.com/tw5kV39.jpg",
+      routeKey: "domazlice",
+      speed: 120,
+      stayTime: 15,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, board: 5 },
+      rewardMoney: 1000,
+      rewardXP: 1
+    },
     6: {
       name: "Arriva · Stadler → Plasy",
       operator: "Arriva",
@@ -222,4 +278,10 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.p
 // Trasa Plzeň–Plasy je dostupná až po ověření spojení obou reálných OSM segmentů.
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.plasy.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:plasy");
+}
+
+
+// Zveřejni pouze trasy, jejichž OSM segmenty existují a navazují.
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.domazlice.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:domazlice");
 }

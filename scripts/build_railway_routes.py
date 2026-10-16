@@ -6,6 +6,22 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BUNDLE = ROOT / "stations" / "preparedRoutes.js"
 ROUTES = {
+    # Trať 180: skutečné úseky hlavní linky Plzeň–Domažlice.
+    "plzen:nyrany": {
+        "start": [49.74354, 13.38803],
+        "end": [49.71495, 13.20954],
+        "label": "Plzeň hl.n. → Nýřany",
+    },
+    "nyrany:stankov": {
+        "start": [49.71495, 13.20954],
+        "end": [49.547593219, 13.071820735],
+        "label": "Nýřany → Staňkov",
+    },
+    "stankov:domazlice": {
+        "start": [49.547593219, 13.071820735],
+        "end": [49.43509, 12.9432],
+        "label": "Staňkov → Domažlice",
+    },
     "plzen:tremosna": {
         "start": [49.74354, 13.38803],
         "end": [49.81914, 13.39459],

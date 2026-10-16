@@ -53,17 +53,17 @@
     <section class="departure-board-window" role="dialog" aria-modal="true" aria-labelledby="departure-board-title">
       <header class="departure-board-header">
         <div>
-          <div class="departure-board-kicker">PROVOZNÍ INFORMACE</div>
+          <div class="departure-board-kicker">ODJEZDOVÁ TABULE</div>
           <h2 id="departure-board-title">Odjezdy · Plzeň hl. n.</h2>
           <div class="departure-board-clock">Místní čas <strong id="departure-board-clock">--:--:--</strong></div>
         </div>
         <button id="departure-board-close" class="departure-board-close" type="button" aria-label="Zavřít odjezdovou tabuli">✕</button>
       </header>
-      <div class="departure-board-legend"><span class="departure-board-live-dot"></span> ŽIVÁ DATA Z PROVOZU</div>
+      <div class="departure-board-legend"><span class="departure-board-live-dot"></span> AKTUÁLNÍ SPOJE</div>
       <div class="departure-board-table-wrap">
         <table class="departure-board-table">
-          <thead><tr><th>ČAS / ODHAD</th><th>CÍL / LINKA</th><th>DOPRAVCE</th><th>VLAK</th><th>STAV</th></tr></thead>
-          <tbody id="departure-board-rows"><tr><td colspan="5" class="departure-board-empty">Načítám provozní data…</td></tr></tbody>
+          <thead><tr><th>ODJEZD</th><th>CÍL / LINKA</th><th>DOPRAVCE</th><th>VLAK</th></tr></thead>
+          <tbody id="departure-board-rows"><tr><td colspan="4" class="departure-board-empty">Načítám provozní data…</td></tr></tbody>
         </table>
       </div>
       <footer class="departure-board-footer"><span id="departure-board-count">0 vlaků</span><span>Časy v provozu se aktualizují průběžně</span></footer>

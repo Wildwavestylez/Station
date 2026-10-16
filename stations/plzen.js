@@ -235,10 +235,12 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardXP: 3
     },
     7: {
-      name: "TEST · dálkový výkon Praha–Plzeň–Domažlice",
+      name: "ČD rychlík · Praha–Plzeň–Domažlice",
       operator: "České dráhy",
       category: "local",
-      routeLabel: "Plzeň–Domažlice (test)",
+      routeLabel: "Praha–Plzeň–Domažlice",
+      boardDestination: "Domažlice",
+      lineCode: "R10",
       purchaseCost: 1000,
       requiredLevel: 0,
       image: "https://i.imgur.com/tw5kV39.jpg",

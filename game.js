@@ -193,7 +193,10 @@ function renderDepartureBoard() {
       praha: "Praha",
       domazlice: "Domažlice"
     };
-    const destination = template.boardDestination || destinations[t.routeKey] || template.destination || "Neurčený cíl";
+    const boardRouteKey = isDepartureBoardTrain(t) && t.nextRouteKey ? t.nextRouteKey : t.routeKey;
+    const destination = template.routeSequence
+      ? (destinations[boardRouteKey] || "Neurčený cíl")
+      : (template.boardDestination || destinations[t.routeKey] || template.destination || "Neurčený cíl");
     const lineCode = String(template.lineCode || "").trim();
     const displayDestination = (lineCode ? lineCode + " " : "") + destination;
     const operator = template.operator || "Neurčený dopravce";
@@ -439,7 +442,10 @@ function loadStation(stationKey) {
           // Starší savy ukládaly stav COMING bez timeru a koleje, což způsobilo NaN.
           state: "WAIT_ASSIGN",
           track: null,
-          routeKey: template.routeKey,
+          routeKey: Array.isArray(template.routeSequence) && Array.isArray(saved.routeSequence) && template.routeSequence.includes(saved.routeKey) ? saved.routeKey : template.routeKey,
+          routeSequence: Array.isArray(template.routeSequence) ? template.routeSequence.slice() : null,
+          routeSequenceIndex: Array.isArray(template.routeSequence) && template.routeSequence.includes(saved.routeKey) ? template.routeSequence.indexOf(saved.routeKey) : 0,
+          nextRouteKey: null,
           distance: 0,
           speed: Number.isFinite(Number(template.speed)) ? Number(template.speed) : 0,
           stayTime: Number.isFinite(Number(template.stayTime)) ? Number(template.stayTime) : 0,
@@ -498,6 +504,9 @@ function addNewTrainFromPool(id) {
     state: "WAIT_ASSIGN",
     track: null,
     routeKey: template.routeKey,
+    routeSequence: Array.isArray(template.routeSequence) ? template.routeSequence.slice() : null,
+    routeSequenceIndex: Array.isArray(template.routeSequence) ? Math.max(0, template.routeSequence.indexOf(template.routeKey)) : 0,
+    nextRouteKey: null,
     distance: 0,
     speed: template.speed,
     stayTime: template.stayTime,
@@ -694,6 +703,13 @@ async function depart() {
   }
   const route = currentStationData.routes[t.routeKey];
   const routeLength = Number(route && route.totalLength);
+  if (Array.isArray(t.routeSequence) && t.routeSequence.length > 1) {
+    const currentIndex = Math.max(0, t.routeSequence.indexOf(t.routeKey));
+    t.routeSequenceIndex = currentIndex;
+    t.nextRouteKey = t.routeSequence[(currentIndex + 1) % t.routeSequence.length];
+  } else {
+    t.nextRouteKey = null;
+  }
   const trainSpeed = Number(t.speed);
   // Při kliknutí na ODJEZD se založí odpočet celé otočky: cesta tam + pobyt + cesta zpět.
   t.returnCountdownSeconds = Number.isFinite(routeLength) && routeLength > 0 &&
@@ -803,6 +819,11 @@ function processTrainReturn(t) {
     checkLevelUp();
   }
 
+  if (Array.isArray(t.routeSequence) && t.routeSequence.length > 1 && t.nextRouteKey) {
+    t.routeKey = t.nextRouteKey;
+    t.routeSequenceIndex = Math.max(0, t.routeSequence.indexOf(t.routeKey));
+    t.nextRouteKey = null;
+  }
   t.state = "WAIT_ASSIGN";
   t.pendingAction = true;
   render();
@@ -1203,6 +1224,9 @@ function saveGameState() {
       state: "WAIT_ASSIGN",
       current_turnaround: t.current_turnaround,
       required_turnaround: t.required_turnaround,
+      routeKey: t.routeKey,
+      routeSequence: Array.isArray(t.routeSequence) ? t.routeSequence.slice() : null,
+      routeSequenceIndex: t.routeSequenceIndex || 0,
       pendingAction: false
     }))
   };

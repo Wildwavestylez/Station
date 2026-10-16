@@ -645,7 +645,7 @@ function checkLevelUp() {
   unlockedCleaningTeamsCount = Math.max(unlockedCleaningTeamsCount, Math.floor(nextTeams));
 
   const rewardText = [reachedConfig.rewardText, ...rewards].filter(Boolean).join("\n• ");
-  alert(`⭐️ LEVEL UP! ${currentStationData.name} postoupilo na Level ${reachedLevel}!\n\nOdměna:\n• ${rewardText || "Pokračuj v rozvoji nádraží."}\n\nPostup XP se resetoval na 0.`);
+  alert(`⭐️ LEVEL UP! ${currentStationData.name} postoupilo na Level ${reachedLevel}!\n\nOdměna:\n• ${rewardText || "Pokračuj v rozvoji nádraží."}\n\nPřebytečné XP se přenesly do další úrovně: ${myData.xp} XP.`);
 
   renderSidebar();
   saveGameState();

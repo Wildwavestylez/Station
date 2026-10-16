@@ -245,6 +245,7 @@ window.STATIONS_REGISTRY["plzen"] = {
       requiredLevel: 0,
       image: "https://i.imgur.com/tw5kV39.jpg",
       routeKey: "domazlice",
+      routeSequence: ["domazlice", "praha"],
       speed: 120,
       stayTime: 15,
       initialContract: 1,

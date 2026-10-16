@@ -411,17 +411,3 @@ button {
   }
 }
 
-
-/* Level 1 unlock hint shown beneath the Plasy service */
-.local-shop-notice {
-  margin-top: 7px;
-  padding: 7px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1.35;
-  text-transform: uppercase;
-  background: rgba(255, 193, 7, 0.16);
-  border: 1px solid rgba(255, 193, 7, 0.65);
-  color: #ffe082;
-}

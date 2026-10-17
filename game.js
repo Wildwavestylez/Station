@@ -57,6 +57,7 @@ let stationLevels = {};         // Úrovně jednotlivých měst, např: { plzen:
 let selected = null;            // Právě vybraný vlak hráčem
 let tracks = [null, null];      // Pole kolejí aktivního nádraží
 let trains = [];                // Seznam vlaků aktivního nádraží
+let trainQueuePriority = 0;       // Pořadí ručně vyvolaných / právě vrácených vlaků
 let unlockedTracksCount = 1;    // Počet aktuálně odemčených kolejí v daném městě
 let unlockedCleaningTeamsCount = 1; // Počet úklidových týmů odemčených na nádraží
 let cleaningTeamsInUse = 0;          // Počet týmů právě uklízejících vlak
@@ -570,39 +571,11 @@ function getPositionOnRoute(route, distance) {
   return route[route.length - 1];
 }
 
-// Natoč vlak podle směru kolejí. Obrázek je ve výchozím stavu natočený doprava
-// (východ); Leaflet kotví celý obrázek středem, ne levým horním rohem.
-function getTrainHeadingDegrees(route, distance, reverse) {
-  if (!route || route.length < 2) return 0;
-  let passed = 0;
-  let segmentIndex = route.length - 2;
-  for (let i = 0; i < route.segmentLengths.length; i++) {
-    const length = Number(route.segmentLengths[i]) || 0;
-    if (distance <= passed + length || i === route.segmentLengths.length - 1) {
-      segmentIndex = i;
-      break;
-    }
-    passed += length;
-  }
-  const a = route[segmentIndex];
-  const b = route[segmentIndex + 1];
-  const lat = (Number(b[0]) - Number(a[0])) * (reverse ? -1 : 1);
-  const lng = (Number(b[1]) - Number(a[1])) * (reverse ? -1 : 1);
-  const east = lng * Math.cos((Number(a[0]) + Number(b[0])) * Math.PI / 360);
-  const north = lat;
-  // Heading 0° = sever, 90° = východ. Ikona původně míří na východ.
-  const headingFromNorth = Math.atan2(east, north) * 180 / Math.PI;
-  return headingFromNorth - 90;
-}
-
-function updateTrainMarker(t, route, distance, reverse) {
+// Pohybujeme pouze značkou po trase. Obrázek vlaku necháváme v původní orientaci,
+// protože automatické otáčení způsobovalo nesprávné natočení a převracení soupravy.
+function updateTrainMarker(t, route, distance) {
   if (!t.marker || !route) return;
   t.marker.setLatLng(getPositionOnRoute(route, distance));
-  const image = t.marker.getElement() && t.marker.getElement().querySelector(".train-map-image");
-  if (image) {
-    image.style.transformOrigin = "50% 50%";
-    image.style.transform = "rotate(" + getTrainHeadingDegrees(route, distance, reverse) + "deg)";
-  }
 }
 
 
@@ -861,6 +834,7 @@ function processTrainReturn(t) {
   }
   t.state = "WAIT_ASSIGN";
   t.returnedAt = Date.now();
+  t.queuePriority = ++trainQueuePriority;
   t.pendingAction = true;
   render();
   saveGameState();
@@ -1123,19 +1097,14 @@ function render() {
   if (!q) return;
   q.innerHTML = "";
 
-  // Čerstvě vrácené vlaky čekající na odbavení jdou nahoru.
-  // Ostatní si zachovají původní pořadí, aby seznam zůstal stabilní.
+  // Nahoře je vlak, který hráč naposledy vyvolal, nebo vlak, který se právě vrátil.
+  // Pořadí se nemění podle stavu (COMING/EN_ROUTE apod.), takže vlak po přidělení koleje
+  // nespadne zpátky dolů. Zbytek seznamu zůstává stabilní.
   const orderedTrains = trains
     .map((train, originalIndex) => ({ train, originalIndex }))
     .sort((a, b) => {
-      const aWaiting = a.train.state === "WAIT_ASSIGN" ? 1 : 0;
-      const bWaiting = b.train.state === "WAIT_ASSIGN" ? 1 : 0;
-      if (aWaiting !== bWaiting) return bWaiting - aWaiting;
-      if (aWaiting && bWaiting) {
-        const returnedDifference = (Number(b.train.returnedAt) || 0) - (Number(a.train.returnedAt) || 0);
-        if (returnedDifference !== 0) return returnedDifference;
-      }
-      return a.originalIndex - b.originalIndex;
+      const priorityDifference = (Number(b.train.queuePriority) || 0) - (Number(a.train.queuePriority) || 0);
+      return priorityDifference || a.originalIndex - b.originalIndex;
     })
     .map(item => item.train);
 
@@ -1171,7 +1140,12 @@ function render() {
       <small>${statusText}</small>
     `;
 
-    d.onclick = () => { selected = t; updateDetail(); render(); };
+    d.onclick = () => {
+      selected = t;
+      t.queuePriority = ++trainQueuePriority;
+      updateDetail();
+      render();
+    };
     q.appendChild(d);
   });
 

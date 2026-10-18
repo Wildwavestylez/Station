@@ -35,6 +35,17 @@ ROUTES = {
         "end": [49.93090, 13.37964],
         "label": "Třemošná u Plzně → Plasy",
     },
+    # Trať Plzeň–Pňovany–Bezdružice: dvě samostatně ověřitelné části.
+    "plzen:pnovany": {
+        "start": [49.74354, 13.38803],
+        "end": [49.78590, 13.14700],
+        "label": "Plzeň hl.n. → Pňovany",
+    },
+    "pnovany:bezdruzice": {
+        "start": [49.78590, 13.14700],
+        "end": [49.90700, 12.97100],
+        "label": "Pňovany → Bezdružice",
+    },
     # Trať 176: rozdělení nové lokální linky Plzeň–Kyšice–Stupno–Radnice.
     "plzen:kysice": {
         "start": [49.74354, 13.38803],

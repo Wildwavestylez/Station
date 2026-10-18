@@ -251,7 +251,7 @@ window.STATIONS_REGISTRY["plzen"] = {
       lineCode: "L176",
       purchaseCost: 1000,
       requiredLevel: 0,
-      image: "assets/trains/cd/810_1.png",
+      image: "assets/trains/cd/810_2.png",
       routeKey: "radnice",
       speed: 80,
       stayTime: 10,

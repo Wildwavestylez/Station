@@ -79,6 +79,13 @@ function buildPlzenBezdruziceRoute() {
   );
 }
 
+function buildPlzenSumavaRoute() {
+  return buildJoinedPlzenRoute(
+    ["prestice:klatovy", "klatovy:nyrsko", "nyrsko:alzbietin"],
+    "Trasa Přeštice–Klatovy–Nýrsko–Železná Ruda-Alžbětín"
+  );
+}
+
 function buildPlzenPrahaRoute() {
   const prepared = window.STATION_PREPARED_ROUTES || {};
   const keys = [
@@ -143,7 +150,8 @@ window.STATIONS_REGISTRY["plzen"] = {
     praha: buildPlzenPrahaRoute(),
     domazlice: buildPlzenDomazliceRoute(),
     radnice: buildPlzenRadniceRoute(),
-    bezdruzice: buildPlzenBezdruziceRoute()
+    bezdruzice: buildPlzenBezdruziceRoute(),
+    sumava: buildPlzenSumavaRoute()
   },
 
   // Level odemyká kategorie a možnosti. Konkrétní výkony se kupují v obchodě.
@@ -287,6 +295,25 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardMoney: 2200,
       rewardXP: 1
     },
+    11: {
+      name: "ČD RegioShark · Přeštice–Klatovy–Nýrsko–Železná Ruda-Alžbětín",
+      operator: "České dráhy",
+      category: "local",
+      routeLabel: "Přeštice–Klatovy–Nýrsko–Železná Ruda-Alžbětín",
+      boardDestination: "Železná Ruda-Alžbětín",
+      lineCode: "Os Přeštice–Železná Ruda",
+      purchaseCost: 1800,
+      requiredLevel: 0,
+      image: "assets/trains/cd/RegioShark_Najbrt1.png",
+      routeKey: "sumava",
+      routeSequence: ["sumava"],
+      speed: 80,
+      stayTime: 10,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, board: 5 },
+      rewardMoney: 3200,
+      rewardXP: 1
+    },
     10: {
       name: "ČD RegioShark · Plzeň–Pňovany–Bezdružice",
       operator: "České dráhy",
@@ -368,4 +395,8 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.r
 
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.bezdruzice.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:bezdruzice");
+}
+
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.sumava.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:sumava");
 }

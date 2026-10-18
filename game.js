@@ -192,7 +192,8 @@ function renderDepartureBoard() {
       prestice: "Přeštice",
       plasy: "Plasy",
       praha: "Praha",
-      domazlice: "Domažlice"
+      domazlice: "Domažlice",
+      zeleznaRuda: "Železná Ruda-Alžbětín"
     };
     const boardRouteKey = isDepartureBoardTrain(t) && t.nextRouteKey ? t.nextRouteKey : t.routeKey;
     const destination = template.routeSequence

@@ -453,7 +453,7 @@ function loadStation(stationKey) {
           stayTimer: 0,
           timer: 0,
           marker: null,
-          progress: { exit: 0, clean: 0, board: 0 },
+          progress: { exit: 0, clean: 0, catering: 0, board: 0 },
           timers: template.timers || { exit: 5, clean: 8, board: 5 },
           pendingAction: false,
           current_turnaround: Number.isFinite(Number(saved.current_turnaround)) && Number(saved.current_turnaround) >= 0
@@ -513,7 +513,7 @@ function addNewTrainFromPool(id) {
     stayTime: template.stayTime,
     stayTimer: 0,
     marker: null,
-    progress: { exit: 0, clean: 0, board: 0 },
+    progress: { exit: 0, clean: 0, catering: 0, board: 0 },
     timers: template.timers,
     pendingAction: false,
     current_turnaround: 0,
@@ -749,7 +749,7 @@ async function depart() {
     t.marker.setLatLng(route[0]);
   }
 
-  t.progress = { exit: 0, clean: 0, board: 0 };
+  t.progress = { exit: 0, clean: 0, catering: 0, board: 0 };
   selected = null;
   render();
   saveGameState();
@@ -780,6 +780,7 @@ function getTrainPopupHtml(t) {
     WAIT_CLEAN: "Čeká na úklid",
     WAIT_CLEAN_TEAM: "Čeká na volný úklidový tým",
     CLEANING: "Probíhá úklid",
+    CATERING: "Doplňuje se catering",
     WAIT_BOARD: "Čeká na nástup cestujících",
     BOARDING: "Nastupují cestující",
     READY_DEPART: "Připraven k odjezdu",
@@ -1124,6 +1125,7 @@ function render() {
     if (t.state === "WAIT_CLEAN") statusText = lang().waitClean;
     if (t.state === "WAIT_CLEAN_TEAM") statusText = "Čeká na volný úklidový tým";
     if (t.state === "CLEANING") statusText = `${lang().cleaning} (${Math.max(0, Math.ceil(t.timer))}s)`;
+    if (t.state === "CATERING") statusText = `Doplňování cateringu (${Math.max(0, Math.ceil(t.timer))}s)`;
     if (t.state === "WAIT_BOARD") statusText = lang().waitBoard;
     if (t.state === "BOARDING") statusText = `${lang().boarding} (${Math.max(0, Math.ceil(t.timer))}s)`;
     if (t.state === "READY_DEPART") statusText = lang().readyDepart;
@@ -1163,6 +1165,7 @@ function updateDetail() {
     document.getElementById("p1").style.width = "0%";
     document.getElementById("p2").style.width = "0%";
     document.getElementById("p3").style.width = "0%";
+    document.getElementById("p4").style.width = "0%";
     document.getElementById("actions").innerHTML = "";
     return;
   }
@@ -1180,11 +1183,13 @@ function updateDetail() {
   // Výpočet procent pro animované progress bary
   let p1Width = (selected.progress && selected.progress.exit) ? selected.progress.exit : 0;
   let p2Width = (selected.progress && selected.progress.clean) ? selected.progress.clean : 0;
-  let p3Width = (selected.progress && selected.progress.board) ? selected.progress.board : 0;
+  let p3Width = (selected.progress && selected.progress.catering) ? selected.progress.catering : 0;
+  let p4Width = (selected.progress && selected.progress.board) ? selected.progress.board : 0;
 
   document.getElementById("p1").style.width = p1Width + "%";
   document.getElementById("p2").style.width = p2Width + "%";
   document.getElementById("p3").style.width = p3Width + "%";
+  document.getElementById("p4").style.width = p4Width + "%";
 
   renderActions();
 }
@@ -1211,7 +1216,7 @@ function renderActions() {
     a.innerHTML = `<em>${lang().incoming} ${selected.track}... (${Math.max(0, Math.ceil(selected.timer))}s)</em>`;
   } else if (selected.state === "ARRIVED") {
     a.innerHTML = `<button class="g" onclick="startTimer('exit')">${lang().btnUnload}</button>`;
-  } else if (selected.state === "UNLOADING" || selected.state === "CLEANING" || selected.state === "BOARDING") {
+  } else if (selected.state === "UNLOADING" || selected.state === "CLEANING" || selected.state === "CATERING" || selected.state === "BOARDING") {
     a.innerHTML = `<em>${lang().working}</em>`;
   } else if (selected.state === "WAIT_CLEAN") {
     a.innerHTML = `<p>Úklidové týmy: ${cleaningTeamsInUse}/${unlockedCleaningTeamsCount} obsazeno</p><button class="y" onclick="startTimer('clean')">${lang().btnClean}</button>`;
@@ -1388,14 +1393,34 @@ function gameLoop(now) {
       t.progress.clean = Math.max(0, Math.min(100, (1 - t.timer / cleanDuration) * 100));
       if (t.timer <= 0) {
         t.timer = 0;
-        t.state = "WAIT_BOARD";
-        t.pendingAction = true;
+        const template = currentStationData.trainsPool && currentStationData.trainsPool[t.id];
+        if (template && template.cateringRequired) {
+          t.state = "CATERING";
+          t.timer = Math.max(1, Number(t.timers && t.timers.catering) || 10);
+          t.pendingAction = false;
+        } else {
+          t.state = "WAIT_BOARD";
+          t.pendingAction = true;
+        }
         if (t.hasCleaningTeam) {
           t.hasCleaningTeam = false;
           cleaningTeamsInUse = Math.max(0, cleaningTeamsInUse - 1);
         }
         // Další vlak se nikdy nespouští automaticky; hráč musí kliknout.
         render();
+      }
+    }
+
+    // 🥪 PROGRESS BAR: DOPLNĚNÍ CATERINGU (mezi úklidem a nástupem)
+    if (t.state === "CATERING" && t.timer != null) {
+      t.timer -= dt;
+      const cateringDuration = Math.max(1, Number(t.timers && t.timers.catering) || 10);
+      t.progress.catering = Math.max(0, Math.min(100, (1 - t.timer / cateringDuration) * 100));
+      if (t.timer <= 0) {
+        t.timer = 0;
+        t.progress.catering = 100;
+        t.state = "WAIT_BOARD";
+        t.pendingAction = true;
       }
     }
 

@@ -65,6 +65,13 @@ function buildPlzenDomazliceRoute() {
   );
 }
 
+function buildPlzenRadniceRoute() {
+  return buildJoinedPlzenRoute(
+    ["plzen:kysice", "kysice:stupno", "stupno:radnice"],
+    "Trasa Plzeň–Kyšice–Stupno–Radnice"
+  );
+}
+
 function buildPlzenPrahaRoute() {
   const prepared = window.STATION_PREPARED_ROUTES || {};
   const keys = [
@@ -127,7 +134,8 @@ window.STATIONS_REGISTRY["plzen"] = {
     prestice: window.STATION_PREPARED_ROUTES["plzen:prestice"],
     plasy: buildPlzenPlasyRoute(),
     praha: buildPlzenPrahaRoute(),
-    domazlice: buildPlzenDomazliceRoute()
+    domazlice: buildPlzenDomazliceRoute(),
+    radnice: buildPlzenRadniceRoute()
   },
 
   // Level odemyká kategorie a možnosti. Konkrétní výkony se kupují v obchodě.
@@ -234,6 +242,24 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardMoney: 6800,
       rewardXP: 3
     },
+    8: {
+      name: "ČD 810 · Plzeň–Kyšice–Stupno–Radnice",
+      operator: "České dráhy",
+      category: "local",
+      routeLabel: "Plzeň–Kyšice–Stupno–Radnice",
+      boardDestination: "Radnice",
+      lineCode: "L176",
+      purchaseCost: 0,
+      requiredLevel: 0,
+      image: "assets/trains/cd/810_1.png",
+      routeKey: "radnice",
+      speed: 80,
+      stayTime: 10,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, board: 5 },
+      rewardMoney: 1800,
+      rewardXP: 1
+    },
     7: {
       name: "ČD rychlík · Praha–Plzeň–Domažlice",
       operator: "České dráhy",
@@ -288,4 +314,8 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.p
 // Zveřejni pouze trasy, jejichž OSM segmenty existují a navazují.
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.domazlice.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:domazlice");
+}
+
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.radnice.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:radnice");
 }

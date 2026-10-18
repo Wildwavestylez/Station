@@ -8,6 +8,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BUNDLE = ROOT / "stations" / "preparedRoutes.js"
+# Tyto existující segmenty při změně souřadnic vždy znovu sestavíme z OSM.
+FORCE_REBUILD = {"prestice:klatovy", "klatovy:nyrsko", "nyrsko:alzbietin"}
+
 ROUTES = {
     # Trať 180: skutečné úseky hlavní linky Plzeň–Domažlice.
     "plzen:nyrany": {
@@ -50,17 +53,20 @@ ROUTES = {
     # Západní Šumava: Přeštice–Klatovy–Nýrsko–Železná Ruda-Alžbětín.
     "prestice:klatovy": {
         "start": [49.57220, 13.33300],
-        "end": [49.39550, 13.29500],
+        # Ověřená poloha železniční stanice Klatovy, ne centrum města.
+        "end": [49.40147, 13.27416],
         "label": "Přeštice → Klatovy",
     },
     "klatovy:nyrsko": {
-        "start": [49.39550, 13.29500],
+        # Stejný bod stanice Klatovy jako konec předchozího segmentu.
+        "start": [49.40147, 13.27416],
         "end": [49.29300, 13.14300],
         "label": "Klatovy → Nýrsko",
     },
     "nyrsko:alzbietin": {
         "start": [49.29300, 13.14300],
-        "end": [49.11720, 13.22950],
+        # Konec musí být v železniční stanici Železná Ruda-Alžbětín.
+        "end": [49.12192, 13.21018],
         "label": "Nýrsko → Železná Ruda-Alžbětín",
     },
     # Trať 176: rozdělení nové lokální linky Plzeň–Kyšice–Stupno–Radnice.
@@ -225,6 +231,8 @@ def main():
     # retries small and avoids re-querying routes that are already bundled.
     payloads = dict(re.findall(r'"([^"]+)": decodePolylineBase64\("([^"]+)"\)', source))
     for key, spec in ROUTES.items():
+        if key in FORCE_REBUILD:
+            payloads.pop(key, None)
         if key in payloads:
             print("Already bundled; keeping", spec["label"])
             continue

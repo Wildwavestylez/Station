@@ -465,6 +465,11 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.k
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:klatovy");
 }
 
+// Horažďovice předměstí je složené ze tří předpřipravených OSM segmentů.
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.horazdovicePredm.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:horazdovicePredm");
+}
+
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.zeleznaRuda.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:zeleznaRuda");
 }

@@ -109,6 +109,13 @@ function buildPlzenKlatovyRoute() {
   );
 }
 
+function buildPlzenHorazdovicePredmRoute() {
+  return buildJoinedPlzenRoute(
+    ["plzen:nezvestice", "nezvestice:nepomuk", "nepomuk:horazdovice_predm"],
+    "Trasa Plzeň–Nezvěstice–Nepomuk–Horažďovice předměstí"
+  );
+}
+
 function buildPlzenPrahaRoute() {
   const prepared = window.STATION_PREPARED_ROUTES || {};
   const keys = [
@@ -173,6 +180,7 @@ window.STATIONS_REGISTRY["plzen"] = {
     praha: buildPlzenPrahaRoute(),
     domazlice: buildPlzenDomazliceRoute(),
     klatovy: buildPlzenKlatovyRoute(),
+    horazdovicePredm: buildPlzenHorazdovicePredmRoute(),
     zeleznaRuda: buildPlzenZeleznaRudaRoute(),
     radnice: buildPlzenRadniceRoute(),
     bezdruzice: buildPlzenBezdruziceRoute(),
@@ -357,6 +365,25 @@ window.STATIONS_REGISTRY["plzen"] = {
       initialContract: 1,
       timers: { exit: 5, clean: 8, catering: 10, board: 5 },
       rewardMoney: 1000,
+      rewardXP: 1
+    },
+    14: {
+      name: "ČD osobní vlak · Plzeň–Nezvěstice–Nepomuk–Horažďovice předměstí",
+      operator: "České dráhy",
+      category: "local",
+      routeLabel: "Plzeň–Nezvěstice–Nepomuk–Horažďovice předměstí",
+      boardDestination: "Horažďovice předměstí",
+      lineCode: "Os Plzeň–Horažďovice předměstí",
+      purchaseCost: 0,
+      requiredLevel: 1,
+      image: "assets/trains/cd/Regpa1.png",
+      routeKey: "horazdovicePredm",
+      routeSequence: ["horazdovicePredm"],
+      speed: 80,
+      stayTime: 10,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, board: 5 },
+      rewardMoney: 1800,
       rewardXP: 1
     },
     13: {

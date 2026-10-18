@@ -635,6 +635,14 @@ function startTimer(type) {
   }
 
   if (type === "exit") selected.state = "UNLOADING";
+  if (type === "catering") {
+    selected.state = "CATERING";
+    selected.timer = Math.max(1, Number(selected.timers && selected.timers.catering) || 10);
+    selected.progress.catering = 0;
+    selected.pendingAction = false;
+    render();
+    return;
+  }
   if (type === "board") selected.state = "BOARDING";
   selected.timer = selected.timers[type];
   selected.pendingAction = false;
@@ -781,6 +789,7 @@ function getTrainPopupHtml(t) {
     WAIT_CLEAN_TEAM: "Čeká na volný úklidový tým",
     CLEANING: "Probíhá úklid",
     CATERING: "Doplňuje se catering",
+    WAIT_CATERING: "Čeká na zahájení cateringu",
     WAIT_BOARD: "Čeká na nástup cestujících",
     BOARDING: "Nastupují cestující",
     READY_DEPART: "Připraven k odjezdu",
@@ -1218,6 +1227,8 @@ function renderActions() {
     a.innerHTML = `<button class="g" onclick="startTimer('exit')">${lang().btnUnload}</button>`;
   } else if (selected.state === "UNLOADING" || selected.state === "CLEANING" || selected.state === "CATERING" || selected.state === "BOARDING") {
     a.innerHTML = `<em>${lang().working}</em>`;
+  } else if (selected.state === "WAIT_CATERING") {
+    a.innerHTML = `<button class="y" onclick="startTimer('catering')">Zahájit catering</button>`;
   } else if (selected.state === "WAIT_CLEAN") {
     a.innerHTML = `<p>Úklidové týmy: ${cleaningTeamsInUse}/${unlockedCleaningTeamsCount} obsazeno</p><button class="y" onclick="startTimer('clean')">${lang().btnClean}</button>`;
   } else if (selected.state === "WAIT_CLEAN_TEAM") {
@@ -1395,9 +1406,11 @@ function gameLoop(now) {
         t.timer = 0;
         const template = currentStationData.trainsPool && currentStationData.trainsPool[t.id];
         if (template && template.cateringRequired) {
-          t.state = "CATERING";
-          t.timer = Math.max(1, Number(t.timers && t.timers.catering) || 10);
-          t.pendingAction = false;
+          // Catering spouští hráč ručně tlačítkem, stejně jako ostatní odbavovací kroky.
+          t.state = "WAIT_CATERING";
+          t.timer = 0;
+          t.progress.catering = 0;
+          t.pendingAction = true;
         } else {
           t.state = "WAIT_BOARD";
           t.pendingAction = true;

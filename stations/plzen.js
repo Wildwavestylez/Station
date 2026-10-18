@@ -320,25 +320,6 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardMoney: 2200,
       rewardXP: 1
     },
-    11: {
-      name: "ČD RegioShark · Přeštice–Klatovy–Nýrsko–Železná Ruda-Alžbětín",
-      operator: "České dráhy",
-      category: "local",
-      routeLabel: "Přeštice–Klatovy–Nýrsko–Železná Ruda-Alžbětín",
-      boardDestination: "Železná Ruda-Alžbětín",
-      lineCode: "Os Přeštice–Železná Ruda",
-      purchaseCost: 1800,
-      requiredLevel: 0,
-      image: "assets/trains/cd/RegioShark_Najbrt1.png",
-      routeKey: "sumava",
-      routeSequence: ["sumava"],
-      speed: 80,
-      stayTime: 10,
-      initialContract: 1,
-      timers: { exit: 5, clean: 8, board: 5 },
-      rewardMoney: 3200,
-      rewardXP: 1
-    },
     10: {
       name: "ČD RegioShark · Plzeň–Pňovany–Bezdružice",
       operator: "České dráhy",
@@ -356,25 +337,6 @@ window.STATIONS_REGISTRY["plzen"] = {
       initialContract: 1,
       timers: { exit: 5, clean: 8, board: 5 },
       rewardMoney: 2400,
-      rewardXP: 1
-    },
-    11: {
-      name: "ČD RegioShark · Přeštice–Klatovy–Nýrsko–Železná Ruda-Alžbětín",
-      operator: "České dráhy",
-      category: "local",
-      routeLabel: "Přeštice–Klatovy–Nýrsko–Železná Ruda-Alžbětín",
-      boardDestination: "Železná Ruda-Alžbětín",
-      lineCode: "Os Přeštice–Železná Ruda-Alžbětín",
-      purchaseCost: 1500,
-      requiredLevel: 0,
-      image: "assets/trains/cd/RegioShark_Najbrt1.png",
-      routeKey: "zeleznaRuda",
-      routeSequence: ["zeleznaRuda"],
-      speed: 80,
-      stayTime: 10,
-      initialContract: 1,
-      timers: { exit: 5, clean: 8, board: 5 },
-      rewardMoney: 3200,
       rewardXP: 1
     },
     12: {

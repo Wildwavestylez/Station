@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Build bundled real railway geometry from OpenStreetMap for Station."""
+"""Build bundled real railway geometry from OpenStreetMap for Station.
+
+Missing route segments are added to the prepared bundle after OSM connectivity checks.
+"""
 import base64, heapq, json, math, os, re, sys, time, urllib.parse, urllib.request
 from pathlib import Path
 

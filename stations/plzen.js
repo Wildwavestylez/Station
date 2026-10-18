@@ -249,7 +249,7 @@ window.STATIONS_REGISTRY["plzen"] = {
       routeLabel: "Plzeň–Kyšice–Stupno–Radnice",
       boardDestination: "Radnice",
       lineCode: "L176",
-      purchaseCost: 0,
+      purchaseCost: 1000,
       requiredLevel: 0,
       image: "assets/trains/cd/810_1.png",
       routeKey: "radnice",

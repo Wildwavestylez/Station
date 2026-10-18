@@ -237,9 +237,10 @@ window.STATIONS_REGISTRY["plzen"] = {
     7: {
       name: "ČD rychlík · Praha–Plzeň–Domažlice",
       operator: "České dráhy",
-      category: "local",
+      category: "rapid",
       routeLabel: "Praha–Plzeň–Domažlice",
       boardDestination: "Domažlice",
+      cateringRequired: true,
       lineCode: "R10",
       purchaseCost: 1000,
       requiredLevel: 0,
@@ -249,7 +250,7 @@ window.STATIONS_REGISTRY["plzen"] = {
       speed: 120,
       stayTime: 15,
       initialContract: 1,
-      timers: { exit: 5, clean: 8, board: 5 },
+      timers: { exit: 5, clean: 8, catering: 10, board: 5 },
       rewardMoney: 1000,
       rewardXP: 1
     },

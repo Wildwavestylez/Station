@@ -100,6 +100,27 @@ ROUTES = {
         "end": [50.08300, 14.43500],
         "label": "Dobřichovice → Praha hl.n.",
     },
+    # Trať 191/190: jižní větev Plzeň–Strakonice, směrem na České Budějovice.
+    "plzen:nezvestice": {
+        "start": [49.74354, 13.38803],
+        "end": [49.64248, 13.51661],
+        "label": "Plzeň hl.n. → Nezvěstice",
+    },
+    "nezvestice:nepomuk": {
+        "start": [49.64248, 13.51661],
+        "end": [49.49751, 13.60870],
+        "label": "Nezvěstice → Nepomuk",
+    },
+    "nepomuk:horazdovice_predm": {
+        "start": [49.49751, 13.60870],
+        "end": [49.33132, 13.73892],
+        "label": "Nepomuk → Horažďovice předměstí",
+    },
+    "horazdovice_predm:strakonice": {
+        "start": [49.33132, 13.73892],
+        "end": [49.25504, 13.91558],
+        "label": "Horažďovice předměstí → Strakonice",
+    },
 }
 
 def haversine(a, b):

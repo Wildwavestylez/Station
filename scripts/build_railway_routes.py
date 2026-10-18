@@ -127,6 +127,21 @@ ROUTES = {
         "end": [49.25504, 13.91558],
         "label": "Horažďovice předměstí → Strakonice",
     },
+    "strakonice:protivin": {
+        "start": [49.25504, 13.91558],
+        "end": [49.21253, 14.21183],
+        "label": "Strakonice → Protivín",
+    },
+    "protivin:divcice": {
+        "start": [49.21253, 14.21183],
+        "end": [49.10611, 14.30081],
+        "label": "Protivín → Dívčice",
+    },
+    "divcice:ceske_budejovice": {
+        "start": [49.10611, 14.30081],
+        "end": [48.97434, 14.48811],
+        "label": "Dívčice → České Budějovice",
+    },
 }
 
 def haversine(a, b):

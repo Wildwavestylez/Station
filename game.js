@@ -193,6 +193,7 @@ function renderDepartureBoard() {
       plasy: "Plasy",
       praha: "Praha",
       domazlice: "Domažlice",
+      klatovy: "Klatovy",
       zeleznaRuda: "Železná Ruda-Alžbětín"
     };
     const boardRouteKey = isDepartureBoardTrain(t) && t.nextRouteKey ? t.nextRouteKey : t.routeKey;

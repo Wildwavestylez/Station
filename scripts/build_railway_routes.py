@@ -46,6 +46,22 @@ ROUTES = {
         "end": [49.90700, 12.97100],
         "label": "Pňovany → Bezdružice",
     },
+    # Šumavská linka: Přeštice–Klatovy–Nýrsko–Železná Ruda-Alžbětín.
+    "prestice:klatovy": {
+        "start": [49.57220, 13.33300],
+        "end": [49.39550, 13.29500],
+        "label": "Přeštice → Klatovy",
+    },
+    "klatovy:nyrsko": {
+        "start": [49.39550, 13.29500],
+        "end": [49.29300, 13.14300],
+        "label": "Klatovy → Nýrsko",
+    },
+    "nyrsko:alzbietin": {
+        "start": [49.29300, 13.14300],
+        "end": [49.11720, 13.22950],
+        "label": "Nýrsko → Železná Ruda-Alžbětín",
+    },
     # Trať 176: rozdělení nové lokální linky Plzeň–Kyšice–Stupno–Radnice.
     "plzen:kysice": {
         "start": [49.74354, 13.38803],

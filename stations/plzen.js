@@ -93,6 +93,15 @@ function buildPlzenSumavaRoute() {
   );
 }
 
+// Rychlík Praha–Plzeň–Klatovy–Železná Ruda používá pražskou větev
+// a souvislou šumavskou větev od Plzně přes Přeštice.
+function buildPlzenZeleznaRudaRoute() {
+  return buildJoinedPlzenRoute(
+    ["plzen:prestice", "prestice:klatovy", "klatovy:nyrsko", "nyrsko:alzbietin"],
+    "Trasa Plzeň–Přeštice–Klatovy–Nýrsko–Železná Ruda-Alžbětín"
+  );
+}
+
 function buildPlzenPrahaRoute() {
   const prepared = window.STATION_PREPARED_ROUTES || {};
   const keys = [
@@ -156,6 +165,7 @@ window.STATIONS_REGISTRY["plzen"] = {
     plasy: buildPlzenPlasyRoute(),
     praha: buildPlzenPrahaRoute(),
     domazlice: buildPlzenDomazliceRoute(),
+    zeleznaRuda: buildPlzenZeleznaRudaRoute(),
     radnice: buildPlzenRadniceRoute(),
     bezdruzice: buildPlzenBezdruziceRoute(),
     sumava: buildPlzenSumavaRoute()
@@ -359,6 +369,26 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardMoney: 3200,
       rewardXP: 1
     },
+    12: {
+      name: "ČD rychlík · Praha–Plzeň–Klatovy–Železná Ruda-Alžbětín",
+      operator: "České dráhy",
+      category: "rapid",
+      routeLabel: "Praha–Plzeň–Klatovy–Železná Ruda-Alžbětín",
+      boardDestination: "Železná Ruda-Alžbětín",
+      cateringRequired: true,
+      lineCode: "R16",
+      purchaseCost: 1000,
+      requiredLevel: 0,
+      image: "assets/trains/cd/Rychlik_1.png",
+      routeKey: "zeleznaRuda",
+      routeSequence: ["zeleznaRuda", "praha"],
+      speed: 120,
+      stayTime: 15,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, catering: 10, board: 5 },
+      rewardMoney: 1000,
+      rewardXP: 1
+    },
     7: {
       name: "ČD rychlík · Praha–Plzeň–Domažlice",
       operator: "České dráhy",
@@ -413,6 +443,10 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.p
 // Zveřejni pouze trasy, jejichž OSM segmenty existují a navazují.
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.domazlice.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:domazlice");
+}
+
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.zeleznaRuda.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:zeleznaRuda");
 }
 
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.radnice.length >= 2) {

@@ -47,6 +47,7 @@ ROUTES = {
         "label": "Pňovany → Bezdružice",
     },
     # Šumavská linka: Přeštice–Klatovy–Nýrsko–Železná Ruda-Alžbětín.
+    # Západní Šumava: Přeštice–Klatovy–Nýrsko–Železná Ruda-Alžbětín.
     "prestice:klatovy": {
         "start": [49.57220, 13.33300],
         "end": [49.39550, 13.29500],

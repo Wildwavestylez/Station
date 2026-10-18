@@ -32,6 +32,22 @@ ROUTES = {
         "end": [49.93090, 13.37964],
         "label": "Třemošná u Plzně → Plasy",
     },
+    # Trať 176: rozdělení nové lokální linky Plzeň–Kyšice–Stupno–Radnice.
+    "plzen:kysice": {
+        "start": [49.74354, 13.38803],
+        "end": [49.76780, 13.46500],
+        "label": "Plzeň hl.n. → Kyšice",
+    },
+    "kysice:stupno": {
+        "start": [49.76780, 13.46500],
+        "end": [49.82633, 13.57684],
+        "label": "Kyšice → Stupno",
+    },
+    "stupno:radnice": {
+        "start": [49.82633, 13.57684],
+        "end": [49.85600, 13.60500],
+        "label": "Stupno → Radnice",
+    },
     # Official station coordinates; snapped to the nearest connected railway nodes.
     "rokycany:horovice": {
         "start": [49.73969, 13.59422],

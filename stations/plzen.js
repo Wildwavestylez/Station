@@ -457,10 +457,6 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.b
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:bezdruzice");
 }
 
-if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.zeleznaRuda.length >= 2) {
-  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:zeleznaRuda");
-}
-
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.sumava.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:sumava");
 }

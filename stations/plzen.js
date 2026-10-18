@@ -287,6 +287,25 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardMoney: 2200,
       rewardXP: 1
     },
+    10: {
+      name: "ČD RegioShark · Plzeň–Pňovany–Bezdružice",
+      operator: "České dráhy",
+      category: "local",
+      routeLabel: "Plzeň–Pňovany–Bezdružice",
+      boardDestination: "Bezdružice",
+      lineCode: "Os Plzeň–Bezdružice",
+      purchaseCost: 1000,
+      requiredLevel: 0,
+      image: "assets/trains/cd/RegioShark_Najbrt1.png",
+      routeKey: "bezdruzice",
+      routeSequence: ["bezdruzice"],
+      speed: 80,
+      stayTime: 10,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, board: 5 },
+      rewardMoney: 2400,
+      rewardXP: 1
+    },
     7: {
       name: "ČD rychlík · Praha–Plzeň–Domažlice",
       operator: "České dráhy",

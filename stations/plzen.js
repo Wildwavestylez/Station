@@ -79,6 +79,13 @@ function buildPlzenBezdruziceRoute() {
   );
 }
 
+function buildPresticeZeleznaRudaRoute() {
+  return buildJoinedPlzenRoute(
+    ["prestice:klatovy", "klatovy:nyrsko", "nyrsko:alzbietin"],
+    "Trasa Přeštice–Klatovy–Nýrsko–Železná Ruda-Alžbětín"
+  );
+}
+
 function buildPlzenSumavaRoute() {
   return buildJoinedPlzenRoute(
     ["prestice:klatovy", "klatovy:nyrsko", "nyrsko:alzbietin"],
@@ -333,6 +340,25 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardMoney: 2400,
       rewardXP: 1
     },
+    11: {
+      name: "ČD RegioShark · Přeštice–Klatovy–Nýrsko–Železná Ruda-Alžbětín",
+      operator: "České dráhy",
+      category: "local",
+      routeLabel: "Přeštice–Klatovy–Nýrsko–Železná Ruda-Alžbětín",
+      boardDestination: "Železná Ruda-Alžbětín",
+      lineCode: "Os Přeštice–Železná Ruda-Alžbětín",
+      purchaseCost: 1500,
+      requiredLevel: 0,
+      image: "assets/trains/cd/RegioShark_Najbrt1.png",
+      routeKey: "zeleznaRuda",
+      routeSequence: ["zeleznaRuda"],
+      speed: 80,
+      stayTime: 10,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, board: 5 },
+      rewardMoney: 3200,
+      rewardXP: 1
+    },
     7: {
       name: "ČD rychlík · Praha–Plzeň–Domažlice",
       operator: "České dráhy",
@@ -395,6 +421,10 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.r
 
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.bezdruzice.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:bezdruzice");
+}
+
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.zeleznaRuda.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:zeleznaRuda");
 }
 
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.sumava.length >= 2) {

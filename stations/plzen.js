@@ -102,6 +102,13 @@ function buildPlzenZeleznaRudaRoute() {
   );
 }
 
+function buildPlzenKlatovyRoute() {
+  return buildJoinedPlzenRoute(
+    ["plzen:prestice", "prestice:klatovy"],
+    "Trasa Plzeň–Přeštice–Klatovy"
+  );
+}
+
 function buildPlzenPrahaRoute() {
   const prepared = window.STATION_PREPARED_ROUTES || {};
   const keys = [
@@ -165,6 +172,7 @@ window.STATIONS_REGISTRY["plzen"] = {
     plasy: buildPlzenPlasyRoute(),
     praha: buildPlzenPrahaRoute(),
     domazlice: buildPlzenDomazliceRoute(),
+    klatovy: buildPlzenKlatovyRoute(),
     zeleznaRuda: buildPlzenZeleznaRudaRoute(),
     radnice: buildPlzenRadniceRoute(),
     bezdruzice: buildPlzenBezdruziceRoute(),
@@ -377,8 +385,8 @@ window.STATIONS_REGISTRY["plzen"] = {
       boardDestination: "Železná Ruda-Alžbětín",
       cateringRequired: true,
       lineCode: "R16",
-      purchaseCost: 1000,
-      requiredLevel: 0,
+      purchaseCost: 0,
+      requiredLevel: 1,
       image: "assets/trains/cd/Rychlik_1.png",
       routeKey: "zeleznaRuda",
       routeSequence: ["zeleznaRuda", "praha"],
@@ -387,6 +395,25 @@ window.STATIONS_REGISTRY["plzen"] = {
       initialContract: 1,
       timers: { exit: 5, clean: 8, catering: 10, board: 5 },
       rewardMoney: 1000,
+      rewardXP: 1
+    },
+    13: {
+      name: "ČD osobní vlak · Plzeň–Přeštice–Klatovy",
+      operator: "České dráhy",
+      category: "local",
+      routeLabel: "Plzeň–Přeštice–Klatovy",
+      boardDestination: "Klatovy",
+      lineCode: "Os Plzeň–Klatovy",
+      purchaseCost: 0,
+      requiredLevel: 1,
+      image: "assets/trains/cd/Regpa1.png",
+      routeKey: "klatovy",
+      routeSequence: ["klatovy"],
+      speed: 80,
+      stayTime: 10,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, board: 5 },
+      rewardMoney: 1200,
       rewardXP: 1
     },
     7: {
@@ -443,6 +470,10 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.p
 // Zveřejni pouze trasy, jejichž OSM segmenty existují a navazují.
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.domazlice.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:domazlice");
+}
+
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.klatovy.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:klatovy");
 }
 
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.zeleznaRuda.length >= 2) {

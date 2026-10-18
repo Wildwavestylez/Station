@@ -260,6 +260,25 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardMoney: 1800,
       rewardXP: 1
     },
+    9: {
+      name: "ČD RegioPanter · Plzeň–Domažlice",
+      operator: "České dráhy",
+      category: "local",
+      routeLabel: "Plzeň–Domažlice",
+      boardDestination: "Domažlice",
+      lineCode: "Os Plzeň–Domažlice",
+      purchaseCost: 1000,
+      requiredLevel: 0,
+      image: "assets/trains/cd/Regipanter_Plzen.png",
+      routeKey: "domazlice",
+      routeSequence: ["domazlice"],
+      speed: 100,
+      stayTime: 10,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, board: 5 },
+      rewardMoney: 2200,
+      rewardXP: 1
+    },
     7: {
       name: "ČD rychlík · Praha–Plzeň–Domažlice",
       operator: "České dráhy",

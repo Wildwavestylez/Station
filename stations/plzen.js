@@ -72,6 +72,13 @@ function buildPlzenRadniceRoute() {
   );
 }
 
+function buildPlzenBezdruziceRoute() {
+  return buildJoinedPlzenRoute(
+    ["plzen:pnovany", "pnovany:bezdruzice"],
+    "Trasa Plzeň–Pňovany–Bezdružice"
+  );
+}
+
 function buildPlzenPrahaRoute() {
   const prepared = window.STATION_PREPARED_ROUTES || {};
   const keys = [
@@ -135,7 +142,8 @@ window.STATIONS_REGISTRY["plzen"] = {
     plasy: buildPlzenPlasyRoute(),
     praha: buildPlzenPrahaRoute(),
     domazlice: buildPlzenDomazliceRoute(),
-    radnice: buildPlzenRadniceRoute()
+    radnice: buildPlzenRadniceRoute(),
+    bezdruzice: buildPlzenBezdruziceRoute()
   },
 
   // Level odemyká kategorie a možnosti. Konkrétní výkony se kupují v obchodě.
@@ -337,4 +345,8 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.d
 
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.radnice.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:radnice");
+}
+
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.bezdruzice.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:bezdruzice");
 }

@@ -76,6 +76,23 @@ function buildPlzenR25Route() {
   );
 }
 
+// Expres Plzeň–Karlovy Vary přes Pňovany, Mariánské Lázně a Cheb.
+function buildPlzenKarlovyVaryRoute() {
+  return buildJoinedPlzenRoute(
+    [
+      "plzen:pnovany",
+      "pnovany:svojsin",
+      "svojsin:plana",
+      "plana:marianske_lazne",
+      "marianske_lazne:cheb",
+      "cheb:sokolov",
+      "sokolov:karlovy_vary"
+    ],
+    "Expres Plzeň–Pňovany–Mariánské Lázně–Cheb–Karlovy Vary",
+    350
+  );
+}
+
 function buildPlzenDomazliceRoute() {
   return buildJoinedPlzenRoute(
     ["plzen:nyrany", "nyrany:stankov", "stankov:domazlice"],
@@ -211,6 +228,7 @@ window.STATIONS_REGISTRY["plzen"] = {
     prestice: window.STATION_PREPARED_ROUTES["plzen:prestice"],
     plasy: buildPlzenPlasyRoute(),
     r25: buildPlzenR25Route(),
+    karlovyVary: buildPlzenKarlovyVaryRoute(),
     praha: buildPlzenPrahaRoute(),
     domazlice: buildPlzenDomazliceRoute(),
     klatovy: buildPlzenKlatovyRoute(),
@@ -496,6 +514,26 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardMoney: 2500,
       rewardXP: 1
     },
+    17: {
+      name: "ČD expres · Plzeň–Pňovany–Mariánské Lázně–Cheb–Karlovy Vary",
+      operator: "České dráhy",
+      category: "rapid",
+      routeLabel: "Plzeň–Pňovany–Mariánské Lázně–Cheb–Karlovy Vary",
+      boardDestination: "Karlovy Vary",
+      cateringRequired: true,
+      lineCode: "Ex Plzeň–Karlovy Vary",
+      purchaseCost: 0,
+      requiredLevel: 1,
+      image: "assets/trains/cd/Regpa2.png",
+      routeKey: "karlovyVary",
+      routeSequence: ["karlovyVary"],
+      speed: 120,
+      stayTime: 15,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, catering: 10, board: 5 },
+      rewardMoney: 3200,
+      rewardXP: 2
+    },
     16: {
       name: "GW Train Regio · R25 Plzeň–Most",
       operator: "GW Train Regio",
@@ -530,6 +568,10 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.p
 
 
 // R25 se zveřejní jen tehdy, když všech osm skutečných OSM úseků navazuje.
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.karlovyVary.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:karlovyVary");
+}
+
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.r25.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:r25");
 }

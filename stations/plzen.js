@@ -666,7 +666,7 @@ window.STATIONS_REGISTRY["plzen"] = {
       lineCode: "SC Cheb–Ostrava",
       purchaseCost: 0,
       requiredLevel: 1,
-      image: "assets/trains/cd/Pendolino.png",
+      image: "assets/trains/cd/Rychlik_1.png",
       routeKey: "pendolinoChebOstrava",
       routeSequence: ["pendolinoChebOstrava"],
       speed: 160,

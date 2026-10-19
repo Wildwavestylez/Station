@@ -278,7 +278,7 @@ window.STATIONS_REGISTRY["plzen"] = {
     plasy: buildPlzenPlasyRoute(),
     r25: buildPlzenR25Route(),
     karlovyVary: buildPlzenKarlovyVaryRoute(),
-    prahaCheb: buildPrahaKarlovyVaryRoute(),
+    prahaCheb: buildPrahaChebRoute(),
     praha: buildPlzenPrahaRoute(),
     domazlice: buildPlzenDomazliceRoute(),
     klatovy: buildPlzenKlatovyRoute(),

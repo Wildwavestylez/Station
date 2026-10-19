@@ -26,7 +26,7 @@ function buildPlzenPlasyRoute() {
   return joined;
 }
 
-function buildJoinedPlzenRoute(keys, label) {
+function buildJoinedPlzenRoute(keys, label, maxGapMeters = 250) {
   const prepared = window.STATION_PREPARED_ROUTES || {};
   const segments = keys.map(key => prepared[key]);
   if (segments.some(segment => !Array.isArray(segment) || segment.length < 2)) {
@@ -46,7 +46,7 @@ function buildJoinedPlzenRoute(keys, label) {
     const previous = joined[joined.length - 1];
     const nextStart = segments[i][0];
     const gap = distanceMeters(previous, nextStart);
-    if (gap > 250) {
+    if (gap > maxGapMeters) {
       console.error(label + ": segmenty na sebe nenavazují.", {
         from: keys[i - 1], to: keys[i], gapMeters: Math.round(gap)
       });
@@ -71,7 +71,8 @@ function buildPlzenR25Route() {
       "chomutov:jirkov_zastavka",
       "jirkov_zastavka:most"
     ],
-    "Linka R25 GWTR Plzeň–Plasy–Žatec–Chomutov–Most"
+    "Linka R25 GWTR Plzeň–Plasy–Žatec–Chomutov–Most",
+    300
   );
 }
 

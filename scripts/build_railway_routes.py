@@ -142,6 +142,22 @@ ROUTES = {
         "end": [48.97434, 14.48811],
         "label": "Dívčice → České Budějovice",
     },
+    # Northern continuation of railway line 160 toward Zatec.
+    "plasy:blatno": {
+        "start": [49.93090, 13.37964],
+        "end": [50.09982, 13.39014],
+        "label": "Plasy - Blatno u Jesenice",
+    },
+    "blatno:podborany": {
+        "start": [50.09982, 13.39014],
+        "end": [50.22350, 13.40437],
+        "label": "Blatno u Jesenice - Podborany",
+    },
+    "podborany:zatec": {
+        "start": [50.22350, 13.40437],
+        "end": [50.32780, 13.54590],
+        "label": "Podborany - Zatec",
+    },
 }
 
 def haversine(a, b):

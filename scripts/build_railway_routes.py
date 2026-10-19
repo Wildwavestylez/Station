@@ -175,6 +175,27 @@ ROUTES = {
         "end": [50.51114, 13.65871],
         "label": "Jirkov zastavka - Most nadrazi",
     },
+    # Hlavní trať 178: pokračování Plzeň–Cheb rozdělené v přestupních stanicích.
+    "pnovany:svojsin": {
+        "start": [49.78590, 13.14700],
+        "end": [49.75110, 12.90230],
+        "label": "Pňovany → Svojšín",
+    },
+    "svojsin:plana": {
+        "start": [49.75110, 12.90230],
+        "end": [49.861114249, 12.730324566],
+        "label": "Svojšín → Planá u Mariánských Lázní",
+    },
+    "plana:marianske_lazne": {
+        "start": [49.861114249, 12.730324566],
+        "end": [49.95709, 12.69381],
+        "label": "Planá u Mariánských Lázní → Mariánské Lázně",
+    },
+    "marianske_lazne:cheb": {
+        "start": [49.95709, 12.69381],
+        "end": [50.073835, 12.380674],
+        "label": "Mariánské Lázně → Cheb",
+    },
 }
 
 def haversine(a, b):

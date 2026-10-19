@@ -196,6 +196,16 @@ ROUTES = {
         "end": [50.073835, 12.380674],
         "label": "Mariánské Lázně → Cheb",
     },
+    "cheb:sokolov": {
+        "start": [50.073835, 12.380674],
+        "end": [50.18110, 12.63990],
+        "label": "Cheb → Sokolov",
+    },
+    "sokolov:karlovy_vary": {
+        "start": [50.18110, 12.63990],
+        "end": [50.22880, 12.87140],
+        "label": "Sokolov → Karlovy Vary",
+    },
 }
 
 def haversine(a, b):

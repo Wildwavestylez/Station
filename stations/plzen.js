@@ -58,6 +58,23 @@ function buildJoinedPlzenRoute(keys, label) {
   return joined;
 }
 
+// R25 GWTR: souvislá skutečná trasa Plzeň–Plasy–Žatec–Chomutov–Most.
+function buildPlzenR25Route() {
+  return buildJoinedPlzenRoute(
+    [
+      "plzen:tremosna",
+      "tremosna:plasy",
+      "plasy:blatno",
+      "blatno:podborany",
+      "podborany:zatec",
+      "zatec:chomutov",
+      "chomutov:jirkov_zastavka",
+      "jirkov_zastavka:most"
+    ],
+    "Linka R25 GWTR Plzeň–Plasy–Žatec–Chomutov–Most"
+  );
+}
+
 function buildPlzenDomazliceRoute() {
   return buildJoinedPlzenRoute(
     ["plzen:nyrany", "nyrany:stankov", "stankov:domazlice"],
@@ -192,6 +209,7 @@ window.STATIONS_REGISTRY["plzen"] = {
     rokycany: window.STATION_PREPARED_ROUTES["plzen:rokycany"],
     prestice: window.STATION_PREPARED_ROUTES["plzen:prestice"],
     plasy: buildPlzenPlasyRoute(),
+    r25: buildPlzenR25Route(),
     praha: buildPlzenPrahaRoute(),
     domazlice: buildPlzenDomazliceRoute(),
     klatovy: buildPlzenKlatovyRoute(),
@@ -477,6 +495,24 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardMoney: 2500,
       rewardXP: 1
     },
+    16: {
+      name: "GW Train Regio · R25 Plzeň–Most",
+      operator: "GW Train Regio",
+      category: "rapid",
+      routeLabel: "Plzeň–Plasy–Žatec–Chomutov–Most",
+      boardDestination: "Most",
+      lineCode: "R25",
+      purchaseCost: 0,
+      requiredLevel: 1,
+      image: "assets/trains/other/R25GW.png",
+      routeKey: "r25",
+      speed: 100,
+      stayTime: 15,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, catering: 10, board: 5 },
+      rewardMoney: 3000,
+      rewardXP: 2
+    },
   }
 };
 
@@ -491,6 +527,11 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.p
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:plasy");
 }
 
+
+// R25 se zveřejní jen tehdy, když všech osm skutečných OSM úseků navazuje.
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.r25.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:r25");
+}
 
 // Zveřejni pouze trasy, jejichž OSM segmenty existují a navazují.
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.domazlice.length >= 2) {

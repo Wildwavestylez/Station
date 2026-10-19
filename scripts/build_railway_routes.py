@@ -155,18 +155,25 @@ ROUTES = {
     },
     "podborany:zatec": {
         "start": [50.22350, 13.40437],
-        "end": [50.32780, 13.54590],
-        "label": "Podborany - Zatec",
+        "end": [50.33656, 13.55521],
+        "label": "Podborany - Zatec hlavni nadrazi",
     },
     "zatec:chomutov": {
-        "start": [50.32780, 13.54590],
-        "end": [50.46030, 13.41470],
-        "label": "Zatec - Chomutov",
+        # Station coordinates verified against OpenStreetMap station nodes.
+        "start": [50.33656, 13.55521],
+        "end": [50.45679, 13.39938],
+        "label": "Zatec nadrazi - Chomutov nadrazi",
     },
-    "chomutov:most": {
-        "start": [50.46030, 13.41470],
-        "end": [50.50320, 13.63620],
-        "label": "Chomutov - Most",
+    # Route continues via Jirkov zastavka on line 130, not Jirkov station on line 124.
+    "chomutov:jirkov_zastavka": {
+        "start": [50.45679, 13.39938],
+        "end": [50.48560, 13.44776],
+        "label": "Chomutov nadrazi - Jirkov zastavka",
+    },
+    "jirkov_zastavka:most": {
+        "start": [50.48560, 13.44776],
+        "end": [50.51114, 13.65871],
+        "label": "Jirkov zastavka - Most nadrazi",
     },
 }
 

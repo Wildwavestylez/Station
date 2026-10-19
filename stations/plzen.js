@@ -77,6 +77,57 @@ function buildPlzenR25Route() {
 }
 
 // Expres Plzeň–Karlovy Vary přes Pňovany, Mariánské Lázně a Cheb.
+// Rychlík Praha–Karlovy Vary: pražská trať přes Beroun a Rokycany,
+ // pokračování z Plzně přes Pňovany, Mariánské Lázně a Cheb.
+function buildPrahaKarlovyVaryRoute() {
+  const prepared = window.STATION_PREPARED_ROUTES || {};
+  const parts = [
+    { key: "dobrichovice:praha", reverse: true },
+    { key: "beroun:dobrichovice", reverse: true },
+    { key: "horovice:beroun", reverse: true },
+    { key: "rokycany:horovice", reverse: true },
+    { key: "plzen:rokycany", reverse: true },
+    { key: "plzen:pnovany", reverse: false },
+    { key: "pnovany:svojsin", reverse: false },
+    { key: "svojsin:plana", reverse: false },
+    { key: "plana:marianske_lazne", reverse: false },
+    { key: "marianske_lazne:cheb", reverse: false },
+    { key: "cheb:sokolov", reverse: false },
+    { key: "sokolov:karlovy_vary", reverse: false }
+  ];
+  const segments = parts.map(part => {
+    const points = prepared[part.key];
+    if (!Array.isArray(points) || points.length < 2) return null;
+    const copy = points.map(point => [point[0], point[1]]);
+    return part.reverse ? copy.reverse() : copy;
+  });
+  if (segments.some(segment => !segment)) {
+    console.error("Rychlík Praha–Karlovy Vary: chybí připravený OSM úsek.");
+    return [];
+  }
+  const distanceMeters = (a, b) => {
+    const rad = Math.PI / 180;
+    const dLat = (b[0] - a[0]) * rad;
+    const dLon = (b[1] - a[1]) * rad;
+    const q = Math.sin(dLat / 2) ** 2 +
+      Math.cos(a[0] * rad) * Math.cos(b[0] * rad) * Math.sin(dLon / 2) ** 2;
+    return 6371000 * 2 * Math.atan2(Math.sqrt(q), Math.sqrt(Math.max(0, 1 - q)));
+  };
+  const joined = segments[0].map(point => [point[0], point[1]]);
+  for (let i = 1; i < segments.length; i++) {
+    const gap = distanceMeters(joined[joined.length - 1], segments[i][0]);
+    if (gap > 350) {
+      console.error("Rychlík Praha–Karlovy Vary: úseky nenavazují.", {
+        from: parts[i - 1].key, to: parts[i].key, gapMeters: Math.round(gap)
+      });
+      return [];
+    }
+    joined.push(...segments[i].map(point => [point[0], point[1]]));
+  }
+  console.info("Rychlík Praha–Karlovy Vary spojen z 12 OSM úseků:", joined.length, "bodů.");
+  return joined;
+}
+
 function buildPlzenKarlovyVaryRoute() {
   return buildJoinedPlzenRoute(
     [
@@ -229,6 +280,7 @@ window.STATIONS_REGISTRY["plzen"] = {
     plasy: buildPlzenPlasyRoute(),
     r25: buildPlzenR25Route(),
     karlovyVary: buildPlzenKarlovyVaryRoute(),
+    prahaKarlovyVary: buildPrahaKarlovyVaryRoute(),
     praha: buildPlzenPrahaRoute(),
     domazlice: buildPlzenDomazliceRoute(),
     klatovy: buildPlzenKlatovyRoute(),
@@ -514,6 +566,26 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardMoney: 2500,
       rewardXP: 1
     },
+    18: {
+      name: "ČD rychlík · Praha–Karlovy Vary",
+      operator: "České dráhy",
+      category: "rapid",
+      routeLabel: "Praha–Beroun–Hořovice–Rokycany–Plzeň–Pňovany–Mariánské Lázně–Cheb–Karlovy Vary",
+      boardDestination: "Karlovy Vary",
+      cateringRequired: true,
+      lineCode: "R Praha–Karlovy Vary",
+      purchaseCost: 0,
+      requiredLevel: 1,
+      image: "assets/trains/cd/VectronCD1.png",
+      routeKey: "prahaKarlovyVary",
+      routeSequence: ["prahaKarlovyVary"],
+      speed: 120,
+      stayTime: 15,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, catering: 10, board: 5 },
+      rewardMoney: 3500,
+      rewardXP: 2
+    },
     17: {
       name: "ČD expres · Plzeň–Pňovany–Mariánské Lázně–Cheb–Karlovy Vary",
       operator: "České dráhy",
@@ -568,6 +640,10 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.p
 
 
 // R25 se zveřejní jen tehdy, když všech osm skutečných OSM úseků navazuje.
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.prahaKarlovyVary.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:prahaKarlovyVary");
+}
+
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.karlovyVary.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:karlovyVary");
 }

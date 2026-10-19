@@ -158,6 +158,16 @@ ROUTES = {
         "end": [50.32780, 13.54590],
         "label": "Podborany - Zatec",
     },
+    "zatec:chomutov": {
+        "start": [50.32780, 13.54590],
+        "end": [50.46030, 13.41470],
+        "label": "Zatec - Chomutov",
+    },
+    "chomutov:most": {
+        "start": [50.46030, 13.41470],
+        "end": [50.50320, 13.63620],
+        "label": "Chomutov - Most",
+    },
 }
 
 def haversine(a, b):

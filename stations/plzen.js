@@ -116,6 +116,21 @@ function buildPlzenHorazdovicePredmRoute() {
   );
 }
 
+function buildPlzenCeskeBudejoviceRoute() {
+  return buildJoinedPlzenRoute(
+    [
+      "plzen:nezvestice",
+      "nezvestice:nepomuk",
+      "nepomuk:horazdovice_predm",
+      "horazdovice_predm:strakonice",
+      "strakonice:protivin",
+      "protivin:divcice",
+      "divcice:ceske_budejovice"
+    ],
+    "Trasa Plzeň–České Budějovice"
+  );
+}
+
 function buildPlzenPrahaRoute() {
   const prepared = window.STATION_PREPARED_ROUTES || {};
   const keys = [
@@ -181,6 +196,7 @@ window.STATIONS_REGISTRY["plzen"] = {
     domazlice: buildPlzenDomazliceRoute(),
     klatovy: buildPlzenKlatovyRoute(),
     horazdovicePredm: buildPlzenHorazdovicePredmRoute(),
+    ceskeBudejovice: buildPlzenCeskeBudejoviceRoute(),
     zeleznaRuda: buildPlzenZeleznaRudaRoute(),
     radnice: buildPlzenRadniceRoute(),
     bezdruzice: buildPlzenBezdruziceRoute(),
@@ -440,7 +456,27 @@ window.STATIONS_REGISTRY["plzen"] = {
       timers: { exit: 5, clean: 8, board: 5 },
       rewardMoney: 2200,
       rewardXP: 1
-    }
+    },
+    15: {
+      name: "ČD rychlík · Plzeň–České Budějovice",
+      operator: "České dráhy",
+      category: "rapid",
+      routeLabel: "Plzeň–České Budějovice",
+      boardDestination: "České Budějovice",
+      cateringRequired: true,
+      lineCode: "R Plzeň–České Budějovice",
+      purchaseCost: 0,
+      requiredLevel: 1,
+      image: "assets/trains/cd/Rychlik_1.png",
+      routeKey: "ceskeBudejovice",
+      routeSequence: ["ceskeBudejovice"],
+      speed: 120,
+      stayTime: 15,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, catering: 10, board: 5 },
+      rewardMoney: 2500,
+      rewardXP: 1
+    },
   }
 };
 
@@ -468,6 +504,10 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.k
 // Horažďovice předměstí je složené ze tří předpřipravených OSM segmentů.
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.horazdovicePredm.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:horazdovicePredm");
+}
+
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.ceskeBudejovice.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:ceskeBudejovice");
 }
 
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.zeleznaRuda.length >= 2) {

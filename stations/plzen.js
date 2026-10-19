@@ -142,6 +142,76 @@ function buildPlzenKarlovyVaryRoute() {
   );
 }
 
+// SC Pendolino: Cheb–Plzeň–Praha–Pardubice–Olomouc–Ostrava.
+// Používá hlavní trať přes Stříbro, nikoli odbočku přes Pňovany.
+function buildPendolinoChebOstravaRoute() {
+  const parts = [
+    { key: "marianske_lazne:cheb", reverse: true },
+    { key: "plana:marianske_lazne", reverse: true },
+    { key: "stribro:plana", reverse: true },
+    { key: "plzen:stribro", reverse: true },
+    { key: "plzen:rokycany", reverse: false },
+    { key: "rokycany:horovice", reverse: false },
+    { key: "horovice:beroun", reverse: false },
+    { key: "beroun:dobrichovice", reverse: false },
+    { key: "dobrichovice:praha", reverse: false },
+    { key: "praha:pardubice", reverse: false },
+    { key: "pardubice:olomouc", reverse: false },
+    { key: "olomouc:ostrava", reverse: false }
+  ];
+  return buildJoinedDirectedRoute(parts, "SC Pendolino Cheb–Ostrava", 500);
+}
+
+// Bavorský expres: Plzeň–Domažlice–Furth im Wald–Cham–Schwandorf–Regensburg–Landshut–Freising–München.
+function buildBavarianExpressRoute() {
+  const parts = [
+    { key: "plzen:nyrany", reverse: false },
+    { key: "nyrany:stankov", reverse: false },
+    { key: "stankov:domazlice", reverse: false },
+    { key: "domazlice:furth_im_wald", reverse: false },
+    { key: "furth_im_wald:cham", reverse: false },
+    { key: "cham:schwandorf", reverse: false },
+    { key: "schwandorf:regensburg", reverse: false },
+    { key: "regensburg:landshut", reverse: false },
+    { key: "landshut:freising", reverse: false },
+    { key: "freising:muenchen", reverse: false }
+  ];
+  return buildJoinedDirectedRoute(parts, "Bavorský expres Plzeň–München", 700);
+}
+
+// Spojuje připravené OSM úseky ve správném směru a odmítá nepropojené trasy.
+function buildJoinedDirectedRoute(parts, label, maxGapMeters = 350) {
+  const prepared = window.STATION_PREPARED_ROUTES || {};
+  const segments = parts.map(part => {
+    const points = prepared[part.key];
+    if (!Array.isArray(points) || points.length < 2) return null;
+    const copy = points.map(point => [point[0], point[1]]);
+    return part.reverse ? copy.reverse() : copy;
+  });
+  if (segments.some(segment => !segment)) {
+    console.error(label + ": chybí připravený OSM úsek.");
+    return [];
+  }
+  const distanceMeters = (a, b) => {
+    const rad = Math.PI / 180;
+    const dLat = (b[0] - a[0]) * rad;
+    const dLon = (b[1] - a[1]) * rad;
+    const q = Math.sin(dLat / 2) ** 2 + Math.cos(a[0] * rad) * Math.cos(b[0] * rad) * Math.sin(dLon / 2) ** 2;
+    return 6371000 * 2 * Math.atan2(Math.sqrt(q), Math.sqrt(Math.max(0, 1 - q)));
+  };
+  const joined = segments[0].map(point => [point[0], point[1]]);
+  for (let i = 1; i < segments.length; i++) {
+    const gap = distanceMeters(joined[joined.length - 1], segments[i][0]);
+    if (gap > maxGapMeters) {
+      console.error(label + ": OSM úseky nenavazují.", { from: parts[i - 1].key, to: parts[i].key, gapMeters: Math.round(gap) });
+      return [];
+    }
+    joined.push(...segments[i].map(point => [point[0], point[1]]));
+  }
+  console.info(label + " spojena z " + segments.length + " OSM úseků:", joined.length, "bodů.");
+  return joined;
+}
+
 function buildPlzenDomazliceRoute() {
   return buildJoinedPlzenRoute(
     ["plzen:nyrany", "nyrany:stankov", "stankov:domazlice"],
@@ -278,7 +348,9 @@ window.STATIONS_REGISTRY["plzen"] = {
     plasy: buildPlzenPlasyRoute(),
     r25: buildPlzenR25Route(),
     karlovyVary: buildPlzenKarlovyVaryRoute(),
-    prahaCheb: buildPrahaKarlovyVaryRoute(),
+    prahaCheb: buildPrahaChebRoute(),
+    pendolinoChebOstrava: buildPendolinoChebOstravaRoute(),
+    bavarianExpress: buildBavarianExpressRoute(),
     praha: buildPlzenPrahaRoute(),
     domazlice: buildPlzenDomazliceRoute(),
     klatovy: buildPlzenKlatovyRoute(),
@@ -584,6 +656,46 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardMoney: 3500,
       rewardXP: 2
     },
+    19: {
+      name: "ČD SC Pendolino · Cheb–Ostrava",
+      operator: "České dráhy",
+      category: "express",
+      routeLabel: "Cheb–Mariánské Lázně–Stříbro–Plzeň–Praha–Pardubice–Olomouc–Ostrava",
+      boardDestination: "Ostrava hl.n.",
+      cateringRequired: true,
+      lineCode: "SC Cheb–Ostrava",
+      purchaseCost: 0,
+      requiredLevel: 1,
+      image: "assets/trains/cd/Pendolino.png",
+      routeKey: "pendolinoChebOstrava",
+      routeSequence: ["pendolinoChebOstrava"],
+      speed: 160,
+      stayTime: 15,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, catering: 10, board: 5 },
+      rewardMoney: 5500,
+      rewardXP: 3
+    },
+    20: {
+      name: "ČD / alex · Bavorský expres Plzeň–München",
+      operator: "České dráhy / alex",
+      category: "express",
+      routeLabel: "Plzeň–Domažlice–Furth im Wald–Cham–Schwandorf–Regensburg–Landshut–Freising–München",
+      boardDestination: "München Hbf",
+      cateringRequired: true,
+      lineCode: "Ex Plzeň–München",
+      purchaseCost: 0,
+      requiredLevel: 1,
+      image: "assets/trains/cd/VectronCD1.png",
+      routeKey: "bavarianExpress",
+      routeSequence: ["bavarianExpress"],
+      speed: 160,
+      stayTime: 15,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, catering: 10, board: 5 },
+      rewardMoney: 6000,
+      rewardXP: 3
+    },
     17: {
       name: "ČD expres · Plzeň–Pňovany–Mariánské Lázně–Cheb–Karlovy Vary",
       operator: "České dráhy",
@@ -640,6 +752,14 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.p
 // R25 se zveřejní jen tehdy, když všech osm skutečných OSM úseků navazuje.
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.prahaCheb.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:prahaCheb");
+}
+
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.pendolinoChebOstrava.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:pendolinoChebOstrava");
+}
+
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.bavarianExpress.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:bavarianExpress");
 }
 
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.karlovyVary.length >= 2) {

@@ -441,18 +441,19 @@ function loadStation(stationKey) {
           id: saved.id,
           name: template.name,
           image: template.image,
-          // Po obnovení stránky bezpečně vracíme vlak do fronty.
-          // Starší savy ukládaly stav COMING bez timeru a koleje, což způsobilo NaN.
-          state: "WAIT_ASSIGN",
+          // Obnovíme pouze právě spuštěnou jízdu; odbavení na nádraží vyžaduje nový zásah hráče.
+          state: ["EN_ROUTE_THERE", "AT_DESTINATION", "EN_ROUTE_BACK"].includes(saved.state) ? saved.state : "WAIT_ASSIGN",
+          tripStartedAt: Number.isFinite(Number(saved.tripStartedAt)) ? Number(saved.tripStartedAt) : null,
           track: null,
           routeKey: Array.isArray(template.routeSequence) && Array.isArray(saved.routeSequence) && template.routeSequence.includes(saved.routeKey) ? saved.routeKey : template.routeKey,
           routeSequence: Array.isArray(template.routeSequence) ? template.routeSequence.slice() : null,
           routeSequenceIndex: Array.isArray(template.routeSequence) && template.routeSequence.includes(saved.routeKey) ? template.routeSequence.indexOf(saved.routeKey) : 0,
-          nextRouteKey: null,
-          distance: 0,
+          nextRouteKey: saved.nextRouteKey || null,
+          distance: Number.isFinite(Number(saved.distance)) ? Math.max(0, Number(saved.distance)) : 0,
           speed: Number.isFinite(Number(template.speed)) ? Number(template.speed) : 0,
           stayTime: Number.isFinite(Number(template.stayTime)) ? Number(template.stayTime) : 0,
-          stayTimer: 0,
+          stayTimer: Number.isFinite(Number(saved.stayTimer)) ? Math.max(0, Number(saved.stayTimer)) : 0,
+          returnCountdownSeconds: Number.isFinite(Number(saved.returnCountdownSeconds)) ? Math.max(0, Number(saved.returnCountdownSeconds)) : null,
           timer: 0,
           marker: null,
           progress: { exit: 0, clean: 0, catering: 0, board: 0 },
@@ -488,6 +489,8 @@ function loadStation(stationKey) {
     });
   }
 
+  // Nejprve obnovíme polohu/čas aktivní otočky; případná odměna se zapíše právě jednou.
+  restoreOfflineTrips(stationKey);
   renderSidebar();
   render();
   if (shopOpen) renderShop();
@@ -736,6 +739,7 @@ async function depart() {
       : null;
   t.state = "EN_ROUTE_THERE";
   t.distance = 0;
+  t.tripStartedAt = Date.now();
   t.pendingAction = false;
 
   // Vytvoření markeru vlaku; kliknutí otevře provozní informace.
@@ -1286,15 +1290,21 @@ function saveGameState() {
     ownedPerformancesByStation: ownedPerformancesByStation,
     unlockedTracksByStation: unlockedTracksByStation,
     // 🟢 Tady uložíme i přesný stav vlaků, abychom o ně nepřišli
+    savedAt: Date.now(),
     savedTrains: trains.map(t => ({
       id: t.id,
-      // Ukládáme jen stabilní stav; probíhající příjezd/jízda se po reloadu bezpečně vrátí do fronty.
-      state: "WAIT_ASSIGN",
+      // Zachovej rozpracovanou otočku; stavové procesy na nádraží se po reloadu vrátí do fronty.
+      state: ["EN_ROUTE_THERE", "AT_DESTINATION", "EN_ROUTE_BACK"].includes(t.state) ? t.state : "WAIT_ASSIGN",
+      tripStartedAt: t.tripStartedAt || null,
       current_turnaround: t.current_turnaround,
       required_turnaround: t.required_turnaround,
       routeKey: t.routeKey,
       routeSequence: Array.isArray(t.routeSequence) ? t.routeSequence.slice() : null,
       routeSequenceIndex: t.routeSequenceIndex || 0,
+      nextRouteKey: t.nextRouteKey || null,
+      distance: Number(t.distance) || 0,
+      stayTimer: Number(t.stayTimer) || 0,
+      returnCountdownSeconds: Number.isFinite(Number(t.returnCountdownSeconds)) ? Number(t.returnCountdownSeconds) : null,
       pendingAction: false
     }))
   };
@@ -1355,6 +1365,78 @@ function resetGameState() {
   }
 }
 
+
+// Obnoví pouze jednu hráčem spuštěnou otočku. Nikdy nedopočítává další jízdy.
+function restoreOfflineTrips(stationKey) {
+  const now = Date.now();
+  let changed = false;
+  for (const t of trains) {
+    if (!["EN_ROUTE_THERE", "AT_DESTINATION", "EN_ROUTE_BACK"].includes(t.state)) continue;
+    const route = currentStationData && currentStationData.routes && currentStationData.routes[t.routeKey];
+    const speed = Number(t.speed);
+    const length = Number(route && route.totalLength);
+    const startedAt = Number(t.tripStartedAt);
+    if (!route || !Number.isFinite(length) || length <= 0 || !Number.isFinite(speed) || speed <= 0 || !Number.isFinite(startedAt) || startedAt <= 0) {
+      // Starý/neúplný save: bezpečně vrátit do fronty bez odměny.
+      t.state = "WAIT_ASSIGN";
+      t.distance = 0;
+      t.returnCountdownSeconds = null;
+      t.tripStartedAt = null;
+      t.nextRouteKey = null;
+      changed = true;
+      continue;
+    }
+
+    const elapsed = Math.max(0, Math.min((now - startedAt) / 1000, 7 * 24 * 60 * 60));
+    const oneTurnDuration = (length / speed) * 2 + Math.max(0, Number(t.stayTime) || 0);
+    if (elapsed >= oneTurnDuration) {
+      // Označit před vyplacením, aby opakované načtení nemohlo vyplatit tutéž otočku znovu.
+      t.state = "WAIT_ASSIGN";
+      t.distance = 0;
+      t.returnCountdownSeconds = null;
+      t.tripStartedAt = null;
+      t.stayTimer = 0;
+      t.pendingAction = true;
+      if (t.marker) { map.removeLayer(t.marker); t.marker = null; }
+      processTrainReturn(t); // přesně jedna dokončená otočka, bez automatického dalšího odjezdu
+      changed = true;
+      continue;
+    }
+
+    const outboundSeconds = length / speed;
+    const staySeconds = Math.max(0, Number(t.stayTime) || 0);
+    if (elapsed < outboundSeconds) {
+      t.state = "EN_ROUTE_THERE";
+      t.distance = Math.min(length, elapsed * speed);
+    } else if (elapsed < outboundSeconds + staySeconds) {
+      t.state = "AT_DESTINATION";
+      t.distance = length;
+      t.stayTimer = Math.max(0, staySeconds - (elapsed - outboundSeconds));
+    } else {
+      t.state = "EN_ROUTE_BACK";
+      t.distance = Math.max(0, length - (elapsed - outboundSeconds - staySeconds) * speed);
+    }
+    t.returnCountdownSeconds = Math.max(0, oneTurnDuration - elapsed);
+    if (!t.marker) {
+      t.marker = L.marker(route[0], {
+        icon: L.divIcon({
+          html: `<img src="${t.image}" class="train-map-image">`,
+          className: "train-div-icon",
+          iconSize: [80, 80],
+          iconAnchor: [40, 40]
+        })
+      }).addTo(map);
+      t.marker.bindPopup(() => getTrainPopupHtml(t), { className: "train-info-popup" });
+      t.marker.on("click", () => { selected = t; updateDetail(); render(); });
+    }
+    updateTrainMarker(t, route, t.distance, t.state === "EN_ROUTE_BACK");
+    changed = true;
+  }
+  if (changed) {
+    console.info("Offline jízdy obnoveny; nejvýše jedna otočka na každý vlak.");
+    saveGameState();
+  }
+}
 
 // ==========================================
 // 🧱 KUS 8: HERNÍ LOOP A FINÁLNÍ SPUŠTĚNÍ

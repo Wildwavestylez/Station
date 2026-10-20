@@ -227,7 +227,22 @@ function buildBavariaExpressRoute() {
       Math.cos(a[0] * rad) * Math.cos(b[0] * rad) * Math.sin(dLon / 2) ** 2;
     return 6371000 * 2 * Math.atan2(Math.sqrt(q), Math.sqrt(Math.max(0, 1 - q)));
   };
-  const plzenToMunich = segments[0].map(point => [point[0], point[1]]);
+  // Výchozí bod musí být přímo v Plzni, ne na opačném konci segmentu.
+  const plzenAnchor = window.STATIONS_REGISTRY && window.STATIONS_REGISTRY.plzen
+    ? window.STATIONS_REGISTRY.plzen.mapCenter
+    : [49.7410, 13.3860];
+  const firstSegment = segments[0];
+  const firstForward = distanceMeters(plzenAnchor, firstSegment[0]);
+  const firstReverse = distanceMeters(plzenAnchor, firstSegment[firstSegment.length - 1]);
+  if (firstReverse < firstForward) firstSegment.reverse();
+  if (Math.min(firstForward, firstReverse) > 5000) {
+    console.error("Bavorský expres: první bod trasy neleží u Plzně.", {
+      firstPoint: firstSegment[0], distanceMeters: Math.round(Math.min(firstForward, firstReverse))
+    });
+    return [];
+  }
+
+  const plzenToMunich = firstSegment.map(point => [point[0], point[1]]);
   for (let i = 1; i < segments.length; i++) {
     const previous = plzenToMunich[plzenToMunich.length - 1];
     const segment = segments[i];
@@ -247,9 +262,9 @@ function buildBavariaExpressRoute() {
     console.error("Bavorský expres: nelze sestavit skutečnou trasu Plzeň–München.");
     return [];
   }
-  // V Plzni vlak začíná jízdu; pražská větev je předchozí část linky,
-  // nikoli výchozí bod vlaku v plzeňské stanici.
-  console.info("Bavorský expres Plzeň–Domažlice–Regensburg–München Hbf: souvislá trasa", plzenToMunich.length, "bodů.");
+  console.info("Bavorský expres: ověřená trasa Plzeň–Domažlice–Regensburg–München Hbf", {
+    nodes: plzenToMunich.length, start: plzenToMunich[0], end: plzenToMunich[plzenToMunich.length - 1]
+  });
   return plzenToMunich;
 }
 

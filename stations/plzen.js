@@ -79,6 +79,41 @@ function buildPlzenR25Route() {
 // Expres Plzeň–Karlovy Vary přes Pňovany, Mariánské Lázně a Cheb.
 // Rychlík Praha–Cheb: pražská trať přes Beroun a Rokycany,
  // pokračování z Plzně přes Pňovany, Mariánské Lázně a Cheb.
+function buildPlzenChebRoute() {
+  const prepared = window.STATION_PREPARED_ROUTES || {};
+  const keys = [
+    "plzen:pnovany",
+    "pnovany:svojsin",
+    "svojsin:plana",
+    "plana:marianske_lazne",
+    "marianske_lazne:cheb"
+  ];
+  const segments = keys.map(key => prepared[key]);
+  if (segments.some(segment => !Array.isArray(segment) || segment.length < 2)) {
+    console.error("Plzeň–Cheb: chybí připravený OSM úsek.");
+    return [];
+  }
+  const distanceMeters = (a, b) => {
+    const rad = Math.PI / 180;
+    const dLat = (b[0] - a[0]) * rad;
+    const dLon = (b[1] - a[1]) * rad;
+    const q = Math.sin(dLat / 2) ** 2 +
+      Math.cos(a[0] * rad) * Math.cos(b[0] * rad) * Math.sin(dLon / 2) ** 2;
+    return 6371000 * 2 * Math.atan2(Math.sqrt(q), Math.sqrt(Math.max(0, 1 - q)));
+  };
+  const joined = segments[0].map(point => [point[0], point[1]]);
+  for (let i = 1; i < segments.length; i++) {
+    const gap = distanceMeters(joined[joined.length - 1], segments[i][0]);
+    if (gap > 350) {
+      console.error("Plzeň–Cheb: OSM úseky nenavazují.", { from: keys[i - 1], to: keys[i], gapMeters: Math.round(gap) });
+      return [];
+    }
+    joined.push(...segments[i].map(point => [point[0], point[1]]));
+  }
+  console.info("Plzeň–Cheb spojena z pěti OSM úseků:", joined.length, "bodů.");
+  return joined;
+}
+
 function buildPrahaChebRoute() {
   const prepared = window.STATION_PREPARED_ROUTES || {};
   const parts = [
@@ -278,6 +313,7 @@ window.STATIONS_REGISTRY["plzen"] = {
     plasy: buildPlzenPlasyRoute(),
     r25: buildPlzenR25Route(),
     karlovyVary: buildPlzenKarlovyVaryRoute(),
+    cheb: buildPlzenChebRoute(),
     prahaCheb: buildPrahaChebRoute(),
     praha: buildPlzenPrahaRoute(),
     domazlice: buildPlzenDomazliceRoute(),
@@ -565,18 +601,18 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardXP: 1
     },
     18: {
-      name: "ČD rychlík · Praha–Cheb",
+      name: "ČD rychlík · Plzeň–Cheb / Praha",
       operator: "České dráhy",
       category: "rapid",
-      routeLabel: "Praha–Beroun–Hořovice–Rokycany–Plzeň–Pňovany–Mariánské Lázně–Cheb",
+      routeLabel: "Plzeň–Pňovany–Svojšín–Planá–Mariánské Lázně–Cheb; následně Plzeň–Praha",
       boardDestination: "Cheb",
       cateringRequired: true,
-      lineCode: "R Praha–Cheb",
+      lineCode: "R Plzeň–Cheb / Praha",
       purchaseCost: 0,
       requiredLevel: 1,
       image: "assets/trains/cd/VectronCD1.png",
-      routeKey: "prahaCheb",
-      routeSequence: ["prahaCheb"],
+      routeKey: "cheb",
+      routeSequence: ["cheb", "praha"],
       speed: 120,
       stayTime: 15,
       initialContract: 1,
@@ -638,6 +674,10 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.p
 
 
 // R25 se zveřejní jen tehdy, když všech osm skutečných OSM úseků navazuje.
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.cheb.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:cheb");
+}
+
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.prahaCheb.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:prahaCheb");
 }

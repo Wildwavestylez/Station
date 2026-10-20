@@ -27,7 +27,7 @@ jobs:
           python-version: "3.12"
       - name: Build route geometry from OSM
         env:
-          ROUTE_KEYS: landshut:moosburg,moosburg:freising,freising:neufahrn_b_freising,neufahrn_b_freising:muenchen
+          ROUTE_KEYS: neufahrn_b_freising:feldmoching,feldmoching:moosach,moosach:laim,laim:muenchen
         run: python scripts/build_railway_routes.py
       - name: Validate JavaScript syntax
         run: node --check stations/preparedRoutes.js

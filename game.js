@@ -857,9 +857,15 @@ function processTrainReturn(t) {
     checkLevelUp();
   }
 
-  if (Array.isArray(t.routeSequence) && t.routeSequence.length > 1 && t.nextRouteKey) {
-    t.routeKey = t.nextRouteKey;
-    t.routeSequenceIndex = Math.max(0, t.routeSequence.indexOf(t.routeKey));
+  // Po dokončené otočce zvol další výkon podle trasy, kterou vlak právě dokončil.
+  // Nezávisíme pouze na nextRouteKey: starší uložený stav ho může mít prázdný.
+  if (Array.isArray(t.routeSequence) && t.routeSequence.length > 1) {
+    const currentIndex = t.routeSequence.indexOf(t.routeKey);
+    const nextIndex = currentIndex >= 0
+      ? (currentIndex + 1) % t.routeSequence.length
+      : 0;
+    t.routeSequenceIndex = nextIndex;
+    t.routeKey = t.routeSequence[nextIndex];
     t.nextRouteKey = null;
   }
   t.state = "WAIT_ASSIGN";

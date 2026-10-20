@@ -190,28 +190,54 @@ function buildPlzenDomazliceRoute() {
 // Původní vlak Praha–Domažlice ani jeho trasu neměníme.
 function buildBavariaExpressRoute() {
   const prahaToPlzen = buildPlzenPrahaRoute();
-  const plzenToMunich = buildJoinedPlzenRoute(
-    [
-      "plzen:nyrany",
-      "nyrany:stankov",
-      "stankov:domazlice",
-      "domazlice:furth_im_wald",
-      "furth_im_wald:cham",
-      "cham:roding",
-      "roding:schwandorf",
-      "schwandorf:maxhuette_haidhof",
-      "maxhuette_haidhof:regenstauf",
-      "regenstauf:regensburg",
-      "regensburg:neufahrn_ndb",
-      "neufahrn_ndb:landshut",
-      "landshut:moosburg",
-      "moosburg:freising",
-      "freising:neufahrn_b_freising",
-      "neufahrn_b_freising:muenchen"
-    ],
-    "Bavorský expres Plzeň–München Hbf",
-    350
-  );
+  const prepared = window.STATION_PREPARED_ROUTES || {};
+  const parts = [
+    { key: "plzen:nyrany" },
+    { key: "nyrany:stankov" },
+    { key: "stankov:domazlice" },
+    { key: "domazlice:furth_im_wald" },
+    { key: "furth_im_wald:cham" },
+    { key: "cham:roding" },
+    { key: "roding:schwandorf" },
+    { key: "schwandorf:maxhuette_haidhof" },
+    { key: "maxhuette_haidhof:regenstauf" },
+    { key: "regenstauf:regensburg" },
+    { key: "regensburg:neufahrn_ndb" },
+    { key: "neufahrn_ndb:landshut", reverse: true },
+    { key: "landshut:moosburg" },
+    { key: "moosburg:freising" },
+    { key: "freising:neufahrn_b_freising" },
+    { key: "neufahrn_b_freising:muenchen" }
+  ];
+  const segments = parts.map(part => {
+    const points = prepared[part.key];
+    if (!Array.isArray(points) || points.length < 2) return null;
+    const copy = points.map(point => [Number(point[0]), Number(point[1])]);
+    return part.reverse ? copy.reverse() : copy;
+  });
+  if (segments.some(segment => !segment)) {
+    console.error("Bavorský expres: chybí připravený skutečný OSM úsek.");
+    return [];
+  }
+  const distanceMeters = (a, b) => {
+    const rad = Math.PI / 180;
+    const dLat = (b[0] - a[0]) * rad;
+    const dLon = (b[1] - a[1]) * rad;
+    const q = Math.sin(dLat / 2) ** 2 +
+      Math.cos(a[0] * rad) * Math.cos(b[0] * rad) * Math.sin(dLon / 2) ** 2;
+    return 6371000 * 2 * Math.atan2(Math.sqrt(q), Math.sqrt(Math.max(0, 1 - q)));
+  };
+  const plzenToMunich = segments[0].map(point => [point[0], point[1]]);
+  for (let i = 1; i < segments.length; i++) {
+    const gap = distanceMeters(plzenToMunich[plzenToMunich.length - 1], segments[i][0]);
+    if (gap > 350) {
+      console.error("Bavorský expres: OSM úseky nenavazují.", {
+        from: parts[i - 1].key, to: parts[i].key, gapMeters: Math.round(gap)
+      });
+      return [];
+    }
+    plzenToMunich.push(...segments[i].map(point => [point[0], point[1]]));
+  }
   if (prahaToPlzen.length < 2 || plzenToMunich.length < 2) {
     console.error("Bavorský expres: nelze sestavit celou trasu Praha–München.");
     return [];

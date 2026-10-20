@@ -189,9 +189,8 @@ function buildPlzenDomazliceRoute() {
 // Použije pražskou větev v opačném směru a naváže na ni již připravené bavorské úseky.
 // Původní vlak Praha–Domažlice ani jeho trasu neměníme.
 function buildBavariaExpressRoute() {
-  // Znovu použijeme hotovou pražskou a domažlickou větev rychlíku.
-  // buildPlzenPrahaRoute() vrací geometrii Plzeň -> Praha, proto ji obrátíme.
-  const plzenToPraha = buildPlzenPrahaRoute();
+  // Bavorský expres začíná v Plzni. Použije hotovou větev Plzeň -> Domažlice,
+  // ale pražskou část rychlíku záměrně nepřebírá.
   const plzenToDomazlice = buildPlzenDomazliceRoute();
   const prepared = window.STATION_PREPARED_ROUTES || {};
   const bavarianParts = [
@@ -209,9 +208,8 @@ function buildBavariaExpressRoute() {
     "freising:neufahrn_b_freising",
     "neufahrn_b_freising:muenchen"
   ];
-  if (!Array.isArray(plzenToPraha) || plzenToPraha.length < 2 ||
-      !Array.isArray(plzenToDomazlice) || plzenToDomazlice.length < 2) {
-    console.error("Bavorský expres: nelze převzít existující trasu Praha–Plzeň–Domažlice.");
+  if (!Array.isArray(plzenToDomazlice) || plzenToDomazlice.length < 2) {
+    console.error("Bavorský expres: chybí existující trasa Plzeň–Domažlice.");
     return [];
   }
 
@@ -224,7 +222,7 @@ function buildBavariaExpressRoute() {
     return 6371000 * 2 * Math.atan2(Math.sqrt(q), Math.sqrt(Math.max(0, 1 - q)));
   };
 
-  const joined = plzenToPraha.slice().reverse().map(point => [point[0], point[1]]);
+  const joined = plzenToDomazlice.map(point => [point[0], point[1]]);
   const joinChecked = (base, segment, label, maxGap = 350) => {
     if (!Array.isArray(segment) || segment.length < 2) {
       console.error("Bavorský expres: chybí připravený úsek.", label);
@@ -244,15 +242,11 @@ function buildBavariaExpressRoute() {
     return true;
   };
 
-  // Praha -> Plzeň je přesně obrácená existující geometrie rychlíku.
-  // Z ní plynule pokračujeme existující větví Plzeň -> Domažlice.
-  if (!joinChecked(joined, plzenToDomazlice, "Plzeň–Domažlice")) return [];
   for (const key of bavarianParts) {
-    const segment = prepared[key];
-    if (!joinChecked(joined, segment, key)) return [];
+    if (!joinChecked(joined, prepared[key], key)) return [];
   }
 
-  console.info("Bavorský expres: převzatá souvislá trasa Praha–Plzeň–Domažlice–München Hbf", {
+  console.info("Bavorský expres: trasa Plzeň–Domažlice–München Hbf (bez pražské větve)", {
     nodes: joined.length, start: joined[0], end: joined[joined.length - 1]
   });
   return joined;

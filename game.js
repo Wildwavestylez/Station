@@ -1109,16 +1109,39 @@ function render() {
   if (!q) return;
   q.innerHTML = "";
 
-  // Nahoře je vlak, který hráč naposledy vyvolal, nebo vlak, který se právě vrátil.
-  // Pořadí se nemění podle stavu (COMING/EN_ROUTE apod.), takže vlak po přidělení koleje
-  // nespadne zpátky dolů. Zbytek seznamu zůstává stabilní.
-  const orderedTrains = trains
+  // Levý sloupec je pracovní panel nádraží: zobrazujeme jen vlaky,
+  // které právě čekají na vjezd/přidělení koleje nebo se fyzicky odbavují ve stanici.
+  // Vlaky na cestě k cíli, u cíle a na cestě zpět se z panelu skryjí.
+  const stationStates = new Set([
+    "WAIT_ASSIGN",
+    "COMING",
+    "ARRIVED",
+    "UNLOADING",
+    "WAIT_CLEAN",
+    "WAIT_CLEAN_TEAM",
+    "CLEANING",
+    "CATERING",
+    "WAIT_BOARD",
+    "BOARDING",
+    "READY_DEPART"
+  ]);
+  const visibleTrains = trains.filter(train => stationStates.has(train.state));
+  if (selected && !visibleTrains.some(train => train.id === selected.id)) {
+    selected = null;
+  }
+  const orderedTrains = visibleTrains
     .map((train, originalIndex) => ({ train, originalIndex }))
     .sort((a, b) => {
       const priorityDifference = (Number(b.train.queuePriority) || 0) - (Number(a.train.queuePriority) || 0);
       return priorityDifference || a.originalIndex - b.originalIndex;
     })
     .map(item => item.train);
+
+  if (!orderedTrains.length) {
+    q.innerHTML = '<div class="train-list-empty">Žádné vlaky aktuálně nečekají ani se neodbavují ve stanici.</div>';
+    updateDetail();
+    return;
+  }
 
   orderedTrains.forEach(t => {
     let d = document.createElement("div");

@@ -159,6 +159,27 @@ ROUTES = {
         "end": [49.14500, 15.00320],   # Jindřichův Hradec, železniční stanice
         "label": "Kardašova Řečice → Jindřichův Hradec",
     },
+    # Rychlík Plzeň–České Budějovice–Jihlava–Brno: pokračování přes trať 225.
+    "jindrichuv_hradec:popelin": {
+        "start": [49.14500, 15.00320],  # Jindřichův Hradec, železniční stanice
+        "end": [49.18750, 15.18500],   # Popelín, železniční stanice; snap na OSM koleje
+        "label": "Jindřichův Hradec → Popelín",
+    },
+    "popelin:horni_cerekev": {
+        "start": [49.18750, 15.18500],  # Popelín
+        "end": [49.31114, 15.32469],    # Horní Cerekev, železniční stanice
+        "label": "Popelín → Horní Cerekev",
+    },
+    "horni_cerekev:kostelec_u_jihlavy": {
+        "start": [49.31114, 15.32469],  # Horní Cerekev
+        "end": [49.35719, 15.48183],    # Kostelec u Jihlavy, železniční stanice
+        "label": "Horní Cerekev → Kostelec u Jihlavy",
+    },
+    "kostelec_u_jihlavy:jihlava": {
+        "start": [49.35719, 15.48183],  # Kostelec u Jihlavy
+        "end": [49.41670, 15.59050],    # Jihlava, železniční stanice; snap na OSM koleje
+        "label": "Kostelec u Jihlavy → Jihlava",
+    },
     # Northern continuation of railway line 160 toward Zatec.
     "plasy:blatno": {
         "start": [49.93090, 13.37964],

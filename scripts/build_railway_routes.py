@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BUNDLE = ROOT / "stations" / "preparedRoutes.js"
 # Tyto existující segmenty při změně souřadnic vždy znovu sestavíme z OSM.
-FORCE_REBUILD = {"prestice:klatovy", "klatovy:nyrsko", "nyrsko:alzbietin"}
+FORCE_REBUILD = {"prestice:klatovy", "klatovy:nyrsko", "nyrsko:alzbietin", "domazlice:furth_im_wald", "furth_im_wald:cham", "cham:roding", "roding:schwandorf"}
 
 ROUTES = {
     # Trať 180: skutečné úseky hlavní linky Plzeň–Domažlice.
@@ -212,10 +212,29 @@ ROUTES = {
     "praha:pardubice": {"start": [50.08300, 14.43500], "end": [50.03430, 15.75650], "label": "Praha hl.n. → Pardubice hl.n."},
     "pardubice:olomouc": {"start": [50.03430, 15.75650], "end": [49.59380, 17.25090], "label": "Pardubice hl.n. → Olomouc hl.n."},
     "olomouc:ostrava": {"start": [49.59380, 17.25090], "end": [49.85090, 18.28570], "label": "Olomouc hl.n. → Ostrava hl.n."},
-    # Mezinárodní pokračování přes Furth im Wald a východní Bavorsko do Mnichova.
-    "domazlice:furth_im_wald": {"start": [49.43509, 12.94320], "end": [49.31200, 12.84400], "label": "Domažlice → Furth im Wald"},
-    "furth_im_wald:cham": {"start": [49.31200, 12.84400], "end": [49.22500, 12.66700], "label": "Furth im Wald → Cham (Oberpf)"},
-    "cham:schwandorf": {"start": [49.22500, 12.66700], "end": [49.32600, 12.10900], "label": "Cham → Schwandorf"},
+    # Mezinárodní pokračování přes přesné souřadnice železničních stanic (OSM/DB).
+    "domazlice:furth_im_wald": {
+        "start": [49.43509, 12.94320],  # Domažlice, ČD
+        "end": [49.30996, 12.83949],    # Bahnhof Furth im Wald
+        "label": "Domažlice → Furth im Wald",
+    },
+    "furth_im_wald:cham": {
+        "start": [49.30996, 12.83949],
+        "end": [49.22184, 12.65681],    # Bahnhof Cham (Oberpf)
+        "label": "Furth im Wald → Cham (Oberpf)",
+    },
+    "cham:roding": {
+        "start": [49.22184, 12.65681],
+        "end": [49.21385, 12.51357],    # Bahnhof Roding
+        "label": "Cham (Oberpf) → Roding",
+    },
+    "roding:schwandorf": {
+        "start": [49.21385, 12.51357],
+        "end": [49.32632, 12.10381],    # Bahnhof Schwandorf
+        "label": "Roding → Schwandorf",
+    },
+    # Starší přímý segment Cham–Schwandorf ponechán kvůli kompatibilitě starých tras.
+    "cham:schwandorf": {"start": [49.22184, 12.65681], "end": [49.32632, 12.10381], "label": "Cham → Schwandorf"},
     "schwandorf:regensburg": {"start": [49.32600, 12.10900], "end": [49.01340, 12.10160], "label": "Schwandorf → Regensburg Hbf"},
     "regensburg:landshut": {"start": [49.01340, 12.10160], "end": [48.54420, 12.14680], "label": "Regensburg Hbf → Landshut(Bay)Hbf"},
     "landshut:freising": {"start": [48.54420, 12.14680], "end": [48.40290, 11.74870], "label": "Landshut(Bay)Hbf → Freising"},

@@ -9,7 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BUNDLE = ROOT / "stations" / "preparedRoutes.js"
 # Tyto existující segmenty při změně souřadnic vždy znovu sestavíme z OSM.
-FORCE_REBUILD = {"prestice:klatovy", "klatovy:nyrsko", "nyrsko:alzbietin", "domazlice:furth_im_wald", "furth_im_wald:cham", "cham:roding", "roding:schwandorf"}
+# Rebuild only the four Munich-corridor segments requested in this change.
+FORCE_REBUILD = {"domazlice:furth_im_wald", "furth_im_wald:cham", "cham:roding", "roding:schwandorf"}
 
 ROUTES = {
     # Trať 180: skutečné úseky hlavní linky Plzeň–Domažlice.

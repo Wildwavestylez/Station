@@ -27,7 +27,7 @@ jobs:
           python-version: "3.12"
       - name: Build route geometry from OSM
         env:
-          ROUTE_KEYS: ceske_budejovice:veseli_nad_luznici,veseli_nad_luznici:kardasova_recice,kardasova_recice:jindrichuv_hradec
+          ROUTE_KEYS: jindrichuv_hradec:popelin,popelin:horni_cerekev,horni_cerekev:kostelec_u_jihlavy,kostelec_u_jihlavy:jihlava
         run: python scripts/build_railway_routes.py
       - name: Validate JavaScript syntax
         run: node --check stations/preparedRoutes.js

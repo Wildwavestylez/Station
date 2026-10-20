@@ -1121,6 +1121,7 @@ function render() {
     "WAIT_CLEAN_TEAM",
     "CLEANING",
     "CATERING",
+    "WAIT_CATERING",
     "WAIT_BOARD",
     "BOARDING",
     "READY_DEPART"

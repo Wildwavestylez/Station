@@ -166,7 +166,7 @@ ROUTES = {
         "label": "Jindřichův Hradec → Popelín",
     },
     "popelin:horni_cerekev": {
-        "start": [49.18750, 15.18500],  # Popelín
+        "start": [49.22033, 15.17856],  # Popelín, železniční stanice (ověřená poloha)
         "end": [49.31114, 15.32469],    # Horní Cerekev, železniční stanice
         "label": "Popelín → Horní Cerekev",
     },

@@ -184,6 +184,63 @@ function buildPlzenDomazliceRoute() {
   );
 }
 
+
+// Bavorský expres: Plzeň–Domažlice–Schwandorf–Regensburg–Landshut–München Hbf.
+// Praha–Plzeň se obslouží jako samostatná další otočka stejného rychlíku.
+// Segmenty se pouze skládají; původní rychlík Praha–Domažlice zůstává beze změny.
+function buildBavariaExpressRoute() {
+  const prepared = window.STATION_PREPARED_ROUTES || {};
+  const parts = [
+    { key: "plzen:nyrany" },
+    { key: "nyrany:stankov" },
+    { key: "stankov:domazlice" },
+    { key: "domazlice:furth_im_wald" },
+    { key: "furth_im_wald:cham" },
+    { key: "cham:roding" },
+    { key: "roding:schwandorf" },
+    { key: "schwandorf:maxhuette_haidhof" },
+    { key: "maxhuette_haidhof:regenstauf" },
+    { key: "regenstauf:regensburg" },
+    { key: "regensburg:neufahrn_ndb" },
+    { key: "neufahrn_ndb:landshut", reverse: true },
+    { key: "landshut:moosburg" },
+    { key: "moosburg:freising" },
+    { key: "freising:neufahrn_b_freising" },
+    { key: "neufahrn_b_freising:muenchen" }
+  ];
+  const segments = parts.map(part => {
+    const points = prepared[part.key];
+    if (!Array.isArray(points) || points.length < 2) return null;
+    const copy = points.map(point => [Number(point[0]), Number(point[1])]);
+    return part.reverse ? copy.reverse() : copy;
+  });
+  if (segments.some(segment => !segment)) {
+    console.error("Bavorský expres: chybí některý připravený skutečný OSM úsek.");
+    return [];
+  }
+  const distanceMeters = (a, b) => {
+    const rad = Math.PI / 180;
+    const dLat = (b[0] - a[0]) * rad;
+    const dLon = (b[1] - a[1]) * rad;
+    const q = Math.sin(dLat / 2) ** 2 +
+      Math.cos(a[0] * rad) * Math.cos(b[0] * rad) * Math.sin(dLon / 2) ** 2;
+    return 6371000 * 2 * Math.atan2(Math.sqrt(q), Math.sqrt(Math.max(0, 1 - q)));
+  };
+  const joined = segments[0].map(point => [point[0], point[1]]);
+  for (let i = 1; i < segments.length; i++) {
+    const gap = distanceMeters(joined[joined.length - 1], segments[i][0]);
+    if (gap > 350) {
+      console.error("Bavorský expres: OSM segmenty nenavazují.", {
+        from: parts[i - 1].key, to: parts[i].key, gapMeters: Math.round(gap)
+      });
+      return [];
+    }
+    joined.push(...segments[i].map(point => [point[0], point[1]]));
+  }
+  console.info("Bavorský expres Plzeň–München Hbf spojen ze 16 skutečných OSM úseků:", joined.length, "bodů.");
+  return joined;
+}
+
 function buildPlzenRadniceRoute() {
   return buildJoinedPlzenRoute(
     ["plzen:kysice", "kysice:stupno", "stupno:radnice"],
@@ -317,6 +374,7 @@ window.STATIONS_REGISTRY["plzen"] = {
     prahaCheb: buildPrahaChebRoute(),
     praha: buildPlzenPrahaRoute(),
     domazlice: buildPlzenDomazliceRoute(),
+    bavariaExpress: buildBavariaExpressRoute(),
     klatovy: buildPlzenKlatovyRoute(),
     horazdovicePredm: buildPlzenHorazdovicePredmRoute(),
     ceskeBudejovice: buildPlzenCeskeBudejoviceRoute(),
@@ -640,6 +698,26 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardMoney: 3200,
       rewardXP: 2
     },
+    19: {
+      name: "ČD Bavorský expres · Plzeň–Domažlice–Regensburg–München Hbf / Praha",
+      operator: "České dráhy",
+      category: "rapid",
+      routeLabel: "Plzeň–Domažlice–Schwandorf–Regensburg–Landshut–München Hbf; následně Plzeň–Praha",
+      boardDestination: "München Hbf",
+      cateringRequired: true,
+      lineCode: "R Bavorský expres",
+      purchaseCost: 0,
+      requiredLevel: 1,
+      image: "assets/trains/cd/VectronCD1.png",
+      routeKey: "bavariaExpress",
+      routeSequence: ["bavariaExpress", "praha"],
+      speed: 120,
+      stayTime: 15,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, catering: 10, board: 5 },
+      rewardMoney: 4500,
+      rewardXP: 2
+    },
     16: {
       name: "GW Train Regio · R25 Plzeň–Most",
       operator: "GW Train Regio",
@@ -693,6 +771,10 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.r
 // Zveřejni pouze trasy, jejichž OSM segmenty existují a navazují.
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.domazlice.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:domazlice");
+}
+
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.bavariaExpress.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:bavariaExpress");
 }
 
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.klatovy.length >= 2) {

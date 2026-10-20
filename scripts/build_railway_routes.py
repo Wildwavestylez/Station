@@ -268,10 +268,26 @@ ROUTES = {
         "end": [48.32131, 11.66068],   # Neufahrn bei Freising
         "label": "Freising → Neufahrn bei Freising",
     },
-    "neufahrn_b_freising:muenchen": {
+    # Munich surface approach: rebuild only the station-to-station segments below.
+    "neufahrn_b_freising:feldmoching": {
         "start": [48.32131, 11.66068],
-        "end": [48.14020, 11.55800],   # München Hbf
-        "label": "Neufahrn bei Freising → München Hbf",
+        "end": [48.21280, 11.53380],  # Bahnhof Feldmoching
+        "label": "Neufahrn bei Freising → Feldmoching",
+    },
+    "feldmoching:moosach": {
+        "start": [48.21280, 11.53380],
+        "end": [48.18170, 11.50770],  # Bahnhof München-Moosach
+        "label": "Feldmoching → München-Moosach",
+    },
+    "moosach:laim": {
+        "start": [48.18170, 11.50770],
+        "end": [48.14550, 11.50250],  # München-Laim
+        "label": "München-Moosach → München-Laim",
+    },
+    "laim:muenchen": {
+        "start": [48.14550, 11.50250],
+        "end": [48.14020, 11.55800],  # München Hbf
+        "label": "München-Laim → München Hbf",
     },
     "regensburg:neufahrn_ndb": {
         "start": [49.01340, 12.10160],  # Regensburg Hbf

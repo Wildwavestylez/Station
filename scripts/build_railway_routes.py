@@ -177,7 +177,7 @@ ROUTES = {
     },
     "kostelec_u_jihlavy:jihlava": {
         "start": [49.35719, 15.48183],  # Kostelec u Jihlavy
-        "end": [49.41670, 15.59050],    # Jihlava, železniční stanice; snap na OSM koleje
+        "end": [49.41450, 15.59939],    # Jihlava, hlavní železniční stanice (ověřené souřadnice OSM)
         "label": "Kostelec u Jihlavy → Jihlava",
     },
     # Northern continuation of railway line 160 toward Zatec.
@@ -337,6 +337,37 @@ ROUTES = {
         "label": "Neufahrn (Niederbay) → Landshut Hbf",
     },
     "freising:muenchen": {"start": [48.40290, 11.74870], "end": [48.14020, 11.55800], "label": "Freising → München Hbf"},
+    # Rychlík Jihlava–Brno: pokračování po trati 240; všechny body jsou hlavní železniční stanice.
+    "jihlava:luka_nad_jihlavou": {
+        "start": [49.41450, 15.59939],  # Jihlava, hlavní železniční stanice
+        "end": [49.36917, 15.71092],    # Luka nad Jihlavou, železniční stanice (ČD)
+        "label": "Jihlava → Luka nad Jihlavou",
+    },
+    "luka_nad_jihlavou:okrisky": {
+        "start": [49.36917, 15.71092],  # Luka nad Jihlavou
+        "end": [49.24792, 15.77007],    # Okříšky, železniční stanice (ČD)
+        "label": "Luka nad Jihlavou → Okříšky",
+    },
+    "okrisky:trebic": {
+        "start": [49.24792, 15.77007],  # Okříšky
+        "end": [49.21143, 15.88570],    # Třebíč, hlavní železniční stanice (ČD)
+        "label": "Okříšky → Třebíč",
+    },
+    "trebic:studenec": {
+        "start": [49.21143, 15.88570],  # Třebíč
+        "end": [49.22257, 16.06905],    # Studenec, železniční stanice
+        "label": "Třebíč → Studenec",
+    },
+    "studenec:rosice_u_brna": {
+        "start": [49.22257, 16.06905],  # Studenec
+        "end": [49.17893, 16.38334],    # Rosice u Brna, železniční stanice (ČD)
+        "label": "Studenec → Rosice u Brna",
+    },
+    "rosice_u_brna:brno_hlavni_nadrazi": {
+        "start": [49.17893, 16.38334],  # Rosice u Brna
+        "end": [49.18999, 16.61105],    # Brno hlavní nádraží (ČD)
+        "label": "Rosice u Brna → Brno hlavní nádraží",
+    },
 }
 
 def haversine(a, b):

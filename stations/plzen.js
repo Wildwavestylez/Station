@@ -185,59 +185,41 @@ function buildPlzenDomazliceRoute() {
 }
 
 
-// Bavorský expres: Plzeň–Domažlice–Schwandorf–Regensburg–Landshut–München Hbf.
-// Praha–Plzeň se obslouží jako samostatná další otočka stejného rychlíku.
-// Segmenty se pouze skládají; původní rychlík Praha–Domažlice zůstává beze změny.
+// Bavorský expres: jedna souvislá linka Praha–Plzeň–Domažlice–Regensburg–München Hbf.
+// Použije pražskou větev v opačném směru a naváže na ni již připravené bavorské úseky.
+// Původní vlak Praha–Domažlice ani jeho trasu neměníme.
 function buildBavariaExpressRoute() {
-  const prepared = window.STATION_PREPARED_ROUTES || {};
-  const parts = [
-    { key: "plzen:nyrany" },
-    { key: "nyrany:stankov" },
-    { key: "stankov:domazlice" },
-    { key: "domazlice:furth_im_wald" },
-    { key: "furth_im_wald:cham" },
-    { key: "cham:roding" },
-    { key: "roding:schwandorf" },
-    { key: "schwandorf:maxhuette_haidhof" },
-    { key: "maxhuette_haidhof:regenstauf" },
-    { key: "regenstauf:regensburg" },
-    { key: "regensburg:neufahrn_ndb" },
-    { key: "neufahrn_ndb:landshut", reverse: true },
-    { key: "landshut:moosburg" },
-    { key: "moosburg:freising" },
-    { key: "freising:neufahrn_b_freising" },
-    { key: "neufahrn_b_freising:muenchen" }
-  ];
-  const segments = parts.map(part => {
-    const points = prepared[part.key];
-    if (!Array.isArray(points) || points.length < 2) return null;
-    const copy = points.map(point => [Number(point[0]), Number(point[1])]);
-    return part.reverse ? copy.reverse() : copy;
-  });
-  if (segments.some(segment => !segment)) {
-    console.error("Bavorský expres: chybí některý připravený skutečný OSM úsek.");
+  const prahaToPlzen = buildPlzenPrahaRoute();
+  const plzenToMunich = buildJoinedPlzenRoute(
+    [
+      "plzen:nyrany",
+      "nyrany:stankov",
+      "stankov:domazlice",
+      "domazlice:furth_im_wald",
+      "furth_im_wald:cham",
+      "cham:roding",
+      "roding:schwandorf",
+      "schwandorf:maxhuette_haidhof",
+      "maxhuette_haidhof:regenstauf",
+      "regenstauf:regensburg",
+      "regensburg:neufahrn_ndb",
+      "neufahrn_ndb:landshut",
+      "landshut:moosburg",
+      "moosburg:freising",
+      "freising:neufahrn_b_freising",
+      "neufahrn_b_freising:muenchen"
+    ],
+    "Bavorský expres Plzeň–München Hbf",
+    350
+  );
+  if (prahaToPlzen.length < 2 || plzenToMunich.length < 2) {
+    console.error("Bavorský expres: nelze sestavit celou trasu Praha–München.");
     return [];
   }
-  const distanceMeters = (a, b) => {
-    const rad = Math.PI / 180;
-    const dLat = (b[0] - a[0]) * rad;
-    const dLon = (b[1] - a[1]) * rad;
-    const q = Math.sin(dLat / 2) ** 2 +
-      Math.cos(a[0] * rad) * Math.cos(b[0] * rad) * Math.sin(dLon / 2) ** 2;
-    return 6371000 * 2 * Math.atan2(Math.sqrt(q), Math.sqrt(Math.max(0, 1 - q)));
-  };
-  const joined = segments[0].map(point => [point[0], point[1]]);
-  for (let i = 1; i < segments.length; i++) {
-    const gap = distanceMeters(joined[joined.length - 1], segments[i][0]);
-    if (gap > 350) {
-      console.error("Bavorský expres: OSM segmenty nenavazují.", {
-        from: parts[i - 1].key, to: parts[i].key, gapMeters: Math.round(gap)
-      });
-      return [];
-    }
-    joined.push(...segments[i].map(point => [point[0], point[1]]));
-  }
-  console.info("Bavorský expres Plzeň–München Hbf spojen ze 16 skutečných OSM úseků:", joined.length, "bodů.");
+  const prahaToPlzenReversed = prahaToPlzen.slice().reverse();
+  // Odstraň duplicitní bod v Plzni, kde se obě části potkávají.
+  const joined = prahaToPlzenReversed.concat(plzenToMunich.slice(1));
+  console.info("Bavorský expres Praha–Plzeň–Domažlice–Regensburg–München Hbf: souvislá trasa", joined.length, "bodů.");
   return joined;
 }
 
@@ -710,7 +692,6 @@ window.STATIONS_REGISTRY["plzen"] = {
       requiredLevel: 1,
       image: "assets/trains/cd/VectronCD1.png",
       routeKey: "bavariaExpress",
-      routeSequence: ["bavariaExpress", "praha"],
       speed: 120,
       stayTime: 15,
       initialContract: 1,

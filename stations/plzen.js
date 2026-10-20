@@ -707,10 +707,10 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardXP: 2
     },
     19: {
-      name: "ČD Bavorský expres · Plzeň–Domažlice–Regensburg–München Hbf / Praha",
+      name: "ČD Bavorský expres · Praha–Plzeň–Domažlice–Regensburg–München Hbf",
       operator: "České dráhy",
       category: "rapid",
-      routeLabel: "Plzeň–Domažlice–Schwandorf–Regensburg–Landshut–München Hbf; následně Plzeň–Praha",
+      routeLabel: "Praha–Plzeň–Domažlice–Furth im Wald–Cham–Schwandorf–Regensburg–Landshut–Freising–München Hbf",
       boardDestination: "München Hbf",
       cateringRequired: true,
       lineCode: "R Bavorský expres",

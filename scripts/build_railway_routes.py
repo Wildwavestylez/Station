@@ -254,6 +254,16 @@ ROUTES = {
     "schwandorf:regensburg": {"start": [49.32600, 12.10900], "end": [49.01340, 12.10160], "label": "Schwandorf → Regensburg Hbf"},
     "regensburg:landshut": {"start": [49.01340, 12.10160], "end": [48.54420, 12.14680], "label": "Regensburg Hbf → Landshut(Bay)Hbf"},
     "landshut:freising": {"start": [48.54420, 12.14680], "end": [48.40290, 11.74870], "label": "Landshut(Bay)Hbf → Freising"},
+    "regensburg:neufahrn_ndb": {
+        "start": [49.01340, 12.10160],  # Regensburg Hbf
+        "end": [48.72987492, 12.19046519],  # Neufahrn (Niederbay), not Neufahrn bei Freising
+        "label": "Regensburg Hbf → Neufahrn (Niederbay)",
+    },
+    "neufahrn_ndb:landshut": {
+        "start": [48.72987492, 12.19046519],
+        "end": [48.54736, 12.13550],  # Landshut (Bay) Hbf
+        "label": "Neufahrn (Niederbay) → Landshut Hbf",
+    },
     "freising:muenchen": {"start": [48.40290, 11.74870], "end": [48.14020, 11.55800], "label": "Freising → München Hbf"},
 }
 

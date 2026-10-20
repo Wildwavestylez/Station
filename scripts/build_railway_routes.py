@@ -234,6 +234,21 @@ ROUTES = {
         "end": [49.32632, 12.10381],    # Bahnhof Schwandorf
         "label": "Roding → Schwandorf",
     },
+    "schwandorf:maxhuette_haidhof": {
+        "start": [49.32632, 12.10381],  # Bahnhof Schwandorf
+        "end": [49.198019, 12.107818],  # Bahnhof Maxhütte-Haidhof
+        "label": "Schwandorf → Maxhütte-Haidhof",
+    },
+    "maxhuette_haidhof:regenstauf": {
+        "start": [49.198019, 12.107818],
+        "end": [49.12206, 12.12514],    # Bahnhof Regenstauf
+        "label": "Maxhütte-Haidhof → Regenstauf",
+    },
+    "regenstauf:regensburg": {
+        "start": [49.12206, 12.12514],
+        "end": [49.01340, 12.10160],    # Regensburg Hbf
+        "label": "Regenstauf → Regensburg Hbf",
+    },
     # Starší přímý segment Cham–Schwandorf ponechán kvůli kompatibilitě starých tras.
     "cham:schwandorf": {"start": [49.22184, 12.65681], "end": [49.32632, 12.10381], "label": "Cham → Schwandorf"},
     "schwandorf:regensburg": {"start": [49.32600, 12.10900], "end": [49.01340, 12.10160], "label": "Schwandorf → Regensburg Hbf"},

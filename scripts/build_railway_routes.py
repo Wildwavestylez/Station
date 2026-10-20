@@ -253,7 +253,26 @@ ROUTES = {
     "cham:schwandorf": {"start": [49.22184, 12.65681], "end": [49.32632, 12.10381], "label": "Cham → Schwandorf"},
     "schwandorf:regensburg": {"start": [49.32600, 12.10900], "end": [49.01340, 12.10160], "label": "Schwandorf → Regensburg Hbf"},
     "regensburg:landshut": {"start": [49.01340, 12.10160], "end": [48.54420, 12.14680], "label": "Regensburg Hbf → Landshut(Bay)Hbf"},
-    "landshut:freising": {"start": [48.54420, 12.14680], "end": [48.40290, 11.74870], "label": "Landshut(Bay)Hbf → Freising"},
+    "landshut:moosburg": {
+        "start": [48.54736, 12.13550],  # Landshut (Bay) Hbf
+        "end": [48.47080, 11.93290],    # Bahnhof Moosburg
+        "label": "Landshut Hbf → Moosburg",
+    },
+    "moosburg:freising": {
+        "start": [48.47080, 11.93290],
+        "end": [48.40290, 11.74870],    # Bahnhof Freising
+        "label": "Moosburg → Freising",
+    },
+    "freising:neufahrn_b_freising": {
+        "start": [48.40290, 11.74870],
+        "end": [48.32131, 11.66068],   # Neufahrn bei Freising
+        "label": "Freising → Neufahrn bei Freising",
+    },
+    "neufahrn_b_freising:muenchen": {
+        "start": [48.32131, 11.66068],
+        "end": [48.14020, 11.55800],   # München Hbf
+        "label": "Neufahrn bei Freising → München Hbf",
+    },
     "regensburg:neufahrn_ndb": {
         "start": [49.01340, 12.10160],  # Regensburg Hbf
         "end": [48.72987492, 12.19046519],  # Neufahrn (Niederbay), not Neufahrn bei Freising

@@ -162,7 +162,7 @@ ROUTES = {
     # Rychlík Plzeň–České Budějovice–Jihlava–Brno: pokračování přes trať 225.
     "jindrichuv_hradec:popelin": {
         "start": [49.14500, 15.00320],  # Jindřichův Hradec, železniční stanice
-        "end": [49.18750, 15.18500],   # Popelín, železniční stanice; snap na OSM koleje
+        "end": [49.22033, 15.17856],   # Popelín, železniční stanice (ověřená poloha); snap na OSM koleje
         "label": "Jindřichův Hradec → Popelín",
     },
     "popelin:horni_cerekev": {

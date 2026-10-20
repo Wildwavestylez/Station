@@ -724,6 +724,20 @@ async function depart() {
   }
   const route = currentStationData.routes[t.routeKey];
   const routeLength = Number(route && route.totalLength);
+  // Nikdy nespouštěj ani neodměňuj jízdu bez platné, připravené geometrie.
+  // Jinak prázdná trasa projde herní smyčkou rovnou do cíle a zpět.
+  if (!Array.isArray(route) || route.length < 2 ||
+      !Number.isFinite(routeLength) || routeLength <= 0 ||
+      !Array.isArray(route.segmentLengths) || route.segmentLengths.length < 1) {
+    console.error("Odjezd zastaven: neplatná nebo prázdná trasa.", {
+      train: t.name, routeKey: t.routeKey,
+      points: Array.isArray(route) ? route.length : 0,
+      routeLength
+    });
+    alert("Odjezd zastaven: pro vlak " + t.name +
+      " není připravená platná kolejová trasa. Vlak zůstává na nádraží a odměna se nepřipíše.");
+    return;
+  }
   if (Array.isArray(t.routeSequence) && t.routeSequence.length > 1) {
     const currentIndex = Math.max(0, t.routeSequence.indexOf(t.routeKey));
     t.routeSequenceIndex = currentIndex;

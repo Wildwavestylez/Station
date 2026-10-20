@@ -189,36 +189,32 @@ function buildPlzenDomazliceRoute() {
 // Použije pražskou větev v opačném směru a naváže na ni již připravené bavorské úseky.
 // Původní vlak Praha–Domažlice ani jeho trasu neměníme.
 function buildBavariaExpressRoute() {
-  const prahaToPlzen = buildPlzenPrahaRoute();
+  // Znovu použijeme hotovou pražskou a domažlickou větev rychlíku.
+  // buildPlzenPrahaRoute() vrací geometrii Plzeň -> Praha, proto ji obrátíme.
+  const plzenToPraha = buildPlzenPrahaRoute();
+  const plzenToDomazlice = buildPlzenDomazliceRoute();
   const prepared = window.STATION_PREPARED_ROUTES || {};
-  const parts = [
-    { key: "plzen:nyrany" },
-    { key: "nyrany:stankov" },
-    { key: "stankov:domazlice" },
-    { key: "domazlice:furth_im_wald" },
-    { key: "furth_im_wald:cham" },
-    { key: "cham:roding" },
-    { key: "roding:schwandorf" },
-    { key: "schwandorf:maxhuette_haidhof" },
-    { key: "maxhuette_haidhof:regenstauf" },
-    { key: "regenstauf:regensburg" },
-    { key: "regensburg:neufahrn_ndb" },
-    { key: "neufahrn_ndb:landshut", reverse: true },
-    { key: "landshut:moosburg" },
-    { key: "moosburg:freising" },
-    { key: "freising:neufahrn_b_freising" },
-    { key: "neufahrn_b_freising:muenchen" }
+  const bavarianParts = [
+    "domazlice:furth_im_wald",
+    "furth_im_wald:cham",
+    "cham:roding",
+    "roding:schwandorf",
+    "schwandorf:maxhuette_haidhof",
+    "maxhuette_haidhof:regenstauf",
+    "regenstauf:regensburg",
+    "regensburg:neufahrn_ndb",
+    "neufahrn_ndb:landshut",
+    "landshut:moosburg",
+    "moosburg:freising",
+    "freising:neufahrn_b_freising",
+    "neufahrn_b_freising:muenchen"
   ];
-  const segments = parts.map(part => {
-    const points = prepared[part.key];
-    if (!Array.isArray(points) || points.length < 2) return null;
-    const copy = points.map(point => [Number(point[0]), Number(point[1])]);
-    return part.reverse ? copy.reverse() : copy;
-  });
-  if (segments.some(segment => !segment)) {
-    console.error("Bavorský expres: chybí připravený skutečný OSM úsek.");
+  if (!Array.isArray(plzenToPraha) || plzenToPraha.length < 2 ||
+      !Array.isArray(plzenToDomazlice) || plzenToDomazlice.length < 2) {
+    console.error("Bavorský expres: nelze převzít existující trasu Praha–Plzeň–Domažlice.");
     return [];
   }
+
   const distanceMeters = (a, b) => {
     const rad = Math.PI / 180;
     const dLat = (b[0] - a[0]) * rad;
@@ -227,45 +223,39 @@ function buildBavariaExpressRoute() {
       Math.cos(a[0] * rad) * Math.cos(b[0] * rad) * Math.sin(dLon / 2) ** 2;
     return 6371000 * 2 * Math.atan2(Math.sqrt(q), Math.sqrt(Math.max(0, 1 - q)));
   };
-  // Výchozí bod musí být přímo v Plzni, ne na opačném konci segmentu.
-  const plzenAnchor = window.STATIONS_REGISTRY && window.STATIONS_REGISTRY.plzen
-    ? window.STATIONS_REGISTRY.plzen.mapCenter
-    : [49.7410, 13.3860];
-  const firstSegment = segments[0];
-  const firstForward = distanceMeters(plzenAnchor, firstSegment[0]);
-  const firstReverse = distanceMeters(plzenAnchor, firstSegment[firstSegment.length - 1]);
-  if (firstReverse < firstForward) firstSegment.reverse();
-  if (Math.min(firstForward, firstReverse) > 5000) {
-    console.error("Bavorský expres: první bod trasy neleží u Plzně.", {
-      firstPoint: firstSegment[0], distanceMeters: Math.round(Math.min(firstForward, firstReverse))
-    });
-    return [];
+
+  const joined = plzenToPraha.slice().reverse().map(point => [point[0], point[1]]);
+  const joinChecked = (base, segment, label, maxGap = 350) => {
+    if (!Array.isArray(segment) || segment.length < 2) {
+      console.error("Bavorský expres: chybí připravený úsek.", label);
+      return false;
+    }
+    const forwardGap = distanceMeters(base[base.length - 1], segment[0]);
+    const reverseGap = distanceMeters(base[base.length - 1], segment[segment.length - 1]);
+    const oriented = reverseGap < forwardGap ? segment.slice().reverse() : segment.slice();
+    const gap = Math.min(forwardGap, reverseGap);
+    if (gap > maxGap) {
+      console.error("Bavorský expres: navazující úseky nesedí.", {
+        section: label, gapMeters: Math.round(gap)
+      });
+      return false;
+    }
+    base.push(...oriented.slice(1).map(point => [point[0], point[1]]));
+    return true;
+  };
+
+  // Praha -> Plzeň je přesně obrácená existující geometrie rychlíku.
+  // Z ní plynule pokračujeme existující větví Plzeň -> Domažlice.
+  if (!joinChecked(joined, plzenToDomazlice, "Plzeň–Domažlice")) return [];
+  for (const key of bavarianParts) {
+    const segment = prepared[key];
+    if (!joinChecked(joined, segment, key)) return [];
   }
 
-  const plzenToMunich = firstSegment.map(point => [point[0], point[1]]);
-  for (let i = 1; i < segments.length; i++) {
-    const previous = plzenToMunich[plzenToMunich.length - 1];
-    const segment = segments[i];
-    const gapForward = distanceMeters(previous, segment[0]);
-    const gapReverse = distanceMeters(previous, segment[segment.length - 1]);
-    if (gapReverse < gapForward) segment.reverse();
-    const gap = Math.min(gapForward, gapReverse);
-    if (gap > 350) {
-      console.error("Bavorský expres: OSM úseky nenavazují.", {
-        from: parts[i - 1].key, to: parts[i].key, gapMeters: Math.round(gap)
-      });
-      return [];
-    }
-    plzenToMunich.push(...segment.slice(1).map(point => [point[0], point[1]]));
-  }
-  if (plzenToMunich.length < 2) {
-    console.error("Bavorský expres: nelze sestavit skutečnou trasu Plzeň–München.");
-    return [];
-  }
-  console.info("Bavorský expres: ověřená trasa Plzeň–Domažlice–Regensburg–München Hbf", {
-    nodes: plzenToMunich.length, start: plzenToMunich[0], end: plzenToMunich[plzenToMunich.length - 1]
+  console.info("Bavorský expres: převzatá souvislá trasa Praha–Plzeň–Domažlice–München Hbf", {
+    nodes: joined.length, start: joined[0], end: joined[joined.length - 1]
   });
-  return plzenToMunich;
+  return joined;
 }
 
 function buildPlzenRadniceRoute() {

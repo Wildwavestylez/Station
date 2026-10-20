@@ -206,7 +206,10 @@ function buildBavariaExpressRoute() {
     "landshut:moosburg",
     "moosburg:freising",
     "freising:neufahrn_b_freising",
-    "neufahrn_b_freising:muenchen"
+    "neufahrn_b_freising:feldmoching",
+    "feldmoching:moosach",
+    "moosach:laim",
+    "laim:muenchen"
   ];
   if (!Array.isArray(plzenToDomazlice) || plzenToDomazlice.length < 2) {
     console.error("Bavorský expres: chybí existující trasa Plzeň–Domažlice.");

@@ -143,6 +143,22 @@ ROUTES = {
         "end": [48.97434, 14.48811],
         "label": "Dívčice → České Budějovice",
     },
+    # Rychlík Plzeň–České Budějovice–Jihlava–Brno: pokračování z Budějovic přes Veselí a Jindřichův Hradec.
+    "ceske_budejovice:veseli_nad_luznici": {
+        "start": [48.97434, 14.48811],  # České Budějovice hl.n.
+        "end": [49.18840, 14.69730],   # Veselí nad Lužnicí, železniční stanice
+        "label": "České Budějovice → Veselí nad Lužnicí",
+    },
+    "veseli_nad_luznici:kardasova_recice": {
+        "start": [49.18840, 14.69730],  # Veselí nad Lužnicí
+        "end": [49.18470, 14.85150],   # Kardašova Řečice, železniční stanice
+        "label": "Veselí nad Lužnicí → Kardašova Řečice",
+    },
+    "kardasova_recice:jindrichuv_hradec": {
+        "start": [49.18470, 14.85150],  # Kardašova Řečice
+        "end": [49.14500, 15.00320],   # Jindřichův Hradec, železniční stanice
+        "label": "Kardašova Řečice → Jindřichův Hradec",
+    },
     # Northern continuation of railway line 160 toward Zatec.
     "plasy:blatno": {
         "start": [49.93090, 13.37964],

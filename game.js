@@ -849,6 +849,8 @@ function processTrainReturn(t) {
     t.nextRouteKey = null;
   }
   t.state = "WAIT_ASSIGN";
+  t.tripStartedAt = null;
+  t.returnCountdownSeconds = null;
   t.returnedAt = Date.now();
   t.queuePriority = ++trainQueuePriority;
   t.pendingAction = true;

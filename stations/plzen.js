@@ -229,24 +229,28 @@ function buildBavariaExpressRoute() {
   };
   const plzenToMunich = segments[0].map(point => [point[0], point[1]]);
   for (let i = 1; i < segments.length; i++) {
-    const gap = distanceMeters(plzenToMunich[plzenToMunich.length - 1], segments[i][0]);
+    const previous = plzenToMunich[plzenToMunich.length - 1];
+    const segment = segments[i];
+    const gapForward = distanceMeters(previous, segment[0]);
+    const gapReverse = distanceMeters(previous, segment[segment.length - 1]);
+    if (gapReverse < gapForward) segment.reverse();
+    const gap = Math.min(gapForward, gapReverse);
     if (gap > 350) {
       console.error("Bavorský expres: OSM úseky nenavazují.", {
         from: parts[i - 1].key, to: parts[i].key, gapMeters: Math.round(gap)
       });
       return [];
     }
-    plzenToMunich.push(...segments[i].map(point => [point[0], point[1]]));
+    plzenToMunich.push(...segment.slice(1).map(point => [point[0], point[1]]));
   }
-  if (prahaToPlzen.length < 2 || plzenToMunich.length < 2) {
-    console.error("Bavorský expres: nelze sestavit celou trasu Praha–München.");
+  if (plzenToMunich.length < 2) {
+    console.error("Bavorský expres: nelze sestavit skutečnou trasu Plzeň–München.");
     return [];
   }
-  const prahaToPlzenReversed = prahaToPlzen.slice().reverse();
-  // Odstraň duplicitní bod v Plzni, kde se obě části potkávají.
-  const joined = prahaToPlzenReversed.concat(plzenToMunich.slice(1));
-  console.info("Bavorský expres Praha–Plzeň–Domažlice–Regensburg–München Hbf: souvislá trasa", joined.length, "bodů.");
-  return joined;
+  // V Plzni vlak začíná jízdu; pražská větev je předchozí část linky,
+  // nikoli výchozí bod vlaku v plzeňské stanici.
+  console.info("Bavorský expres Plzeň–Domažlice–Regensburg–München Hbf: souvislá trasa", plzenToMunich.length, "bodů.");
+  return plzenToMunich;
 }
 
 function buildPlzenRadniceRoute() {

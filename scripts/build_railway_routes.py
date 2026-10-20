@@ -9,8 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BUNDLE = ROOT / "stations" / "preparedRoutes.js"
 # Tyto existující segmenty při změně souřadnic vždy znovu sestavíme z OSM.
-# Rebuild only the four Munich-corridor segments requested in this change.
-FORCE_REBUILD = {"domazlice:furth_im_wald", "furth_im_wald:cham", "cham:roding", "roding:schwandorf"}
+# Only rebuild route keys explicitly selected by the workflow.
+FORCE_REBUILD = set(filter(None, os.environ.get("ROUTE_KEYS", "").split(",")))
 
 ROUTES = {
     # Trať 180: skutečné úseky hlavní linky Plzeň–Domažlice.
@@ -343,12 +343,17 @@ def main():
     # Preserve existing payloads and build only missing route keys. This keeps
     # retries small and avoids re-querying routes that are already bundled.
     payloads = dict(re.findall(r'"([^"]+)": decodePolylineBase64\("([^"]+)"\)', source))
-    for key, spec in ROUTES.items():
-        if key in FORCE_REBUILD:
-            payloads.pop(key, None)
-        if key in payloads:
-            print("Already bundled; keeping", spec["label"])
-            continue
+    selected = FORCE_REBUILD
+    if not selected:
+        raise RuntimeError("ROUTE_KEYS is required; refusing to rebuild or add routes implicitly.")
+    unknown = selected - ROUTES.keys()
+    if unknown:
+        raise RuntimeError("Unknown ROUTE_KEYS: " + ", ".join(sorted(unknown)))
+    # Process ONLY explicitly selected route keys. All other bundled routes are
+    # preserved byte-for-byte and no unrelated missing route is generated.
+    for key in sorted(selected):
+        spec = ROUTES[key]
+        payloads.pop(key, None)
         print("Building", spec["label"])
         coords = route(query_osm(spec["start"], spec["end"]), spec["start"], spec["end"])
         payloads[key] = encode_polyline(coords)

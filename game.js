@@ -63,6 +63,7 @@ let unlockedCleaningTeamsCount = 1; // Počet úklidových týmů odemčených n
 let cleaningTeamsInUse = 0;          // Počet týmů právě uklízejících vlak
 let ownedPerformancesByStation = {}; // Zakoupené výkony pro jednotlivá nádraží
 let unlockedTracksByStation = {};    // Trvale zakoupená kapacita nástupišť
+let hiredCleaningTeamsByStation = {}; // Počet dodatečně koupených úklidových čet pro jednotlivá nádraží
 let shopOpen = false;
 // 🟢 PŘIDAT DO GLOBÁLNÍCH PROMĚNNÝCH V GAME.JS:
 let currentLanguage = localStorage.getItem('trainOps_lang') || navigator.language.slice(0, 2) || 'cs';
@@ -399,13 +400,26 @@ function loadStation(stationKey) {
   unlockedTracksByStation[stationKey] = unlockedTracksCount;
   const myLvl = stationLevels[stationKey].lvl;
 
-  // Úklidové týmy se při přepnutí/obnovení nádraží bezpečně resetují.
+  // Úklidové týmy: jedna četa od startu, druhá zdarma na levelu 5,
+  // další dvě se kupují v obchodě. Počet nákupů se ukládá samostatně pro každé nádraží.
   const configuredTeams = Number(currentStationData.startingCleaningTeams);
-  unlockedCleaningTeamsCount = Number.isFinite(configuredTeams) && configuredTeams >= 1 ? Math.floor(configuredTeams) : 1;
+  let levelUnlockedTeams = Number.isFinite(configuredTeams) && configuredTeams >= 1
+    ? Math.floor(configuredTeams)
+    : 1;
   for (let l = 0; l <= myLvl; l++) {
     const teamsAtLevel = Number(currentStationData.levels[l] && currentStationData.levels[l].unlocksCleaningTeams);
-    if (Number.isFinite(teamsAtLevel) && teamsAtLevel >= 1) unlockedCleaningTeamsCount = Math.floor(teamsAtLevel);
+    if (Number.isFinite(teamsAtLevel) && teamsAtLevel >= 1) {
+      levelUnlockedTeams = Math.max(levelUnlockedTeams, Math.floor(teamsAtLevel));
+    }
   }
+  // Druhá četa je základní odměna levelu 5 nezávisle na konfiguraci konkrétní stanice.
+  if (myLvl >= 5) levelUnlockedTeams = Math.max(levelUnlockedTeams, 2);
+  const savedHiredTeams = Number(hiredCleaningTeamsByStation[stationKey]);
+  const hiredTeams = Number.isFinite(savedHiredTeams) && savedHiredTeams >= 0
+    ? Math.min(2, Math.floor(savedHiredTeams))
+    : 0;
+  hiredCleaningTeamsByStation[stationKey] = hiredTeams;
+  unlockedCleaningTeamsCount = Math.min(4, levelUnlockedTeams + hiredTeams);
   cleaningTeamsInUse = 0;
 
   // Zachovej vlastnictví výkonů. Starší savy migruj podle již uložených vlaků,
@@ -931,7 +945,9 @@ function checkLevelUp() {
     const teamsAtLevel = Number(currentStationData.levels[level] && currentStationData.levels[level].unlocksCleaningTeams);
     if (Number.isFinite(teamsAtLevel) && teamsAtLevel >= 1) nextTeams = Math.max(nextTeams, Math.floor(teamsAtLevel));
   }
-  unlockedCleaningTeamsCount = Math.max(unlockedCleaningTeamsCount, Math.floor(nextTeams));
+  // Na levelu 5 se automaticky odemkne druhá bezplatná úklidová četa.
+  if (reachedLevel >= 5) nextTeams = Math.max(nextTeams, 2);
+  unlockedCleaningTeamsCount = Math.min(4, Math.max(unlockedCleaningTeamsCount, Math.floor(nextTeams)));
 
   const rewardText = [reachedConfig.rewardText, ...rewards].filter(Boolean).join("\n• ");
   alert(`⭐️ LEVEL UP! ${currentStationData.name} postoupilo na Level ${reachedLevel}!\n\nOdměna:\n• ${rewardText || "Pokračuj v rozvoji nádraží."}`);
@@ -1040,6 +1056,28 @@ function renderShop() {
     ? shopCard("Další nástupiště", "Rozšíření kapacity nádraží", trackDetail, trackLabel, trackAction, trackDisabled)
     : "";
 
+  const cleaningTeamsPurchased = Math.max(0, Math.min(2, Math.floor(Number(hiredCleaningTeamsByStation[currentStationKey]) || 0)));
+  const cleaningTeamsCard = level >= 5
+    ? (() => {
+        const teamCount = unlockedCleaningTeamsCount;
+        const nextCost = cleaningTeamsPurchased === 0 ? 30000 : 50000;
+        const atMaximum = teamCount >= 4 || cleaningTeamsPurchased >= 2;
+        const canAfford = globalMoney >= nextCost;
+        const label = atMaximum ? "Maximum čet dosaženo" : canAfford ? "Najmout četu" : "Nedostatek peněz";
+        const detail = atMaximum
+          ? `Aktuální stav: ${teamCount}/4 čet. Další četu už nelze najmout.`
+          : `Aktuální stav: ${teamCount}/4 čet · Další četa stojí ${nextCost.toLocaleString("cs-CZ")} Kč.`;
+        return shopCard(
+          "Úklidová četa",
+          "Rozšíření úklidové kapacity nádraží",
+          detail,
+          label,
+          !atMaximum && canAfford ? "buyCleaningTeam()" : "",
+          atMaximum || !canAfford
+        );
+      })()
+    : "";
+
   const categoryCards = [
     ["Místní osobní vlaky", 1],
     ["Rychlíky", 7],
@@ -1055,6 +1093,7 @@ function renderShop() {
   content.innerHTML =
     shopSection("Železniční výkony", performanceCards) +
     (level >= 2 ? shopSection("Infrastruktura", trackCard) : "") +
+    (level >= 5 ? shopSection("Personál", cleaningTeamsCard) : "") +
     shopSection("Postup kampaní", categoryCards) +
     `<p style="color:#999;font-size:12px">Pevná odměna se připíše po návratu vlaku na nádraží, tedy po celé otočce tam i zpět. Level odemyká kategorii; konkrétní výkon se kupuje samostatně.</p>`;
 }
@@ -1082,6 +1121,35 @@ function buyPerformance(id) {
   globalMoney -= cost;
   ownedPerformancesByStation[currentStationKey] = [...owned, Number(id)];
   if (!trains.some(train => Number(train.id) === Number(id))) addNewTrainFromPool(Number(id));
+  saveGameState();
+  render();
+  renderShop();
+}
+
+function buyCleaningTeam() {
+  if (!currentStationData || !currentStationKey) return;
+
+  const level = Number((stationLevels[currentStationKey] || {}).lvl) || 0;
+  if (level < 5) {
+    alert("Najímání dalších úklidových čet se odemkne na levelu 5.");
+    return;
+  }
+
+  const purchased = Math.max(0, Math.min(2, Math.floor(Number(hiredCleaningTeamsByStation[currentStationKey]) || 0)));
+  if (unlockedCleaningTeamsCount >= 4 || purchased >= 2) {
+    alert("Nádraží už má maximální počet 4 úklidových čet.");
+    return;
+  }
+
+  const cost = purchased === 0 ? 30000 : 50000;
+  if (globalMoney < cost) {
+    alert(`Na najmutí úklidové čety potřebuješ ${cost.toLocaleString("cs-CZ")} Kč.`);
+    return;
+  }
+
+  globalMoney -= cost;
+  hiredCleaningTeamsByStation[currentStationKey] = purchased + 1;
+  unlockedCleaningTeamsCount = Math.min(4, unlockedCleaningTeamsCount + 1);
   saveGameState();
   render();
   renderShop();
@@ -1309,12 +1377,13 @@ function renderActions() {
 // 1. Vylepšená funkce pro uložení hry (Pamatuje si i vlaky a jejich kontrakty)
 function saveGameState() {
   const saveContainer = {
-    saveVersion: 2,
+    saveVersion: 3,
     globalMoney: globalMoney,
     unlockedStations: GLOBAL_PLAYER_DATA.unlockedStations,
     stationLevels: stationLevels,
     ownedPerformancesByStation: ownedPerformancesByStation,
     unlockedTracksByStation: unlockedTracksByStation,
+    hiredCleaningTeamsByStation: hiredCleaningTeamsByStation,
     // 🟢 Tady uložíme i přesný stav vlaků, abychom o ně nepřišli
     savedAt: Date.now(),
     savedTrains: trains.map(t => ({
@@ -1364,6 +1433,10 @@ function loadGameState() {
       unlockedTracksByStation = parsed.unlockedTracksByStation &&
         typeof parsed.unlockedTracksByStation === "object" && !Array.isArray(parsed.unlockedTracksByStation)
         ? parsed.unlockedTracksByStation
+        : {};
+      hiredCleaningTeamsByStation = parsed.hiredCleaningTeamsByStation &&
+        typeof parsed.hiredCleaningTeamsByStation === "object" && !Array.isArray(parsed.hiredCleaningTeamsByStation)
+        ? parsed.hiredCleaningTeamsByStation
         : {};
 
       // Neplatný formát save ignorujeme, ale nemažeme uložená data automaticky.

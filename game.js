@@ -61,6 +61,9 @@ let trainQueuePriority = 0;       // Pořadí ručně vyvolaných / právě vrá
 let unlockedTracksCount = 1;    // Počet aktuálně odemčených kolejí v daném městě
 let unlockedCleaningTeamsCount = 1; // Počet úklidových týmů odemčených na nádraží
 let cleaningTeamsInUse = 0;          // Počet týmů právě uklízejících vlak
+let unlockedCateringTeamsCount = 1;   // Počet odemčených cateringových čet na nádraží
+let cateringTeamsInUse = 0;           // Počet cateringových čet právě obsluhujících vlaky
+let hiredCateringTeamsByStation = {}; // Počet dodatečně koupených cateringových čet pro jednotlivá nádraží
 let ownedPerformancesByStation = {}; // Zakoupené výkony pro jednotlivá nádraží
 let unlockedTracksByStation = {};    // Trvale zakoupená kapacita nástupišť
 let hiredCleaningTeamsByStation = {}; // Počet dodatečně koupených úklidových čet pro jednotlivá nádraží
@@ -422,6 +425,26 @@ function loadStation(stationKey) {
   unlockedCleaningTeamsCount = Math.min(4, levelUnlockedTeams + hiredTeams);
   cleaningTeamsInUse = 0;
 
+  // Catering: jedna četa od začátku, druhá zdarma na levelu 11, třetí za 70 000 Kč.
+  const configuredCateringTeams = Number(currentStationData.startingCateringTeams);
+  let levelUnlockedCateringTeams = Number.isFinite(configuredCateringTeams) && configuredCateringTeams >= 1
+    ? Math.floor(configuredCateringTeams)
+    : 1;
+  for (let l = 0; l <= myLvl; l++) {
+    const teamsAtLevel = Number(currentStationData.levels[l] && currentStationData.levels[l].unlocksCateringTeams);
+    if (Number.isFinite(teamsAtLevel) && teamsAtLevel >= 1) {
+      levelUnlockedCateringTeams = Math.max(levelUnlockedCateringTeams, Math.floor(teamsAtLevel));
+    }
+  }
+  if (myLvl >= 11) levelUnlockedCateringTeams = Math.max(levelUnlockedCateringTeams, 2);
+  const savedHiredCateringTeams = Number(hiredCateringTeamsByStation[stationKey]);
+  const hiredCateringTeams = Number.isFinite(savedHiredCateringTeams) && savedHiredCateringTeams >= 0
+    ? Math.min(1, Math.floor(savedHiredCateringTeams))
+    : 0;
+  hiredCateringTeamsByStation[stationKey] = hiredCateringTeams;
+  unlockedCateringTeamsCount = Math.min(3, levelUnlockedCateringTeams + hiredCateringTeams);
+  cateringTeamsInUse = 0;
+
   // Zachovej vlastnictví výkonů. Starší savy migruj podle již uložených vlaků,
   // aby hráč nepřišel o dříve získaný obsah.
   const legacyIds = Array.isArray(window.loadedTrainsCache)
@@ -659,10 +682,26 @@ function startTimer(type) {
 
   if (type === "exit") selected.state = "UNLOADING";
   if (type === "catering") {
-    selected.state = "CATERING";
-    selected.timer = Math.max(1, Number(selected.timers && selected.timers.catering) || 10);
-    selected.progress.catering = 0;
-    selected.pendingAction = false;
+    const train = selected;
+    const template = currentStationData && currentStationData.trainsPool && currentStationData.trainsPool[train.id];
+    if (!template || !template.cateringRequired) return;
+
+    if (train.hasCateringTeam) return;
+    if (cateringTeamsInUse >= unlockedCateringTeamsCount) {
+      // Vlak zůstane ve frontě; tlačítko se znovu zpřístupní po uvolnění čety.
+      train.state = "WAIT_CATERING";
+      train.timer = 0;
+      train.pendingAction = true;
+      render();
+      return;
+    }
+
+    cateringTeamsInUse++;
+    train.hasCateringTeam = true;
+    train.state = "CATERING";
+    train.timer = Math.max(1, Number(train.timers && train.timers.catering) || 10);
+    train.progress.catering = 0;
+    train.pendingAction = false;
     render();
     return;
   }
@@ -954,6 +993,19 @@ function checkLevelUp() {
   }
   unlockedCleaningTeamsCount = Math.min(4, Math.max(unlockedCleaningTeamsCount, Math.floor(nextTeams)));
 
+  // Na levelu 11 se automaticky odemkne druhá cateringová četa.
+  let nextCateringTeams = Number(currentStationData.startingCateringTeams);
+  if (!Number.isFinite(nextCateringTeams) || nextCateringTeams < 1) nextCateringTeams = 1;
+  for (let level = 0; level <= reachedLevel; level++) {
+    const count = Number(currentStationData.levels[level] && currentStationData.levels[level].unlocksCateringTeams);
+    if (Number.isFinite(count) && count >= 1) nextCateringTeams = Math.max(nextCateringTeams, Math.floor(count));
+  }
+  if (reachedLevel >= 11) {
+    nextCateringTeams = Math.max(nextCateringTeams, 2);
+    if (reachedLevel === 11) rewards.push("Druhá cateringová četa zdarma; v obchodě se odemyká možnost najmout třetí za 70 000 Kč.");
+  }
+  unlockedCateringTeamsCount = Math.min(3, Math.max(unlockedCateringTeamsCount, Math.floor(nextCateringTeams)));
+
   const rewardText = [reachedConfig.rewardText, ...rewards].filter(Boolean).join("\n• ");
   alert(`⭐️ LEVEL UP! ${currentStationData.name} postoupilo na Level ${reachedLevel}!\n\nOdměna:\n• ${rewardText || "Pokračuj v rozvoji nádraží."}`);
 
@@ -1083,6 +1135,28 @@ function renderShop() {
       })()
     : "";
 
+  const cateringTeamsPurchased = Math.max(0, Math.min(1, Math.floor(Number(hiredCateringTeamsByStation[currentStationKey]) || 0)));
+  const cateringTeamsCard = level >= 11
+    ? (() => {
+        const teamCount = unlockedCateringTeamsCount;
+        const cost = 70000;
+        const atMaximum = teamCount >= 3 || cateringTeamsPurchased >= 1;
+        const canAfford = globalMoney >= cost;
+        const label = atMaximum ? "Maximum čet dosaženo" : canAfford ? "Najmout četu" : "Nedostatek peněz";
+        const detail = atMaximum
+          ? `Aktuální stav: ${teamCount}/3 čet. Další četu už nelze najmout.`
+          : `Aktuální stav: ${teamCount}/3 čet · Třetí četa stojí ${cost.toLocaleString("cs-CZ")} Kč.`;
+        return shopCard(
+          "Cateringová četa",
+          "Rozšíření kapacity cateringu",
+          detail,
+          label,
+          !atMaximum && canAfford ? "buyCateringTeam()" : "",
+          atMaximum || !canAfford
+        );
+      })()
+    : "";
+
   const categoryCards = [
     ["Místní osobní vlaky", 1],
     ["Rychlíky", 7],
@@ -1099,6 +1173,7 @@ function renderShop() {
     shopSection("Železniční výkony", performanceCards) +
     (level >= 2 ? shopSection("Infrastruktura", trackCard) : "") +
     (level >= 5 ? shopSection("Personál", cleaningTeamsCard) : "") +
+    (level >= 11 ? shopSection("Catering", cateringTeamsCard) : "") +
     shopSection("Postup kampaní", categoryCards) +
     `<p style="color:#999;font-size:12px">Pevná odměna se připíše po návratu vlaku na nádraží, tedy po celé otočce tam i zpět. Level odemyká kategorii; konkrétní výkon se kupuje samostatně.</p>`;
 }
@@ -1155,6 +1230,35 @@ function buyCleaningTeam() {
   globalMoney -= cost;
   hiredCleaningTeamsByStation[currentStationKey] = purchased + 1;
   unlockedCleaningTeamsCount = Math.min(4, unlockedCleaningTeamsCount + 1);
+  saveGameState();
+  render();
+  renderShop();
+}
+
+function buyCateringTeam() {
+  if (!currentStationData || !currentStationKey) return;
+
+  const level = Number((stationLevels[currentStationKey] || {}).lvl) || 0;
+  if (level < 11) {
+    alert("Najímání další cateringové čety se odemkne na levelu 11.");
+    return;
+  }
+
+  const purchased = Math.max(0, Math.min(1, Math.floor(Number(hiredCateringTeamsByStation[currentStationKey]) || 0)));
+  if (unlockedCateringTeamsCount >= 3 || purchased >= 1) {
+    alert("Nádraží už má maximální počet 3 cateringových čet.");
+    return;
+  }
+
+  const cost = 70000;
+  if (globalMoney < cost) {
+    alert("Na najmutí cateringové čety potřebuješ 70 000 Kč.");
+    return;
+  }
+
+  globalMoney -= cost;
+  hiredCateringTeamsByStation[currentStationKey] = 1;
+  unlockedCateringTeamsCount = Math.min(3, unlockedCateringTeamsCount + 1);
   saveGameState();
   render();
   renderShop();
@@ -1357,7 +1461,12 @@ function renderActions() {
   } else if (selected.state === "UNLOADING" || selected.state === "CLEANING" || selected.state === "CATERING" || selected.state === "BOARDING") {
     a.innerHTML = `<em>${lang().working}</em>`;
   } else if (selected.state === "WAIT_CATERING") {
-    a.innerHTML = `<button class="y" onclick="startTimer('catering')">Zahájit catering</button>`;
+    a.innerHTML = `<p>Cateringové čety: ${cateringTeamsInUse}/${unlockedCateringTeamsCount} obsazeno</p>` +
+      (selected.hasCateringTeam
+        ? `<em>Catering už probíhá.</em>`
+        : cateringTeamsInUse < unlockedCateringTeamsCount
+          ? `<button class="y" onclick="startTimer('catering')">Zahájit catering</button>`
+          : `<em>Všechny cateringové čety jsou obsazené. Počkej na uvolnění čety.</em>`);
   } else if (selected.state === "WAIT_CLEAN") {
     a.innerHTML = `<p>Úklidové týmy: ${cleaningTeamsInUse}/${unlockedCleaningTeamsCount} obsazeno</p><button class="y" onclick="startTimer('clean')">${lang().btnClean}</button>`;
   } else if (selected.state === "WAIT_CLEAN_TEAM") {
@@ -1382,13 +1491,14 @@ function renderActions() {
 // 1. Vylepšená funkce pro uložení hry (Pamatuje si i vlaky a jejich kontrakty)
 function saveGameState() {
   const saveContainer = {
-    saveVersion: 3,
+    saveVersion: 4,
     globalMoney: globalMoney,
     unlockedStations: GLOBAL_PLAYER_DATA.unlockedStations,
     stationLevels: stationLevels,
     ownedPerformancesByStation: ownedPerformancesByStation,
     unlockedTracksByStation: unlockedTracksByStation,
     hiredCleaningTeamsByStation: hiredCleaningTeamsByStation,
+    hiredCateringTeamsByStation: hiredCateringTeamsByStation,
     // 🟢 Tady uložíme i přesný stav vlaků, abychom o ně nepřišli
     savedAt: Date.now(),
     savedTrains: trains.map(t => ({
@@ -1442,6 +1552,10 @@ function loadGameState() {
       hiredCleaningTeamsByStation = parsed.hiredCleaningTeamsByStation &&
         typeof parsed.hiredCleaningTeamsByStation === "object" && !Array.isArray(parsed.hiredCleaningTeamsByStation)
         ? parsed.hiredCleaningTeamsByStation
+        : {};
+      hiredCateringTeamsByStation = parsed.hiredCateringTeamsByStation &&
+        typeof parsed.hiredCateringTeamsByStation === "object" && !Array.isArray(parsed.hiredCateringTeamsByStation)
+        ? parsed.hiredCateringTeamsByStation
         : {};
 
       // Neplatný formát save ignorujeme, ale nemažeme uložená data automaticky.
@@ -1646,6 +1760,11 @@ function gameLoop(now) {
         t.progress.catering = 100;
         t.state = "WAIT_BOARD";
         t.pendingAction = true;
+        if (t.hasCateringTeam) {
+          t.hasCateringTeam = false;
+          cateringTeamsInUse = Math.max(0, cateringTeamsInUse - 1);
+        }
+        render();
       }
     }
 

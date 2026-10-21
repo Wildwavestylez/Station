@@ -264,6 +264,21 @@ ROUTES = {
         "end": [50.02583, 15.21270],    # Kolín, hlavní železniční stanice (ČD)
         "label": "Pečky → Kolín",
     },
+    "kolin:chvaletice": {
+        "start": [50.02528, 15.21361],  # Kolín hlavní nádraží
+        "end": [50.03745, 15.41863],   # Chvaletice, železniční stanice (ČD)
+        "label": "Kolín → Chvaletice",
+    },
+    "chvaletice:prelouc": {
+        "start": [50.03745, 15.41863],  # Chvaletice, železniční stanice (ČD)
+        "end": [50.03981, 15.57390],   # Přelouč, železniční stanice (ČD)
+        "label": "Chvaletice → Přelouč",
+    },
+    "prelouc:pardubice": {
+        "start": [50.03981, 15.57390],  # Přelouč, železniční stanice (ČD)
+        "end": [50.03430, 15.75650],    # Pardubice hlavní nádraží (existing anchor)
+        "label": "Přelouč → Pardubice hl.n.",
+    },
     "praha:pardubice": {"start": [50.08300, 14.43500], "end": [50.03430, 15.75650], "label": "Praha hl.n. → Pardubice hl.n."},
     "pardubice:olomouc": {"start": [50.03430, 15.75650], "end": [49.59380, 17.25090], "label": "Pardubice hl.n. → Olomouc hl.n."},
     "olomouc:ostrava": {"start": [49.59380, 17.25090], "end": [49.85090, 18.28570], "label": "Olomouc hl.n. → Ostrava hl.n."},

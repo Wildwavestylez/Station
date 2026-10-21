@@ -321,6 +321,36 @@ function buildPlzenCeskeBudejoviceRoute() {
   );
 }
 
+// Rychlík Plzeň–Brno: spojení 20 ověřených OSM úseků přes jižní Čechy a Vysočinu.
+function buildPlzenBrnoRoute() {
+  return buildJoinedPlzenRoute(
+    [
+      "plzen:nezvestice",
+      "nezvestice:nepomuk",
+      "nepomuk:horazdovice_predm",
+      "horazdovice_predm:strakonice",
+      "strakonice:protivin",
+      "protivin:divcice",
+      "divcice:ceske_budejovice",
+      "ceske_budejovice:veseli_nad_luznici",
+      "veseli_nad_luznici:kardasova_recice",
+      "kardasova_recice:jindrichuv_hradec",
+      "jindrichuv_hradec:popelin",
+      "popelin:horni_cerekev",
+      "horni_cerekev:kostelec_u_jihlavy",
+      "kostelec_u_jihlavy:jihlava",
+      "jihlava:luka_nad_jihlavou",
+      "luka_nad_jihlavou:okrisky",
+      "okrisky:trebic",
+      "trebic:studenec",
+      "studenec:rosice_u_brna",
+      "rosice_u_brna:brno_hlavni_nadrazi"
+    ],
+    "Rychlík Plzeň–Brno hlavní nádraží",
+    300
+  );
+}
+
 function buildPlzenPrahaRoute() {
   const prepared = window.STATION_PREPARED_ROUTES || {};
   const keys = [
@@ -392,6 +422,7 @@ window.STATIONS_REGISTRY["plzen"] = {
     klatovy: buildPlzenKlatovyRoute(),
     horazdovicePredm: buildPlzenHorazdovicePredmRoute(),
     ceskeBudejovice: buildPlzenCeskeBudejoviceRoute(),
+    brno: buildPlzenBrnoRoute(),
     zeleznaRuda: buildPlzenZeleznaRudaRoute(),
     radnice: buildPlzenRadniceRoute(),
     bezdruzice: buildPlzenBezdruziceRoute(),
@@ -750,6 +781,26 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardMoney: 3000,
       rewardXP: 2
     },
+    20: {
+      name: "ČD rychlík · Brejlovec · Plzeň–Brno hlavní nádraží",
+      operator: "České dráhy",
+      category: "rapid",
+      routeLabel: "Plzeň–Nezvěstice–Nepomuk–Horažďovice předměstí–Strakonice–Protivín–České Budějovice–Veselí nad Lužnicí–Jindřichův Hradec–Popelín–Horní Cerekev–Kostelec u Jihlavy–Jihlava–Luka nad Jihlavou–Okříšky–Třebíč–Studenec–Rosice u Brna–Brno hlavní nádraží",
+      boardDestination: "Brno hlavní nádraží",
+      lineCode: "R Plzeň–Brno",
+      cateringRequired: true,
+      purchaseCost: 0,
+      requiredLevel: 1,
+      image: "assets/trains/cd/brejlovec1.png",
+      routeKey: "brno",
+      routeSequence: ["brno"],
+      speed: 120,
+      stayTime: 15,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, catering: 10, board: 5 },
+      rewardMoney: 5000,
+      rewardXP: 2
+    },
   }
 };
 
@@ -802,6 +853,10 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.h
 
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.ceskeBudejovice.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:ceskeBudejovice");
+}
+
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.brno.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:brno");
 }
 
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.zeleznaRuda.length >= 2) {

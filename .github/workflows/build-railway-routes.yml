@@ -27,7 +27,7 @@ jobs:
           python-version: "3.12"
       - name: Build route geometry from OSM
         env:
-          ROUTE_KEYS: ceska_trebova:krasikov,krasikov:zabreh_na_morave,zabreh_na_morave:mohelnice,mohelnice:cervenka,cervenka:olomouc,olomouc:prerov
+          ROUTE_KEYS: prerov:lipnik,lipnik:hranice_na_morave,hranice_na_morave:suchdol_nad_odrou,suchdol_nad_odrou:studenka,studenka:ostrava
         run: python scripts/build_railway_routes.py
       - name: Validate JavaScript syntax
         run: node --check stations/preparedRoutes.js

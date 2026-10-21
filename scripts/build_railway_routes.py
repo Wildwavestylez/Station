@@ -334,6 +334,32 @@ ROUTES = {
         "end": [49.44711, 17.44530],    # Přerov, hlavní železniční stanice (ČD)
         "label": "Olomouc hl.n. → Přerov",
     },
+    # Pokračování hlavního koridoru Přerov–Ostrava; kotvy podle stanic ČD.
+    "prerov:lipnik": {
+        "start": [49.44711, 17.44530],  # Přerov hl.n.; sdílená kotva s předchozím úsekem
+        "end": [49.52929, 17.57304],   # Lipník nad Bečvou, stanice ČD
+        "label": "Přerov → Lipník nad Bečvou",
+    },
+    "lipnik:hranice_na_morave": {
+        "start": [49.52929, 17.57304],  # Lipník nad Bečvou
+        "end": [49.56543, 17.74133],    # Hranice na Moravě, stanice ČD
+        "label": "Lipník nad Bečvou → Hranice na Moravě",
+    },
+    "hranice_na_morave:suchdol_nad_odrou": {
+        "start": [49.56543, 17.74133],  # Hranice na Moravě
+        "end": [49.64166, 17.93754],    # Suchdol nad Odrou, stanice ČD
+        "label": "Hranice na Moravě → Suchdol nad Odrou",
+    },
+    "suchdol_nad_odrou:studenka": {
+        "start": [49.64166, 17.93754],  # Suchdol nad Odrou
+        "end": [49.70748, 18.06624],    # Studénka, stanice ČD
+        "label": "Suchdol nad Odrou → Studénka",
+    },
+    "studenka:ostrava": {
+        "start": [49.70748, 18.06624],  # Studénka
+        "end": [49.85173, 18.26687],    # Ostrava hlavní nádraží, stanice ČD
+        "label": "Studénka → Ostrava hl.n.",
+    },
     "olomouc:ostrava": {"start": [49.59380, 17.25090], "end": [49.85090, 18.28570], "label": "Olomouc hl.n. → Ostrava hl.n."},
     # Mezinárodní pokračování přes přesné souřadnice železničních stanic (OSM/DB).
     "domazlice:furth_im_wald": {

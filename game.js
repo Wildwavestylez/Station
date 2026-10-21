@@ -945,8 +945,13 @@ function checkLevelUp() {
     const teamsAtLevel = Number(currentStationData.levels[level] && currentStationData.levels[level].unlocksCleaningTeams);
     if (Number.isFinite(teamsAtLevel) && teamsAtLevel >= 1) nextTeams = Math.max(nextTeams, Math.floor(teamsAtLevel));
   }
-  // Na levelu 5 se automaticky odemkne druhá bezplatná úklidová četa.
-  if (reachedLevel >= 5) nextTeams = Math.max(nextTeams, 2);
+  // Na levelu 5 se automaticky odemkne druhá bezplatná úklidová četa i nákup dalších čet.
+  if (reachedLevel >= 5) {
+    nextTeams = Math.max(nextTeams, 2);
+    if (reachedLevel === 5) {
+      rewards.push("Druhá úklidová četa zdarma; v obchodě můžeš najmout až dvě další.");
+    }
+  }
   unlockedCleaningTeamsCount = Math.min(4, Math.max(unlockedCleaningTeamsCount, Math.floor(nextTeams)));
 
   const rewardText = [reachedConfig.rewardText, ...rewards].filter(Boolean).join("\n• ");

@@ -479,6 +479,17 @@ ROUTES = {
         "end": [49.18999, 16.61105],    # Brno hlavní nádraží (ČD)
         "label": "Rosice u Brna → Brno hlavní nádraží",
     },
+    # Pendolino / railjet: západní a severovýchodní zakončení dálkových výkonů.
+    "cheb:frantiskovy_lazne": {
+        "start": [50.073835, 12.380674],  # Cheb, hlavní železniční stanice
+        "end": [50.125833, 12.351389],    # Františkovy Lázně, železniční stanice
+        "label": "Cheb → Františkovy Lázně",
+    },
+    "ostrava:bohumin": {
+        "start": [49.85173, 18.26687],    # Ostrava hlavní nádraží
+        "end": [49.90422, 18.35745],      # Bohumín, hlavní železniční stanice
+        "label": "Ostrava hl.n. → Bohumín",
+    },
 }
 
 def haversine(a, b):

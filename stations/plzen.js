@@ -443,6 +443,59 @@ function buildPlzenPrahaRoute() {
   return joined;
 }
 
+// Railjet: rychlíkový oběh z Plzně na Františkovy Lázně a do Bohumína.
+// Každý úsek je převzatý z ověřené geometrie OpenStreetMap.
+function buildRailjetFrantiskovyRoute() {
+  return buildJoinedPlzenRoute(
+    [
+      "plzen:pnovany",
+      "pnovany:svojsin",
+      "svojsin:plana",
+      "plana:marianske_lazne",
+      "marianske_lazne:cheb",
+      "cheb:frantiskovy_lazne"
+    ],
+    "Railjet Plzeň–Pňovany–Svojšín–Planá–Mariánské Lázně–Cheb–Františkovy Lázně",
+    350
+  );
+}
+
+function buildRailjetBohuminRoute() {
+  return buildJoinedPlzenRoute(
+    [
+      "plzen:rokycany",
+      "rokycany:horovice",
+      "horovice:beroun",
+      "beroun:dobrichovice",
+      "dobrichovice:praha",
+      "praha:uvaly",
+      "uvaly:pecky",
+      "pecky:kolin",
+      "kolin:chvaletice",
+      "chvaletice:prelouc",
+      "prelouc:pardubice",
+      "pardubice:moravany",
+      "moravany:chocen",
+      "chocen:usti_nad_orlici",
+      "usti_nad_orlici:ceska_trebova",
+      "ceska_trebova:krasikov",
+      "krasikov:zabreh_na_morave",
+      "zabreh_na_morave:mohelnice",
+      "mohelnice:cervenka",
+      "cervenka:olomouc",
+      "olomouc:prerov",
+      "prerov:lipnik",
+      "lipnik:hranice_na_morave",
+      "hranice_na_morave:suchdol_nad_odrou",
+      "suchdol_nad_odrou:studenka",
+      "studenka:ostrava",
+      "ostrava:bohumin"
+    ],
+    "Railjet Plzeň–Praha–Kolín–Pardubice–Česká Třebová–Zábřeh na Moravě–Olomouc–Přerov–Ostrava–Bohumín",
+    350
+  );
+}
+
 // Inicializace globálního registru stanic, pokud neexistuje
 if (!window.STATIONS_REGISTRY) window.STATIONS_REGISTRY = {};
 
@@ -464,6 +517,8 @@ window.STATIONS_REGISTRY["plzen"] = {
   routes: {
     pendolinoOstrava: buildPendolinoOstravaRoute(),
     pendolinoCheb: buildPendolinoChebRoute(),
+    railjetFrantiskovy: buildRailjetFrantiskovyRoute(),
+    railjetBohumin: buildRailjetBohuminRoute(),
     rokycany: window.STATION_PREPARED_ROUTES["plzen:rokycany"],
     prestice: window.STATION_PREPARED_ROUTES["plzen:prestice"],
     plasy: buildPlzenPlasyRoute(),
@@ -876,6 +931,26 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardMoney: 5000,
       rewardXP: 2
     },
+    22: {
+      name: "ČD Railjet · Plzeň–Františkovy Lázně / Bohumín",
+      operator: "České dráhy",
+      category: "rapid",
+      routeLabel: "Plzeň–Rokycany–Beroun–Praha–Kolín–Pardubice–Česká Třebová–Zábřeh na Moravě–Olomouc–Přerov–Ostrava–Bohumín; po návratu Plzeň–Pňovany–Mariánské Lázně–Cheb–Františkovy Lázně",
+      boardDestination: "Františkovy Lázně",
+      lineCode: "R Railjet",
+      cateringRequired: true,
+      purchaseCost: 0,
+      requiredLevel: 1,
+      image: "assets/trains/cd/VectronRJ.png",
+      routeKey: "railjetFrantiskovy",
+      routeSequence: ["railjetFrantiskovy", "railjetBohumin"],
+      speed: 120,
+      stayTime: 15,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, catering: 10, board: 5 },
+      rewardMoney: 5500,
+      rewardXP: 2
+    },
   }
 };
 
@@ -948,6 +1023,14 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.b
 
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.sumava.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:sumava");
+}
+
+// Railjet se zveřejní pouze při dostupné geometrii obou kompletních tras.
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.railjetFrantiskovy.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:railjetFrantiskovy");
+}
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.railjetBohumin.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:railjetBohumin");
 }
 
 // Publish the two Pendolino routes only when all underlying OSM sections joined successfully.

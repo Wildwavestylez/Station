@@ -247,6 +247,23 @@ ROUTES = {
     # Hlavní koridor Pendolina: Plzeň–Stříbro–Planá a dále přes Prahu na Ostravu.
     "plzen:stribro": {"start": [49.74354, 13.38803], "end": [49.75420, 13.00410], "label": "Plzeň hl.n. → Stříbro"},
     "stribro:plana": {"start": [49.75420, 13.00410], "end": [49.86800, 12.74300], "label": "Stříbro → Planá u Mariánských Lázní"},
+    # Pendolino: pokračování z Prahy po hlavním koridoru směrem na Kolín.
+    # Souřadnice odpovídají železničním stanicím; geometrie se stáhne a ověří proti OSM.
+    "praha:uvaly": {
+        "start": [50.08300, 14.43500],  # Praha hlavní nádraží (sdílený anchor s existujícími trasami)
+        "end": [50.07509, 14.72246],   # Úvaly, železniční stanice (ČD)
+        "label": "Praha hl.n. → Úvaly",
+    },
+    "uvaly:pecky": {
+        "start": [50.07509, 14.72246],  # Úvaly, železniční stanice
+        "end": [50.08975, 15.02766],    # Pečky, železniční stanice (OSM)
+        "label": "Úvaly → Pečky",
+    },
+    "pecky:kolin": {
+        "start": [50.08975, 15.02766],  # Pečky, železniční stanice
+        "end": [50.02583, 15.21270],    # Kolín, hlavní železniční stanice (ČD)
+        "label": "Pečky → Kolín",
+    },
     "praha:pardubice": {"start": [50.08300, 14.43500], "end": [50.03430, 15.75650], "label": "Praha hl.n. → Pardubice hl.n."},
     "pardubice:olomouc": {"start": [50.03430, 15.75650], "end": [49.59380, 17.25090], "label": "Pardubice hl.n. → Olomouc hl.n."},
     "olomouc:ostrava": {"start": [49.59380, 17.25090], "end": [49.85090, 18.28570], "label": "Olomouc hl.n. → Ostrava hl.n."},

@@ -276,11 +276,33 @@ ROUTES = {
     },
     "prelouc:pardubice": {
         "start": [50.03981, 15.57390],  # Přelouč, železniční stanice (ČD)
-        "end": [50.03430, 15.75650],    # Pardubice hlavní nádraží (existing anchor)
+        "end": [50.03167, 15.75756],    # Pardubice hl.n. — souřadnice stanice ČD
         "label": "Přelouč → Pardubice hl.n.",
     },
     "praha:pardubice": {"start": [50.08300, 14.43500], "end": [50.03430, 15.75650], "label": "Praha hl.n. → Pardubice hl.n."},
     "pardubice:olomouc": {"start": [50.03430, 15.75650], "end": [49.59380, 17.25090], "label": "Pardubice hl.n. → Olomouc hl.n."},
+    # Pendolino: pokračování hlavním koridorem z Pardubic do České Třebové.
+    # Kotvy ověřeny podle stránek ČD / OSM; body jsou železniční stanice, ne centra obcí.
+    "pardubice:moravany": {
+        "start": [50.03167, 15.75756],  # Pardubice hl.n. (ČD)
+        "end": [50.00220, 15.94646],   # Moravany (ČD)
+        "label": "Pardubice hl.n. → Moravany",
+    },
+    "moravany:chocen": {
+        "start": [50.00220, 15.94646],  # Moravany (ČD)
+        "end": [49.99372, 16.22316],    # Choceň railway station (OSM public_transport=station)
+        "label": "Moravany → Choceň",
+    },
+    "chocen:usti_nad_orlici": {
+        "start": [49.99372, 16.22316], # Choceň railway station (OSM)
+        "end": [49.97106, 16.37827],   # Ústí nad Orlicí (ČD)
+        "label": "Choceň → Ústí nad Orlicí",
+    },
+    "usti_nad_orlici:ceska_trebova": {
+        "start": [49.97106, 16.37827], # Ústí nad Orlicí (ČD)
+        "end": [49.89683, 16.44712],   # Česká Třebová (ČD)
+        "label": "Ústí nad Orlicí → Česká Třebová",
+    },
     "olomouc:ostrava": {"start": [49.59380, 17.25090], "end": [49.85090, 18.28570], "label": "Olomouc hl.n. → Ostrava hl.n."},
     # Mezinárodní pokračování přes přesné souřadnice železničních stanic (OSM/DB).
     "domazlice:furth_im_wald": {

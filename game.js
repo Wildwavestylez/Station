@@ -196,7 +196,9 @@ function renderDepartureBoard() {
       klatovy: "Klatovy",
       zeleznaRuda: "Železná Ruda-Alžbětín",
       pendolinoOstrava: "Ostrava hl.n.",
-      pendolinoCheb: "Cheb"
+      pendolinoCheb: "Cheb",
+      railjetFrantiskovy: "Františkovy Lázně",
+      railjetBohumin: "Bohumín"
     };
     const boardRouteKey = isDepartureBoardTrain(t) && t.nextRouteKey ? t.nextRouteKey : t.routeKey;
     const destination = template.routeSequence

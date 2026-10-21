@@ -351,6 +351,59 @@ function buildPlzenBrnoRoute() {
   );
 }
 
+
+// SuperCity Pendolino: souvislý koridor Plzeň–Praha–Ostrava z ověřených OSM úseků.
+// Každý mezilehlý úsek je zachován v pořadí hlavní trati, včetně Olomouce a Přerova.
+function buildPendolinoOstravaRoute() {
+  return buildJoinedPlzenRoute(
+    [
+      "plzen:rokycany",
+      "rokycany:horovice",
+      "horovice:beroun",
+      "beroun:dobrichovice",
+      "dobrichovice:praha",
+      "praha:uvaly",
+      "uvaly:pecky",
+      "pecky:kolin",
+      "kolin:chvaletice",
+      "chvaletice:prelouc",
+      "prelouc:pardubice",
+      "pardubice:moravany",
+      "moravany:chocen",
+      "chocen:usti_nad_orlici",
+      "usti_nad_orlici:ceska_trebova",
+      "ceska_trebova:krasikov",
+      "krasikov:zabreh_na_morave",
+      "zabreh_na_morave:mohelnice",
+      "mohelnice:cervenka",
+      "cervenka:olomouc",
+      "olomouc:prerov",
+      "prerov:lipnik",
+      "lipnik:hranice_na_morave",
+      "hranice_na_morave:suchdol_nad_odrou",
+      "suchdol_nad_odrou:studenka",
+      "studenka:ostrava"
+    ],
+    "SuperCity Pendolino Plzeň–Praha–Ostrava",
+    350
+  );
+}
+
+// Druhá větev oběhu: Plzeň–Pňovany–Svojšín–Planá–Mariánské Lázně–Cheb.
+function buildPendolinoChebRoute() {
+  return buildJoinedPlzenRoute(
+    [
+      "plzen:pnovany",
+      "pnovany:svojsin",
+      "svojsin:plana",
+      "plana:marianske_lazne",
+      "marianske_lazne:cheb"
+    ],
+    "SuperCity Pendolino Plzeň–Cheb",
+    350
+  );
+}
+
 function buildPlzenPrahaRoute() {
   const prepared = window.STATION_PREPARED_ROUTES || {};
   const keys = [
@@ -409,6 +462,8 @@ window.STATIONS_REGISTRY["plzen"] = {
   startingTrains: [1, 2],
 
   routes: {
+    pendolinoOstrava: buildPendolinoOstravaRoute(),
+    pendolinoCheb: buildPendolinoChebRoute(),
     rokycany: window.STATION_PREPARED_ROUTES["plzen:rokycany"],
     prestice: window.STATION_PREPARED_ROUTES["plzen:prestice"],
     plasy: buildPlzenPlasyRoute(),
@@ -801,6 +856,26 @@ window.STATIONS_REGISTRY["plzen"] = {
       rewardMoney: 5000,
       rewardXP: 2
     },
+    21: {
+      name: "ČD SuperCity Pendolino · Plzeň–Ostrava / Cheb",
+      operator: "České dráhy",
+      category: "rapid",
+      routeLabel: "Plzeň–Praha–Ostrava; po návratu Plzeň–Pňovany–Mariánské Lázně–Cheb",
+      boardDestination: "Ostrava hl.n.",
+      cateringRequired: true,
+      lineCode: "SC",
+      purchaseCost: 0,
+      requiredLevel: 1,
+      image: "assets/trains/cd/Pendolino.png",
+      routeKey: "pendolinoOstrava",
+      routeSequence: ["pendolinoOstrava", "pendolinoCheb"],
+      speed: 120,
+      stayTime: 15,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, catering: 10, board: 5 },
+      rewardMoney: 5000,
+      rewardXP: 2
+    },
   }
 };
 
@@ -873,4 +948,12 @@ if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.b
 
 if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.sumava.length >= 2) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:sumava");
+}
+
+// Publish the two Pendolino routes only when all underlying OSM sections joined successfully.
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.pendolinoOstrava.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:pendolinoOstrava");
+}
+if (window.STATION_BUNDLED_ROUTE_KEYS && window.STATIONS_REGISTRY.plzen.routes.pendolinoCheb.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("plzen:pendolinoCheb");
 }

@@ -194,7 +194,9 @@ function renderDepartureBoard() {
       praha: "Praha",
       domazlice: "Domažlice",
       klatovy: "Klatovy",
-      zeleznaRuda: "Železná Ruda-Alžbětín"
+      zeleznaRuda: "Železná Ruda-Alžbětín",
+      pendolinoOstrava: "Ostrava hl.n.",
+      pendolinoCheb: "Cheb"
     };
     const boardRouteKey = isDepartureBoardTrain(t) && t.nextRouteKey ? t.nextRouteKey : t.routeKey;
     const destination = template.routeSequence

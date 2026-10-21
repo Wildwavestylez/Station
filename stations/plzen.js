@@ -785,7 +785,7 @@ window.STATIONS_REGISTRY["plzen"] = {
       name: "ČD rychlík · Brejlovec · Plzeň–Brno hlavní nádraží",
       operator: "České dráhy",
       category: "rapid",
-      routeLabel: "Plzeň–Nezvěstice–Nepomuk–Horažďovice předměstí–Strakonice–Protivín–České Budějovice–Veselí nad Lužnicí–Jindřichův Hradec–Popelín–Horní Cerekev–Kostelec u Jihlavy–Jihlava–Luka nad Jihlavou–Okříšky–Třebíč–Studenec–Rosice u Brna–Brno hlavní nádraží",
+      routeLabel: "Plzeň–Nezvěstice–Nepomuk–Horažďovice předměstí–Strakonice–Protivín–Divčice–České Budějovice–Veselí nad Lužnicí–Kardašova Řečice–Jindřichův Hradec–Popelín–Horní Cerekev–Kostelec u Jihlavy–Jihlava–Luka nad Jihlavou–Okříšky–Třebíč–Studenec–Rosice u Brna–Brno hlavní nádraží",
       boardDestination: "Brno hlavní nádraží",
       lineCode: "R Plzeň–Brno",
       cateringRequired: true,

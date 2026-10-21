@@ -487,7 +487,7 @@ ROUTES = {
     },
     "ostrava:bohumin": {
         "start": [49.85173, 18.26687],    # Ostrava hlavní nádraží
-        "end": [49.90422, 18.35745],      # Bohumín, hlavní železniční stanice
+        "end": [49.90098, 18.35932],      # Bohumín, železniční stanice (hlavní nádraží)
         "label": "Ostrava hl.n. → Bohumín",
     },
 }

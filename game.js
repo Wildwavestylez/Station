@@ -404,7 +404,7 @@ function loadStation(stationKey) {
   unlockedTracksByStation[stationKey] = unlockedTracksCount;
   const myLvl = stationLevels[stationKey].lvl;
 
-  // Úklidové týmy: jedna četa od startu, druhá zdarma na levelu 5,
+  // Úklidové týmy: jedna četa od startu, druhá zdarma na levelu 6,
   // další dvě se kupují v obchodě. Počet nákupů se ukládá samostatně pro každé nádraží.
   const configuredTeams = Number(currentStationData.startingCleaningTeams);
   let levelUnlockedTeams = Number.isFinite(configuredTeams) && configuredTeams >= 1
@@ -416,8 +416,8 @@ function loadStation(stationKey) {
       levelUnlockedTeams = Math.max(levelUnlockedTeams, Math.floor(teamsAtLevel));
     }
   }
-  // Druhá četa je základní odměna levelu 5 nezávisle na konfiguraci konkrétní stanice.
-  if (myLvl >= 5) levelUnlockedTeams = Math.max(levelUnlockedTeams, 2);
+  // Druhá četa je základní odměna levelu 6 nezávisle na konfiguraci konkrétní stanice.
+  if (myLvl >= 6) levelUnlockedTeams = Math.max(levelUnlockedTeams, 2);
   const savedHiredTeams = Number(hiredCleaningTeamsByStation[stationKey]);
   const hiredTeams = Number.isFinite(savedHiredTeams) && savedHiredTeams >= 0
     ? Math.min(2, Math.floor(savedHiredTeams))
@@ -970,10 +970,10 @@ function checkLevelUp() {
     const teamsAtLevel = Number(currentStationData.levels[level] && currentStationData.levels[level].unlocksCleaningTeams);
     if (Number.isFinite(teamsAtLevel) && teamsAtLevel >= 1) nextTeams = Math.max(nextTeams, Math.floor(teamsAtLevel));
   }
-  // Na levelu 5 se automaticky odemkne druhá bezplatná úklidová četa i nákup dalších čet.
-  if (reachedLevel >= 5) {
+  // Na levelu 6 se automaticky odemkne druhá bezplatná úklidová četa i nákup dalších čet.
+  if (reachedLevel >= 6) {
     nextTeams = Math.max(nextTeams, 2);
-    if (reachedLevel === 5) {
+    if (reachedLevel === 6) {
       rewards.push("Druhá úklidová četa zdarma; v obchodě můžeš najmout až dvě další.");
     }
   }
@@ -1077,7 +1077,7 @@ function renderShop() {
     const category = categoryNames[item.category] ? item.category : "other";
     if (!groupedCards[category]) groupedCards[category] = [];
     const isOwned = owned.has(id);
-    const requiredLevel = Math.max(Number(item.requiredLevel) || 0, item.category === "local" ? 1 : 0);
+    const requiredLevel = Math.max(Number(item.requiredLevel) || 0, item.category === "local" ? 2 : item.category === "rapid" ? 8 : 0);
     const locked = level < requiredLevel;
     const cost = Math.max(0, Number(item.purchaseCost) || 0);
     const detail = `${categoryNames[category] || "Ostatní železniční výkony"} · ${cost === 0 ? "Zdarma" : cost.toLocaleString("cs-CZ") + " Kč"} · ${(Number(item.rewardMoney) || 0).toLocaleString("cs-CZ")} Kč za dokončenou otočku`;
@@ -1093,9 +1093,20 @@ function renderShop() {
   });
 
   const categoryOrder = ["local", "rapid", "express", "longDistance", "international", "other"];
+  const categoryUnlockLevels = { local: 2, rapid: 8 };
   const performanceSections = categoryOrder
     .filter(category => groupedCards[category] && groupedCards[category].length)
-    .map(category => shopSection(categoryNames[category] || "Ostatní výkony", groupedCards[category].join("")))
+    .map(category => {
+      const requiredLevel = categoryUnlockLevels[category] || 0;
+      if (level < requiredLevel) {
+        return shopSection(categoryNames[category] || "Ostatní výkony",
+          shopCard(categoryNames[category] || "Železniční výkony",
+            `Odemkne se na levelu ${requiredLevel}`,
+            `Tato kategorie bude dostupná po dosažení levelu ${requiredLevel}.`,
+            "Zamčeno", "", true));
+      }
+      return shopSection(categoryNames[category] || "Ostatní výkony", groupedCards[category].join(""));
+    })
     .join("");
   const performances = performanceSections || '<p style="color:#999">Pro toto nádraží zatím nejsou nakonfigurované žádné železniční výkony.</p>';
 
@@ -1115,18 +1126,18 @@ function renderShop() {
     trackLabel = "Maximum";
     trackDisabled = true;
   }
-  const trackCard = level >= 2
+  const trackCard = level >= 4
     ? shopCard("Koleje / hrany nástupišť", "Infrastruktura tohoto nádraží", trackDetail, trackLabel, trackAction, trackDisabled)
-    : shopCard("Koleje / hrany nástupišť", "Odemkne se na levelu 2", "Kapacita a ceny se načítají z konfigurace tohoto nádraží.", "Zamčeno", "", true);
+    : shopCard("Koleje / hrany nástupišť", "Odemkne se na levelu 4", "Nákup dalších kolejí a hran nástupišť se zpřístupní na levelu 4.", "Zamčeno", "", true);
 
   const cleaningPurchased = Math.max(0, Math.min(2, Math.floor(Number(hiredCleaningTeamsByStation[stationKey]) || 0)));
   const cleaningCount = unlockedCleaningTeamsCount;
   const cleaningCost = cleaningPurchased === 0 ? 30000 : 50000;
   const cleaningMax = cleaningCount >= 4 || cleaningPurchased >= 2;
-  const cleaningAvailable = level >= 5;
+  const cleaningAvailable = level >= 6;
   const cleaningLabel = !cleaningAvailable ? "Zamčeno" : cleaningMax ? "Maximum čet dosaženo" :
     globalMoney >= cleaningCost ? "Najmout četu" : "Nedostatek peněz";
-  const cleaningDetail = !cleaningAvailable ? "Další úklidové čety se odemknou na levelu 5." :
+  const cleaningDetail = !cleaningAvailable ? "Další úklidové čety se odemknou na levelu 6." :
     cleaningMax ? `Aktuální stav: ${cleaningCount}/4 čet. Limit tohoto nádraží dosažen.` :
     `Aktuální stav: ${cleaningCount}/4 čet · Další četa stojí ${cleaningCost.toLocaleString("cs-CZ")} Kč.`;
   const cleaningCard = shopCard("Úklidová četa", "Personál · pouze toto nádraží", cleaningDetail,
@@ -1163,7 +1174,7 @@ function buyPerformance(id) {
   if (owned.map(Number).includes(Number(id))) return;
 
   const level = Number((stationLevels[currentStationKey] || {}).lvl) || 0;
-  const requiredLevel = Math.max(Number(item.requiredLevel) || 0, item.category === "local" ? 1 : 0);
+  const requiredLevel = Math.max(Number(item.requiredLevel) || 0, item.category === "local" ? 2 : item.category === "rapid" ? 8 : 0);
   if (level < requiredLevel) {
     alert(`Tento výkon se odemkne na levelu ${requiredLevel}.`);
     return;
@@ -1187,8 +1198,8 @@ function buyCleaningTeam() {
   if (!currentStationData || !currentStationKey) return;
 
   const level = Number((stationLevels[currentStationKey] || {}).lvl) || 0;
-  if (level < 5) {
-    alert("Najímání dalších úklidových čet se odemkne na levelu 5.");
+  if (level < 6) {
+    alert("Najímání dalších úklidových čet se odemkne na levelu 6.");
     return;
   }
 
@@ -1244,8 +1255,8 @@ function buyCateringTeam() {
 function buyTrack() {
   if (!currentStationData || !currentStationKey) return;
   const level = Number((stationLevels[currentStationKey] || {}).lvl) || 0;
-  if (level < 2) {
-    alert("Další nástupiště se odemkne po dosažení Levelu 2.");
+  if (level < 4) {
+    alert("Nákup dalších kolejí se odemkne po dosažení Levelu 4.");
     return;
   }
   const costs = currentStationData.trackPurchaseCosts || [];

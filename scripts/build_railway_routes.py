@@ -303,6 +303,37 @@ ROUTES = {
         "end": [49.89683, 16.44712],   # Česká Třebová (ČD)
         "label": "Ústí nad Orlicí → Česká Třebová",
     },
+    # Hlavní koridor Česká Třebová–Přerov: skutečné osobní železniční stanice.
+    "ceska_trebova:krasikov": {
+        "start": [49.89683, 16.44712],  # Česká Třebová, hlavní železniční stanice (ČD)
+        "end": [49.848867, 16.686957],  # Krasíkov, železniční stanice
+        "label": "Česká Třebová → Krasíkov",
+    },
+    "krasikov:zabreh_na_morave": {
+        "start": [49.848867, 16.686957],  # Krasíkov, železniční stanice
+        "end": [49.87148, 16.88830],      # Zábřeh na Moravě, železniční stanice (ČD)
+        "label": "Krasíkov → Zábřeh na Moravě",
+    },
+    "zabreh_na_morave:mohelnice": {
+        "start": [49.87148, 16.88830],   # Zábřeh na Moravě (ČD)
+        "end": [49.77645, 16.94317],     # Mohelnice, železniční stanice (ČD)
+        "label": "Zábřeh na Moravě → Mohelnice",
+    },
+    "mohelnice:cervenka": {
+        "start": [49.77645, 16.94317],   # Mohelnice (ČD)
+        "end": [49.72404, 17.09113],     # Červenka, železniční stanice (ČD)
+        "label": "Mohelnice → Červenka",
+    },
+    "cervenka:olomouc": {
+        "start": [49.72404, 17.09113],   # Červenka (ČD)
+        "end": [49.59148, 17.27894],    # Olomouc hlavní nádraží (ČD)
+        "label": "Červenka → Olomouc hl.n.",
+    },
+    "olomouc:prerov": {
+        "start": [49.59148, 17.27894],  # Olomouc hlavní nádraží (ČD)
+        "end": [49.44711, 17.44530],    # Přerov, hlavní železniční stanice (ČD)
+        "label": "Olomouc hl.n. → Přerov",
+    },
     "olomouc:ostrava": {"start": [49.59380, 17.25090], "end": [49.85090, 18.28570], "label": "Olomouc hl.n. → Ostrava hl.n."},
     # Mezinárodní pokračování přes přesné souřadnice železničních stanic (OSM/DB).
     "domazlice:furth_im_wald": {

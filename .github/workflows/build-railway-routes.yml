@@ -27,7 +27,7 @@ jobs:
           python-version: "3.12"
       - name: Build route geometry from OSM
         env:
-          ROUTE_KEYS: kostelec_u_jihlavy:jihlava,jihlava:luka_nad_jihlavou,luka_nad_jihlavou:okrisky,okrisky:trebic,trebic:studenec,studenec:rosice_u_brna,rosice_u_brna:brno_hlavni_nadrazi,praha:uvaly,uvaly:pecky,pecky:kolin,kolin:chvaletice,chvaletice:prelouc,prelouc:pardubice
+          ROUTE_KEYS: praha:uvaly,uvaly:pecky,pecky:kolin,kolin:chvaletice,chvaletice:prelouc,prelouc:pardubice
         run: python scripts/build_railway_routes.py
       - name: Validate JavaScript syntax
         run: node --check stations/preparedRoutes.js

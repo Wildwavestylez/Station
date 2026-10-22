@@ -79,7 +79,41 @@ if (!window.LANGUAGES[currentLanguage]) {
 
 // Pomocná zkratka, abychom nemuseli pokaždé psát dlouhý řetězec
 function lang() {
-  return window.LANGUAGES[currentLanguage];
+  return window.LANGUAGES[currentLanguage] || window.LANGUAGES.cs;
+}
+
+function setLanguage(language) {
+  if (!window.LANGUAGES[language] || language === currentLanguage) return;
+  currentLanguage = language;
+  localStorage.setItem("trainOps_lang", language);
+  document.documentElement.lang = language;
+  renderLanguageControls();
+  renderSidebar();
+  render();
+  if (departureBoardOpen) renderDepartureBoard();
+  if (shopOpen && typeof renderStationShop === "function") renderStationShop();
+}
+
+function renderLanguageControls() {
+  document.querySelectorAll("[data-language]").forEach(button => {
+    const active = button.dataset.language === currentLanguage;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+  const setText = (id, key) => { const el = document.getElementById(id); if (el && lang()[key]) el.textContent = lang()[key]; };
+  setText("sidebar-title", "sidebarTitle");
+  setText("station-shop-label", "stationShop");
+  setText("station-shop-description", "stationShopDescription");
+  setText("my-stations-label", "myStations");
+  setText("reset-game-label", "resetGame");
+}
+
+function initLanguageControls() {
+  document.querySelectorAll("[data-language]").forEach(button => {
+    button.addEventListener("click", () => setLanguage(button.dataset.language));
+  });
+  document.documentElement.lang = currentLanguage;
+  renderLanguageControls();
 }
 
 
@@ -1813,6 +1847,7 @@ function gameLoop(now) {
   requestAnimationFrame(gameLoop);
 }
 
+initLanguageControls();
 initDepartureBoard();
 
 // 🚀 19. SPOUŠTĚČ SMYČKY

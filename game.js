@@ -926,80 +926,92 @@ function processTrainReturn(t) {
 // 📈 14. KONTROLA ZVÝŠENÍ LEVELU NÁDRAŽÍ
 function checkLevelUp() {
   const myData = stationLevels[currentStationKey];
-  const currentLevelConfig = currentStationData.levels[myData.lvl];
-  if (!currentLevelConfig) return;
+  if (!myData || !currentStationData || !currentStationData.levels) return;
 
-  if (myData.xp < Number(currentLevelConfig.xpNeeded)) return;
+  const levelUpMessages = [];
 
-  // Každý level má vlastní cíl; odečteme dosažený cíl a přebytečné XP se přenesou dál.
-  myData.xp -= Number(currentLevelConfig.xpNeeded);
-  myData.lvl += 1;
-  const reachedLevel = myData.lvl;
-  const reachedConfig = currentStationData.levels[reachedLevel] || {};
-  const rewards = [];
+  // Zpracuj všechny levely, na které hráč získanými XP dosáhl.
+  // XPNeeded je cena postupu z aktuálního levelu na následující.
+  while (true) {
+    const currentLevelConfig = currentStationData.levels[myData.lvl];
+    if (!currentLevelConfig) break;
 
-  if (typeof reachedConfig.action === "function") reachedConfig.action();
+    const requiredXp = Number(currentLevelConfig.xpNeeded);
+    if (!Number.isFinite(requiredXp) || requiredXp <= 0 || myData.xp < requiredXp) break;
 
-  // Level 1: automaticky přiděl bezplatný výkon Arriva Stadler do Plas.
-  if (currentStationKey === "plzen" && reachedLevel === 1) {
-    const id = 6;
-    const owned = ownedPerformancesByStation[currentStationKey] || [];
-    if (!owned.map(Number).includes(id)) {
-      ownedPerformancesByStation[currentStationKey] = [...owned, id];
+    myData.xp -= requiredXp;
+    myData.lvl += 1;
+    const reachedLevel = myData.lvl;
+    const reachedConfig = currentStationData.levels[reachedLevel] || {};
+    const rewards = [];
+
+    if (typeof reachedConfig.action === "function") reachedConfig.action();
+
+    // Level 1: automaticky přiděl bezplatný výkon Arriva Stadler do Plas.
+    if (currentStationKey === "plzen" && reachedLevel === 1) {
+      const id = 6;
+      const owned = ownedPerformancesByStation[currentStationKey] || [];
+      if (!owned.map(Number).includes(id)) {
+        ownedPerformancesByStation[currentStationKey] = [...owned, id];
+      }
+      if (!trains.some(train => Number(train.id) === id)) addNewTrainFromPool(id);
     }
-    if (!trains.some(train => Number(train.id) === id)) addNewTrainFromPool(id);
-    // Konkrétní odměny jsou vypsané v textu dosaženého levelu níže.
-  }
 
-  // Kapacita nástupišť se automaticky přepočítá podle dosaženého levelu.
-  let nextTracks = Number(currentStationData.startingTracks) || 1;
-  for (let level = 0; level <= reachedLevel; level++) {
-    const count = Number(currentStationData.levels[level] && currentStationData.levels[level].unlocksTrack);
-    if (Number.isFinite(count) && count >= 1) nextTracks = Math.max(nextTracks, Math.floor(count));
-  }
-  if (nextTracks > unlockedTracksCount) {
-    unlockedTracksCount = nextTracks;
-    while (tracks.length < unlockedTracksCount) tracks.push(null);
-    unlockedTracksByStation[currentStationKey] = unlockedTracksCount;
-    // Druhá kolej je oznámená v textu odměny levelu 2.
-  }
-
-  let nextTeams = Number(currentStationData.startingCleaningTeams);
-  if (!Number.isFinite(nextTeams) || nextTeams < 1) nextTeams = 1;
-  for (let level = 0; level <= reachedLevel; level++) {
-    const teamsAtLevel = Number(currentStationData.levels[level] && currentStationData.levels[level].unlocksCleaningTeams);
-    if (Number.isFinite(teamsAtLevel) && teamsAtLevel >= 1) nextTeams = Math.max(nextTeams, Math.floor(teamsAtLevel));
-  }
-  // Na levelu 6 se automaticky odemkne druhá bezplatná úklidová četa i nákup dalších čet.
-  if (reachedLevel >= 6) {
-    nextTeams = Math.max(nextTeams, 2);
-    if (reachedLevel === 6) {
-      rewards.push("Druhá úklidová četa zdarma; v obchodě můžeš najmout až dvě další.");
+    // Kapacita nástupišť se automaticky přepočítá podle dosaženého levelu.
+    let nextTracks = Number(currentStationData.startingTracks) || 1;
+    for (let level = 0; level <= reachedLevel; level++) {
+      const count = Number(currentStationData.levels[level] && currentStationData.levels[level].unlocksTrack);
+      if (Number.isFinite(count) && count >= 1) nextTracks = Math.max(nextTracks, Math.floor(count));
     }
-  }
-  unlockedCleaningTeamsCount = Math.min(4, Math.max(unlockedCleaningTeamsCount, Math.floor(nextTeams)));
+    if (nextTracks > unlockedTracksCount) {
+      unlockedTracksCount = nextTracks;
+      while (tracks.length < unlockedTracksCount) tracks.push(null);
+      unlockedTracksByStation[currentStationKey] = unlockedTracksCount;
+    }
 
-  // Na levelu 11 se automaticky odemkne druhá cateringová četa.
-  let nextCateringTeams = Number(currentStationData.startingCateringTeams);
-  if (!Number.isFinite(nextCateringTeams) || nextCateringTeams < 1) nextCateringTeams = 1;
-  for (let level = 0; level <= reachedLevel; level++) {
-    const count = Number(currentStationData.levels[level] && currentStationData.levels[level].unlocksCateringTeams);
-    if (Number.isFinite(count) && count >= 1) nextCateringTeams = Math.max(nextCateringTeams, Math.floor(count));
-  }
-  if (reachedLevel >= 11) {
-    nextCateringTeams = Math.max(nextCateringTeams, 2);
-    if (reachedLevel === 11) rewards.push("Druhá cateringová četa zdarma; v obchodě se odemyká možnost najmout třetí za 70 000 Kč.");
-  }
-  unlockedCateringTeamsCount = Math.min(3, Math.max(unlockedCateringTeamsCount, Math.floor(nextCateringTeams)));
+    let nextTeams = Number(currentStationData.startingCleaningTeams);
+    if (!Number.isFinite(nextTeams) || nextTeams < 1) nextTeams = 1;
+    for (let level = 0; level <= reachedLevel; level++) {
+      const teamsAtLevel = Number(currentStationData.levels[level] && currentStationData.levels[level].unlocksCleaningTeams);
+      if (Number.isFinite(teamsAtLevel) && teamsAtLevel >= 1) nextTeams = Math.max(nextTeams, Math.floor(teamsAtLevel));
+    }
+    if (reachedLevel >= 6) {
+      nextTeams = Math.max(nextTeams, 2);
+      if (reachedLevel === 6) {
+        rewards.push("Druhá úklidová četa zdarma; v obchodě můžeš najmout až dvě další.");
+      }
+    }
+    unlockedCleaningTeamsCount = Math.min(4, Math.max(unlockedCleaningTeamsCount, Math.floor(nextTeams)));
 
-  const rewardText = [reachedConfig.rewardText, ...rewards].filter(Boolean).join("\n• ");
-  alert(`⭐️ LEVEL UP! ${currentStationData.name} postoupilo na Level ${reachedLevel}!\n\nOdměna:\n• ${rewardText || "Pokračuj v rozvoji nádraží."}`);
+    let nextCateringTeams = Number(currentStationData.startingCateringTeams);
+    if (!Number.isFinite(nextCateringTeams) || nextCateringTeams < 1) nextCateringTeams = 1;
+    for (let level = 0; level <= reachedLevel; level++) {
+      const count = Number(currentStationData.levels[level] && currentStationData.levels[level].unlocksCateringTeams);
+      if (Number.isFinite(count) && count >= 1) nextCateringTeams = Math.max(nextCateringTeams, Math.floor(count));
+    }
+    if (reachedLevel >= 11) {
+      nextCateringTeams = Math.max(nextCateringTeams, 2);
+      if (reachedLevel === 11) {
+        rewards.push("Druhá cateringová četa zdarma; v obchodě se odemyká možnost najmout třetí za 70 000 Kč.");
+      }
+    }
+    unlockedCateringTeamsCount = Math.min(3, Math.max(unlockedCateringTeamsCount, Math.floor(nextCateringTeams)));
+
+    const rewardText = [reachedConfig.rewardText, ...rewards].filter(Boolean).join("\\n• ");
+    levelUpMessages.push(`⭐️ LEVEL UP! ${currentStationData.name} postoupilo na Level ${reachedLevel}!\\n\\nOdměna:\\n• ${rewardText || "Pokračuj v rozvoji nádraží."}`);
+  }
+
+  if (!levelUpMessages.length) return;
+
+  // Upozornění po jednom souhrnném alertu; žádný level ani odměna se nepřeskočí.
+  alert(levelUpMessages.join("\\n\\n"));
 
   renderSidebar();
   saveGameState();
   render();
   if (shopOpen) renderShop();
 }
+
 // ==========================================
 // 🛒 OBCHOD: VÝKONY A KAPACITA NÁSTUPIŠŤ
 // ==========================================

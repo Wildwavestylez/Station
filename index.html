@@ -23,21 +23,22 @@
   <!-- 🗂️ Vysouvací boční panel pro přepínání nádraží (World of Airports styl) -->
   <div id="sidebar">
     <div class="sidebar-header">
-      <h3>Moje Impérium</h3>
+      <div class="language-switch" role="group" aria-label="Language"><button type="button" class="language-button" data-language="cs" aria-label="Čeština" title="Čeština">🇨🇿</button><button type="button" class="language-button" data-language="en" aria-label="English" title="English">🇬🇧</button><button type="button" class="language-button" data-language="de" aria-label="Deutsch" title="Deutsch">🇩🇪</button></div>
+      <h3 id="sidebar-title">Moje Impérium</h3>
       <button class="close-btn" onclick="toggleSidebar()">✕</button>
     </div>
     <!-- Hlavní akce nádraží -->
     <div class="sidebar-actions">
       <button id="station-shop-button" class="sidebar-shop-button" type="button">
         <span class="sidebar-action-icon">🛒</span>
-        <span><strong>Obchod nádraží</strong><small>Koupit vlak nebo nástupiště</small></span>
+        <span><strong id="station-shop-label">Obchod nádraží</strong><small id="station-shop-description">Koupit vlak nebo nástupiště</small></span>
         <span class="sidebar-action-arrow">›</span>
       </button>
     </div>
 
-    <div class="sidebar-section-title">MOJE NÁDRAŽÍ</div>
+    <div id="my-stations-label" class="sidebar-section-title">MOJE NÁDRAŽÍ</div>
     <div id="station-list"></div>
-    <button id="reset-btn" onclick="resetGameState()">☢️ RESETOVAT HRU</button>
+    <button id="reset-btn" onclick="resetGameState()">☢️ <span id="reset-game-label">RESETOVAT HRU</span></button>
   
   </div>
 
@@ -120,7 +121,7 @@
   <script src="railwayNetwork.js?v=7"></script>
 
   <!-- 🎮 Hlavní herní motor (Engine) -->
-  <script src="game.js?v=43"></script>
+  <script src="game.js?v=44"></script>
 
 </body>
 </html>

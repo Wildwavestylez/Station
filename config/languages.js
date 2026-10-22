@@ -123,6 +123,11 @@ window.LANGUAGES = {
     notEnoughGlobalMoney: "Nemáš dost peněz v globální kase! Potřebuješ",
     stationUnlocked: "🎉 Odemkl jsi nádraží",
     canEnter: "Můžeš do něj rovnou vstoupit.",
+    shopNotEnough: "Na tento výkon nemáš dost peněz.",
+    platformNotEnough: "Na další nástupiště nemáš dost peněz.",
+    deleteSaveConfirm: "⚠️ POZOR! Opravdu chceš smazat veškerý postup, peníze, levely i vlaky a začít úplně od nuly?",
+    shopSummaryCash: "Pokladna",
+    cateringStatus: "Doplňování cateringu",
   },
   
   // 🇬🇧 ANGLIČTINA
@@ -261,6 +266,11 @@ window.LANGUAGES = {
     notEnoughGlobalMoney: "Not enough money in the global treasury! Required:",
     stationUnlocked: "🎉 You unlocked station",
     canEnter: "You can enter it now.",
+    shopNotEnough: "You don't have enough money for this service.",
+    platformNotEnough: "You don't have enough money for another platform.",
+    deleteSaveConfirm: "⚠️ WARNING! Are you sure you want to delete all progress, money, levels and trains and start from scratch?",
+    shopSummaryCash: "Cash",
+    cateringStatus: "Catering in progress",
   },
 
   // 🇩🇪 NĚMČINA
@@ -385,5 +395,10 @@ window.LANGUAGES = {
     notEnoughGlobalMoney: "Nicht genug Geld in der globalen Kasse! Benötigt:",
     stationUnlocked: "🎉 Du hast den Bahnhof freigeschaltet",
     canEnter: "Du kannst ihn direkt betreten.",
+    shopNotEnough: "Du hast nicht genug Geld für diese Leistung.",
+    platformNotEnough: "Du hast nicht genug Geld für einen weiteren Bahnsteig.",
+    deleteSaveConfirm: "⚠️ ACHTUNG! Möchtest du wirklich den gesamten Fortschritt, das Geld, die Level und Züge löschen und ganz von vorn beginnen?",
+    shopSummaryCash: "Kasse",
+    cateringStatus: "Catering läuft",
   }
 };

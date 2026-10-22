@@ -25,9 +25,52 @@ window.LANGUAGES = {
     btnDepart: "ODJEZD",
     sidebarTitle: "Moje Impérium",
     unlockCostText: "Cena odemčení",
-    requiresLvlText: "Vyžaduje"
+    requiresLvlText: "Vyžaduje",
+    stationShop: "Obchod nádraží", stationShopDescription: "Koupit vlak nebo nástupiště", myStations: "MOJE NÁDRAŽÍ", resetGame: "RESETOVAT HRU", departureBoard: "Odjezdy", time: "Čas", destination: "Cíl", operator: "Dopravce", trains: "vlaků", occupiedTeams: "obsazeno", cateringTeams: "Cateringové čety", cleaningTeams: "Úklidové týmy", startCleaning: "Zahájit úklid", waitTeam: "Čeká na uvolnění týmu. Potom si vybereš vlak sám.", noTrains: "Momentálně nejsou v provozu žádné vlaky."
   },
   
+  // 🇬🇧 ANGLIČTINA
+  en: {
+    selectTrain: "Select a train",
+    assignTrack: "Choose platform:",
+    occupied: "Occupied",
+    incoming: "Entering platform",
+    arrived: "At station",
+    unloading: "Unloading",
+    waitClean: "Waiting for cleaning 🧽",
+    cleaning: "Cleaning",
+    waitBoard: "Waiting for boarding 👥",
+    boarding: "Boarding",
+    readyDepart: "READY TO DEPART 🟢",
+    enRouteThere: "Travelling to destination ➔",
+    atDestination: "At destination",
+    enRouteBack: "Returning ➔",
+    working: "Train is being serviced...",
+    onRoute: "Train en route...",
+    btnUnload: "UNLOAD",
+    btnClean: "CLEAN",
+    btnBoard: "BOARDING",
+    btnDepart: "DEPART",
+    sidebarTitle: "My Empire",
+    unlockCostText: "Unlock cost",
+    requiresLvlText: "Requires",
+    stationShop: "Station shop",
+    stationShopDescription: "Buy trains or platforms",
+    myStations: "MY STATIONS",
+    resetGame: "RESET GAME",
+    departureBoard: "Departures",
+    time: "Time",
+    destination: "Destination",
+    operator: "Operator",
+    trains: "trains",
+    occupiedTeams: "occupied",
+    cateringTeams: "Catering teams",
+    cleaningTeams: "Cleaning teams",
+    startCleaning: "Start cleaning",
+    waitTeam: "Waiting for a free team. Then choose a train yourself.",
+    noTrains: "No trains are currently in service."
+  },
+
   // 🇩🇪 NĚMČINA
   de: {
     selectTrain: "Zug auswählen",
@@ -52,6 +95,7 @@ window.LANGUAGES = {
     btnDepart: "ABFAHRT",
     sidebarTitle: "Mein Imperium",
     unlockCostText: "Freischaltkosten",
-    requiresLvlText: "Erfordert"
+    requiresLvlText: "Erfordert",
+    stationShop: "Bahnhof-Shop", stationShopDescription: "Züge oder Bahnsteige kaufen", myStations: "MEINE BAHNHÖFE", resetGame: "SPIEL ZURÜCKSETZEN", departureBoard: "Abfahrten", time: "Zeit", destination: "Ziel", operator: "Betreiber", trains: "Züge", occupiedTeams: "belegt", cateringTeams: "Catering-Teams", cleaningTeams: "Reinigungsteams", startCleaning: "Reinigung starten", waitTeam: "Wartet auf ein freies Team. Danach wählst du selbst einen Zug.", noTrains: "Derzeit sind keine Züge im Einsatz."
   }
 };

@@ -204,7 +204,7 @@ function renderDepartureBoard() {
   const count = document.getElementById("departure-board-count");
   if (!rows || !currentStationData) return;
 
-  if (title) title.textContent = "Odjezdy · " + currentStationData.name;
+  if (title) title.textContent = lang().departureTitle + " · " + currentStationData.name;
   if (clock) clock.textContent = new Date().toLocaleTimeString(currentLanguage || "cs", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
   const activeTrains = [...trains]
@@ -248,11 +248,11 @@ function renderDepartureBoard() {
     };
     const boardRouteKey = isDepartureBoardTrain(t) && t.nextRouteKey ? t.nextRouteKey : t.routeKey;
     const destination = template.routeSequence
-      ? (destinations[boardRouteKey] || "Neurčený cíl")
-      : (template.boardDestination || destinations[t.routeKey] || template.destination || "Neurčený cíl");
+      ? (destinations[boardRouteKey] || lang().unknownDestination)
+      : (template.boardDestination || destinations[t.routeKey] || template.destination || lang().unknownDestination);
     const lineCode = String(template.lineCode || "").trim();
     const displayDestination = (lineCode ? lineCode + " " : "") + destination;
-    const operator = template.operator || "Neurčený dopravce";
+    const operator = template.operator || lang().unknownOperator;
     return '<tr class="' + (selected && selected.id === t.id ? "is-selected" : "") + '">' +
       '<td class="departure-time-cell">' + escapeBoardText(departureTimeLabel(t)) + '</td>' +
       '<td><strong>' + escapeBoardText(displayDestination) + '</strong></td>' +
@@ -662,7 +662,7 @@ function assignTrack(trackIndex) {
 
   // Kontrola, zda vybraná kolej není obsazená nebo zarezervovaná
   if (tracks[trackIndex] !== null) {
-    alert("Tato kolej je již obsazená jiným vlakem!");
+    alert(lang().trackOccupied);
     return;
   }
 
@@ -752,7 +752,7 @@ async function depart() {
     const route = currentStationData.routes[t.routeKey];
     if (Array.isArray(route) && route.length >= 2) {
       const button = document.querySelector('#actions button');
-      if (button) { button.disabled = true; button.textContent = "Hledám skutečné koleje…"; }
+      if (button) { button.disabled = true; button.textContent = lang().searchingTracks; }
       try {
         const start = route[0];
         const end = route[route.length - 1];
@@ -890,7 +890,7 @@ function getTrainPopupHtml(t) {
     ARRIVED: "Ve stanici – čeká na výstup cestujících",
     UNLOADING: "Vystupují cestující",
     WAIT_CLEAN: "Čeká na úklid",
-    WAIT_CLEAN_TEAM: "Čeká na volný úklidový tým",
+    WAIT_CLEAN_TEAM: lang().waitCleanTeam,
     CLEANING: "Probíhá úklid",
     CATERING: "Doplňuje se catering",
     WAIT_CATERING: "Čeká na zahájení cateringu",
@@ -1387,7 +1387,7 @@ function render() {
     .map(item => item.train);
 
   if (!orderedTrains.length) {
-    q.innerHTML = '<div class="train-list-empty">Žádné vlaky aktuálně nečekají ani se neodbavují ve stanici.</div>';
+    q.innerHTML = `<div class="train-list-empty">${lang().noWaitingTrains}</div>`;
     updateDetail();
     return;
   }
@@ -1406,7 +1406,7 @@ function render() {
     if (t.state === "ARRIVED") statusText = lang().arrived;
     if (t.state === "UNLOADING") statusText = `${lang().unloading} (${Math.max(0, Math.ceil(t.timer))}s)`;
     if (t.state === "WAIT_CLEAN") statusText = lang().waitClean;
-    if (t.state === "WAIT_CLEAN_TEAM") statusText = "Čeká na volný úklidový tým";
+    if (t.state === "WAIT_CLEAN_TEAM") statusText = lang().waitCleanTeam;
     if (t.state === "CLEANING") statusText = `${lang().cleaning} (${Math.max(0, Math.ceil(t.timer))}s)`;
     if (t.state === "CATERING") statusText = `Doplňování cateringu (${Math.max(0, Math.ceil(t.timer))}s)`;
     if (t.state === "WAIT_BOARD") statusText = lang().waitBoard;
@@ -1441,7 +1441,7 @@ function render() {
 // 🎯 16. DETAIL VYBRANÉHO VLAKU A PROGRESS BARY
 function updateDetail() {
   if (!selected) {
-    document.getElementById("name").innerText = "Vyber vlak";
+    document.getElementById("name").innerText = lang().selectTrainPrompt;
     let img = document.getElementById("img");
     if (img) img.style.display = "none";
     document.getElementById("p1").style.width = "0%";

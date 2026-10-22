@@ -540,18 +540,16 @@ window.STATIONS_REGISTRY["plzen"] = {
   },
 
   // Level odemyká kategorie a možnosti. Konkrétní výkony se kupují v obchodě.
-  // xpNeeded je počet XP potřebný k postupu z aktuálního levelu na další.
+  // Každý level má vlastní požadavek XP; přebytek po level-upu se převádí dál.
   levels: {
-    // xpNeeded na levelu N je XP potřebné od levelu N k postupu na N+1.
-    // Kumulativní cíle: L1 = 1, L2 = 5, L3 = 10, L4 = 20, L5 = 35, L6 = 50, L7 = 70, L8 = 90 XP.
     0: { xpNeeded: 1, rewardText: "Začínáš rozvoj nádraží.", action: () => {} },
-    1: { xpNeeded: 4, rewardText: "Získáváš linku Plzeň–Plasy s vlakem Arriva Stadler.", action: () => {} },
-    2: { xpNeeded: 5, rewardText: "Odemčena kategorie osobních vlaků v obchodě. Odteď můžeš nakupovat železniční výkony ve shopu.", action: () => {} },
-    3: { xpNeeded: 10, unlocksTrack: 2, rewardText: "Odemčena druhá kolej.", action: () => {} },
-    4: { xpNeeded: 15, rewardText: "V obchodě se odemyká možnost nakupovat další koleje a hrany nástupišť.", action: () => {} },
-    5: { xpNeeded: 15, rewardText: "Státní/městská rozvojová dotace: získáváš 20 000 Kč.", action: () => { globalMoney += 20000; } },
-    6: { xpNeeded: 20, unlocksCleaningTeams: 2, rewardText: "Druhá úklidová četa zdarma. V obchodě se odemyká najímání dalších úklidových čet.", action: () => {} },
-    7: { xpNeeded: 20, rewardText: "Odemčen rychlík Praha–Plzeň. Konkrétní vlak přiřadíme později.", action: () => {} },
+    1: { xpNeeded: 5, rewardText: "Získáváš linku Plzeň–Plasy s vlakem Arriva Stadler.", action: () => {} },
+    2: { xpNeeded: 10, rewardText: "Odemčena kategorie osobních vlaků v obchodě. Odteď můžeš nakupovat železniční výkony ve shopu.", action: () => {} },
+    3: { xpNeeded: 20, unlocksTrack: 2, rewardText: "Odemčena druhá kolej.", action: () => {} },
+    4: { xpNeeded: 35, rewardText: "V obchodě se odemyká možnost nakupovat další koleje a hrany nástupišť.", action: () => {} },
+    5: { xpNeeded: 50, rewardText: "Státní/městská rozvojová dotace: získáváš 20 000 Kč.", action: () => { globalMoney += 20000; } },
+    6: { xpNeeded: 70, unlocksCleaningTeams: 2, rewardText: "Druhá úklidová četa zdarma. V obchodě se odemyká najímání dalších úklidových čet.", action: () => {} },
+    7: { xpNeeded: 90, rewardText: "Odemčen rychlík Praha–Plzeň. Konkrétní vlak přiřadíme později.", action: () => {} },
     8: { xpNeeded: 25, rewardText: "Odemčena kategorie rychlíků se začátkem v Plzni v obchodě.", action: () => {} },
     9: { xpNeeded: 30, rewardText: "Další možnosti rozvoje nádraží.", action: () => {} },
     10: { xpNeeded: 35, rewardText: "Další možnosti rozvoje nádraží.", action: () => {} },

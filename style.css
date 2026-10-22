@@ -675,3 +675,10 @@ button {
   .departure-board-table td strong { font-size: 11px; }
   .departure-board-footer { padding: 7px 12px; font-size: 9px; gap: 3px; }
 }
+
+
+/* Language selector in the sidebar */
+.language-switch { display:flex; flex-direction:row; align-items:center; gap:4px; margin:0 8px 8px 0; }
+.language-button { margin:0; padding:5px 7px; min-width:36px; background:#252525; border:1px solid #444; border-radius:7px; font-size:20px; line-height:1.2; }
+.language-button.active { border:2px solid #4caf50; background:#343434; }
+.language-button:focus-visible { outline:2px solid #fff; outline-offset:2px; }

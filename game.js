@@ -1114,7 +1114,7 @@ function renderShop() {
   const catalog = currentStationData.trainsPool || {};
   const owned = new Set((ownedPerformancesByStation[stationKey] || []).map(Number));
   if (title) title.textContent = `${currentStationData.name} — ${lang().stationShopTitle}`;
-  if (summary) summary.textContent = `${currentStationData.name} · Level ${level} · Pokladna: ${globalMoney.toLocaleString("cs-CZ")} Kč`;
+  if (summary) summary.textContent = `${currentStationData.name} · Level ${level} · ${lang().shopSummaryCash}: ${globalMoney.toLocaleString("cs-CZ")} Kč`;
 
   const categoryNames = {
     local: "Místní osobní vlaky",
@@ -1234,7 +1234,7 @@ function buyPerformance(id) {
 
   const cost = Math.max(0, Number(item.purchaseCost) || 0);
   if (globalMoney < cost) {
-    alert("Na tento výkon nemáš dost peněz.");
+    alert(lang().shopNotEnough);
     return;
   }
 
@@ -1318,7 +1318,7 @@ function buyTrack() {
     return;
   }
   if (globalMoney < cost) {
-    alert("Na další nástupiště nemáš dost peněz.");
+    alert(lang().platformNotEnough);
     return;
   }
 
@@ -1407,7 +1407,7 @@ function render() {
     if (t.state === "WAIT_CLEAN") statusText = lang().waitClean;
     if (t.state === "WAIT_CLEAN_TEAM") statusText = lang().waitCleanTeam;
     if (t.state === "CLEANING") statusText = `${lang().cleaning} (${Math.max(0, Math.ceil(t.timer))}s)`;
-    if (t.state === "CATERING") statusText = `Doplňování cateringu (${Math.max(0, Math.ceil(t.timer))}s)`;
+    if (t.state === "CATERING") statusText = `${lang().cateringStatus} (${Math.max(0, Math.ceil(t.timer))}s)`;
     if (t.state === "WAIT_BOARD") statusText = lang().waitBoard;
     if (t.state === "BOARDING") statusText = `${lang().boarding} (${Math.max(0, Math.ceil(t.timer))}s)`;
     if (t.state === "READY_DEPART") statusText = lang().readyDepart;
@@ -1618,7 +1618,7 @@ function loadGameState() {
 
 // Funkce pro kompletní smazání postupu a restart hry
 function resetGameState() {
-  if (confirm("⚠️ POZOR! Opravdu chceš smazat veškerý postup, peníze, levely i vlaky a začít úplně od nuly?")) {
+  if (confirm(lang().deleteSaveConfirm)) {
     // 1. Vymažeme komplet data z paměti prohlížeče
     localStorage.removeItem('trainOps_save');
     

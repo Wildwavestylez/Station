@@ -1401,7 +1401,6 @@ function render() {
 function updateDetail() {
   if (!selected) {
     document.getElementById("name").innerText = "Vyber vlak";
-    document.getElementById("state").innerText = "---";
     let img = document.getElementById("img");
     if (img) img.style.display = "none";
     document.getElementById("p1").style.width = "0%";
@@ -1413,7 +1412,6 @@ function updateDetail() {
   }
 
   document.getElementById("name").innerText = selected.name;
-  document.getElementById("state").innerText = selected.state;
 
   let img = document.getElementById("img");
   if (img && selected.image) {

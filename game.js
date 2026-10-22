@@ -1074,21 +1074,21 @@ function renderShop() {
   const groupedCards = {};
   Object.entries(catalog).forEach(([idText, item]) => {
     const id = Number(idText);
+    // Již zakoupené výkony se v obchodě vůbec nezobrazují.
+    if (owned.has(id)) return;
     const category = categoryNames[item.category] ? item.category : "other";
     if (!groupedCards[category]) groupedCards[category] = [];
-    const isOwned = owned.has(id);
     const requiredLevel = Math.max(Number(item.requiredLevel) || 0, item.category === "local" ? 2 : item.category === "rapid" ? 8 : 0);
     const locked = level < requiredLevel;
     const cost = Math.max(0, Number(item.purchaseCost) || 0);
     const detail = `${categoryNames[category] || "Ostatní železniční výkony"} · ${cost === 0 ? "Zdarma" : cost.toLocaleString("cs-CZ") + " Kč"} · ${(Number(item.rewardMoney) || 0).toLocaleString("cs-CZ")} Kč za dokončenou otočku`;
-    const label = isOwned ? "Zakoupeno na tomto nádraží" :
-      locked ? `Odemkne se na levelu ${requiredLevel}` :
+    const label = locked ? `Odemkne se na levelu ${requiredLevel}` :
       globalMoney < cost ? "Nedostatek peněz" : "Koupit";
-    const action = isOwned || locked || globalMoney < cost ? "" : `buyPerformance(${id})`;
+    const action = locked || globalMoney < cost ? "" : `buyPerformance(${id})`;
     groupedCards[category].push(shopCard(
       item.name || `Železniční výkon ${id}`,
       `${item.operator || "Dopravce"} · ${item.routeLabel || item.routeKey || "Trasa podle konfigurace nádraží"}`,
-      detail, label, action, isOwned || locked || globalMoney < cost
+      detail, label, action, locked || globalMoney < cost
     ));
   });
 

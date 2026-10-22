@@ -217,10 +217,10 @@ function renderDepartureBoard() {
       if (Number.isFinite(etaB)) return 1;
       return String(a.name).localeCompare(String(b.name), "cs");
     });
-  if (count) count.textContent = activeTrains.length + (activeTrains.length === 1 ? " vlak" : activeTrains.length >= 2 && activeTrains.length <= 4 ? " vlaky" : " vlaků");
+  if (count) count.textContent = activeTrains.length + (activeTrains.length === 1 ? " " + lang().trainCountOne : " " + (activeTrains.length >= 2 && activeTrains.length <= 4 ? lang().trainCountFew : lang().trainCountMany));
 
   if (!activeTrains.length) {
-    rows.innerHTML = '<tr><td colspan="3" class="departure-board-empty">Momentálně nejsou v provozu žádné vlaky.</td></tr>';
+    rows.innerHTML = '<tr><td colspan="3" class="departure-board-empty">${lang().noActiveTrains}</td></tr>';
     return;
   }
 
@@ -349,11 +349,11 @@ function tryUnlockStation(key, st) {
   
   // Kontrola podmínek pro nákup
   if (plzenLvl < st.requiredParentLevel) {
-    alert(`Nemáš dostatečný level v Plzni! Potřebuješ aspoň Level ${st.requiredParentLevel}.`);
+    alert(`${lang().notEnoughPlzenLevel} ${st.requiredParentLevel}.`);
     return;
   }
   if (globalMoney < st.unlockCost) {
-    alert(`Nemáš dost peněz v globální kase! Potřebuješ ${st.unlockCost} Kč.`);
+    alert(`${lang().notEnoughGlobalMoney} ${st.unlockCost} Kč.`);
     return;
   }
 
@@ -362,7 +362,7 @@ function tryUnlockStation(key, st) {
   GLOBAL_PLAYER_DATA.unlockedStations.push(key);
   stationLevels[key] = { lvl: 0, xp: 0 };
   
-  alert(`🎉 Odemkl jsi nádraží ${st.name}! Můžeš do něj rovnou vstoupit.`);
+  alert(`${lang().stationUnlocked} ${st.name}! ${lang().canEnter}`);
   renderSidebar();
   render();
   saveGameState();
@@ -787,7 +787,7 @@ async function depart() {
         // Skutečná trasa je povinná: nikdy potichu neposílat vlak po testovací geometrii.
         // Neúspěšný pokus se neukládá do Setu, takže hráč může zkusit plánování znovu.
         console.error("Skutečnou OSM trasu se nepodařilo sestavit pro " + routeCacheKey, error);
-        const reason = error && error.message ? error.message : "neznámá chyba";
+        const reason = error && error.message ? error.message : lang().invalidRoute;
         alert("Odjezd zastaven: nepodařilo se připravit skutečnou kolejovou trasu pro " + t.name +
           ". Vlak zůstává na nádraží. Důvod: " + reason +
           ". Zkus odjezd znovu později; testovací trasa se nepoužije.");
@@ -818,8 +818,7 @@ async function depart() {
       points: Array.isArray(route) ? route.length : 0,
       routeLength
     });
-    alert("Odjezd zastaven: pro vlak " + t.name +
-      " není připravená platná kolejová trasa. Vlak zůstává na nádraží a odměna se nepřipíše.");
+    alert(`${lang().departStopped}: ${lang().invalidRouteForTrain} ${t.name} ${lang().noValidTrackRoute}`);
     return;
   }
   if (Array.isArray(t.routeSequence) && t.routeSequence.length > 1) {
@@ -877,16 +876,16 @@ function getTrainPopupHtml(t) {
     ? template.routeLabel
     : (template && template.routeKey ? template.routeKey : "Neznámá trasa");
   const categoryNames = {
-    local: "Místní osobní vlak",
-    regional: "Regionální vlak",
+    local: lang().trainCategoryLocal,
+    regional: lang().trainCategoryRegional,
     rapid: "Rychlík",
     express: "Expres",
-    international: "Mezinárodní vlak"
+    international: lang().trainCategoryInternational
   };
-  const category = categoryNames[(template && template.category) || ""] || "Osobní vlak";
+  const category = categoryNames[(template && template.category) || ""] || lang().train;
   const stateNames = {
-    WAIT_ASSIGN: "Čeká na přidělení koleje",
-    COMING: "Přijíždí na nástupiště",
+    WAIT_ASSIGN: lang().waitAssign,
+    COMING: lang().coming,
     ARRIVED: "Ve stanici – čeká na výstup cestujících",
     UNLOADING: "Vystupují cestující",
     WAIT_CLEAN: "Čeká na úklid",
@@ -897,7 +896,7 @@ function getTrainPopupHtml(t) {
     WAIT_BOARD: "Čeká na nástup cestujících",
     BOARDING: "Nastupují cestující",
     READY_DEPART: "Připraven k odjezdu",
-    EN_ROUTE_THERE: "Na cestě do cíle",
+    EN_ROUTE_THERE: lang().enRouteThereStatus,
     AT_DESTINATION: "Na konečné stanici",
     EN_ROUTE_BACK: "Na cestě zpět do výchozí stanice"
   };
@@ -905,7 +904,7 @@ function getTrainPopupHtml(t) {
   const turnsRequired = Math.max(1, Number(t.required_turnaround) || 1);
   return `
     <div class="train-popup-card">
-      <strong class="train-popup-name">${t.name || "Osobní vlak"}</strong>
+      <strong class="train-popup-name">${t.name || lang().train}</strong>
       <div class="train-popup-type">${category}</div>
       <div class="train-popup-row"><span>Linka</span><b>${destination}</b></div>
       <div class="train-popup-row"><span>Otočky</span><b>${turnsDone}/${turnsRequired}</b></div>
@@ -933,7 +932,7 @@ function processTrainReturn(t) {
     let earnedPoints = t.required_turnaround * (t.rewardXP || 1);
     
     stationLevels[currentStationKey].xp += earnedPoints;
-    alert(`🎉 Kontrakt kompletní! Vlak ${t.name} přinesl ${earnedPoints} XP bodů pro nádraží ${currentStationData.name}.`);
+    alert(`${lang().contractComplete} ${t.name} ${lang().earnedXp} ${earnedPoints} ${lang().xpForStation} ${currentStationData.name}.`);
 
     t.required_turnaround += 1;
     t.current_turnaround = 0;
@@ -1019,7 +1018,7 @@ function checkLevelUp() {
     if (reachedLevel >= 6) {
       nextTeams = Math.max(nextTeams, 2);
       if (reachedLevel === 6) {
-        rewards.push("Druhá úklidová četa zdarma; v obchodě můžeš najmout až dvě další.");
+        rewards.push(lang().cleaningTeamFree);
       }
     }
     unlockedCleaningTeamsCount = Math.min(4, Math.max(unlockedCleaningTeamsCount, Math.floor(nextTeams)));
@@ -1033,13 +1032,13 @@ function checkLevelUp() {
     if (reachedLevel >= 11) {
       nextCateringTeams = Math.max(nextCateringTeams, 2);
       if (reachedLevel === 11) {
-        rewards.push("Druhá cateringová četa zdarma; v obchodě se odemyká možnost najmout třetí za 70 000 Kč.");
+        rewards.push(lang().cateringTeamFree);
       }
     }
     unlockedCateringTeamsCount = Math.min(3, Math.max(unlockedCateringTeamsCount, Math.floor(nextCateringTeams)));
 
     const rewardText = [reachedConfig.rewardText, ...rewards].filter(Boolean).join("\\n• ");
-    levelUpMessages.push(`⭐️ LEVEL UP! ${currentStationData.name} postoupilo na Level ${reachedLevel}!\\n\\nOdměna:\\n• ${rewardText || "Pokračuj v rozvoji nádraží."}`);
+    levelUpMessages.push(`${lang().levelUp} ${currentStationData.name} ${lang().stationAdvanced} ${reachedLevel}!\\n\\n${lang().reward}\\n• ${rewardText || lang().continueDevelop}`);
   }
 
   if (!levelUpMessages.length) return;
@@ -1114,7 +1113,7 @@ function renderShop() {
   const level = Number((stationLevels[stationKey] || {}).lvl) || 0;
   const catalog = currentStationData.trainsPool || {};
   const owned = new Set((ownedPerformancesByStation[stationKey] || []).map(Number));
-  if (title) title.textContent = `${currentStationData.name} — obchod nádraží`;
+  if (title) title.textContent = `${currentStationData.name} — ${lang().stationShopTitle}`;
   if (summary) summary.textContent = `${currentStationData.name} · Level ${level} · Pokladna: ${globalMoney.toLocaleString("cs-CZ")} Kč`;
 
   const categoryNames = {
@@ -1134,7 +1133,7 @@ function renderShop() {
     const requiredLevel = Math.max(Number(item.requiredLevel) || 0, item.category === "local" ? 2 : item.category === "rapid" ? 8 : 0);
     const locked = level < requiredLevel;
     const cost = Math.max(0, Number(item.purchaseCost) || 0);
-    const detail = `${categoryNames[category] || "Ostatní železniční výkony"} · ${cost === 0 ? lang().free : cost.toLocaleString("cs-CZ") + " Kč"} · ${(Number(item.rewardMoney) || 0).toLocaleString("cs-CZ")} Kč za dokončenou otočku`;
+    const detail = `${categoryNames[category] || lang().otherRailServices} · ${cost === 0 ? lang().free : cost.toLocaleString("cs-CZ") + " Kč"} · ${(Number(item.rewardMoney) || 0).toLocaleString("cs-CZ")} Kč za dokončenou otočku`;
     const label = locked ? `${lang().unlockAt} ${requiredLevel}` :
       globalMoney < cost ? lang().notEnoughMoney : lang().buy;
     const action = locked || globalMoney < cost ? "" : `buyPerformance(${id})`;
@@ -1154,7 +1153,7 @@ function renderShop() {
       if (level < requiredLevel) {
         return shopSection(categoryNames[category] || "Ostatní výkony",
           shopCard(categoryNames[category] || "Železniční výkony",
-            `Odemkne se na levelu ${requiredLevel}`,
+            `${lang().unlockAt} ${requiredLevel}`,
             `Tato kategorie bude dostupná po dosažení levelu ${requiredLevel}.`,
             lang().locked, "", true));
       }
@@ -1181,7 +1180,7 @@ function renderShop() {
   }
   const trackCard = level >= 4
     ? shopCard(lang().tracksPlatforms, lang().stationInfrastructure, trackDetail, trackLabel, trackAction, trackDisabled)
-    : shopCard("Koleje / hrany nástupišť", lang().unlockLevel4, lang().unlockTracksAt4, "Zamčeno", "", true);
+    : shopCard(lang().tracksPlatforms, lang().unlockLevel4, lang().unlockTracksAt4, lang().locked, "", true);
 
   const cleaningPurchased = Math.max(0, Math.min(2, Math.floor(Number(hiredCleaningTeamsByStation[stationKey]) || 0)));
   const cleaningCount = unlockedCleaningTeamsCount;
@@ -1191,9 +1190,9 @@ function renderShop() {
   const cleaningLabel = !cleaningAvailable ? "Zamčeno" : cleaningMax ? lang().maxTeamsReached :
     globalMoney >= cleaningCost ? lang().hireTeam : "Nedostatek peněz";
   const cleaningDetail = !cleaningAvailable ? lang().cleaningTeamsUnlock6 :
-    cleaningMax ? `Aktuální stav: ${cleaningCount}/4 čet. Limit tohoto nádraží dosažen.` :
-    `Aktuální stav: ${cleaningCount}/4 čet · Další četa stojí ${cleaningCost.toLocaleString("cs-CZ")} Kč.`;
-  const cleaningCard = shopCard("Úklidová četa", lang().stationStaff, cleaningDetail,
+    cleaningMax ? `${lang().currentState}: ${cleaningCount}/4 ${lang().teams}. ${lang().cleaningLimitReached}` :
+    `${lang().currentState}: ${cleaningCount}/4 ${lang().teams} · ${lang().nextTeamCosts} ${cleaningCost.toLocaleString("cs-CZ")} Kč.`;
+  const cleaningCard = shopCard(lang().cleaningTeam, lang().stationStaff, cleaningDetail,
     cleaningLabel, cleaningAvailable && !cleaningMax && globalMoney >= cleaningCost ? "buyCleaningTeam()" : "",
     !cleaningAvailable || cleaningMax || globalMoney < cleaningCost);
 
@@ -1207,7 +1206,7 @@ function renderShop() {
   const cateringDetail = !cateringAvailable ? lang().cateringTeamsUnlock11 :
     cateringMax ? `Aktuální stav: ${cateringCount}/3 čet. Limit tohoto nádraží dosažen.` :
     `Aktuální stav: ${cateringCount}/3 čet · Další četa stojí ${cateringCost.toLocaleString("cs-CZ")} Kč.`;
-  const cateringCard = shopCard("Cateringová četa", "Personál · pouze toto nádraží", cateringDetail,
+  const cateringCard = shopCard(lang().cateringTeam, lang().stationStaff, cateringDetail,
     cateringLabel, cateringAvailable && !cateringMax && globalMoney >= cateringCost ? "buyCateringTeam()" : "",
     !cateringAvailable || cateringMax || globalMoney < cateringCost);
 
@@ -1229,7 +1228,7 @@ function buyPerformance(id) {
   const level = Number((stationLevels[currentStationKey] || {}).lvl) || 0;
   const requiredLevel = Math.max(Number(item.requiredLevel) || 0, item.category === "local" ? 2 : item.category === "rapid" ? 8 : 0);
   if (level < requiredLevel) {
-    alert(`Tento výkon se odemkne na levelu ${requiredLevel}.`);
+    alert(`${lang().serviceUnlocksAt} ${requiredLevel}.`);
     return;
   }
 
@@ -1258,13 +1257,13 @@ function buyCleaningTeam() {
 
   const purchased = Math.max(0, Math.min(2, Math.floor(Number(hiredCleaningTeamsByStation[currentStationKey]) || 0)));
   if (unlockedCleaningTeamsCount >= 4 || purchased >= 2) {
-    alert("Nádraží už má maximální počet 4 úklidových čet.");
+    alert(lang().maxCleaningTeams);
     return;
   }
 
   const cost = purchased === 0 ? 30000 : 50000;
   if (globalMoney < cost) {
-    alert(`Na najmutí úklidové čety potřebuješ ${cost.toLocaleString("cs-CZ")} Kč.`);
+    alert(`${lang().hireCleaningCost} ${cost.toLocaleString("cs-CZ")} Kč.`);
     return;
   }
 
@@ -1287,13 +1286,13 @@ function buyCateringTeam() {
 
   const purchased = Math.max(0, Math.min(1, Math.floor(Number(hiredCateringTeamsByStation[currentStationKey]) || 0)));
   if (unlockedCateringTeamsCount >= 3 || purchased >= 1) {
-    alert("Nádraží už má maximální počet 3 cateringových čet.");
+    alert(lang().maxCateringTeams);
     return;
   }
 
   const cost = 70000;
   if (globalMoney < cost) {
-    alert("Na najmutí cateringové čety potřebuješ 70 000 Kč.");
+    alert(lang().hireCateringCost);
     return;
   }
 
@@ -1315,7 +1314,7 @@ function buyTrack() {
   const costs = currentStationData.trackPurchaseCosts || [];
   const cost = Number(costs[unlockedTracksCount]);
   if (!Number.isFinite(cost) || unlockedTracksCount >= costs.length) {
-    alert("Další nástupiště pro toto nádraží není v obchodě dostupné.");
+    alert(lang().noPlatformAvailable);
     return;
   }
   if (globalMoney < cost) {

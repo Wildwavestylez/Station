@@ -19,6 +19,12 @@ ROUTES = {
         "end": [49.07021, 13.10082],       # Bahnhof Bodenmais, Stationskoordinaten
         "label": "Zwiesel (Bay) → Bodenmais",
     },
+    # Waldbahn-Nebenbahn 5821: Zwiesel (Bay)–Grafenau, Endbahnhof der RB 36.
+    "zwiesel:grafenau": {
+        "start": [49.020937, 13.2266275],  # Bahnhof Zwiesel (Bay)
+        "end": [48.856173, 13.393515],    # Bahnhof Grafenau
+        "label": "Zwiesel (Bay) → Grafenau",
+    },
     # Trať 180: skutečné úseky hlavní linky Plzeň–Domažlice.
     "plzen:nyrany": {
         "start": [49.74354, 13.38803],

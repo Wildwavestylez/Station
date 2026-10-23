@@ -292,6 +292,7 @@ function renderDepartureBoard() {
 }
 
 function initDepartureBoard() {
+  renderDepartureBoardStaticLabels();
   const button = document.getElementById("departure-board-button");
   const close = document.getElementById("departure-board-close");
   const modal = document.getElementById("departure-board-modal");

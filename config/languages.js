@@ -3,6 +3,11 @@
 window.LANGUAGES = {
   // 🇨🇿 ČEŠTINA
   cs: {
+    tracksLabel: "Koleje",
+    levelShort: "LVL",
+    teamsOccupied: "obsazeno",
+    cateringAlreadyRunning: "Catering už probíhá.",
+    waitAssign: "Čeká na přidělení koleje",
     selectTrain: "Vyber vlak",
     assignTrack: "Zvol cílové nástupiště:",
     occupied: "Obsazeno",
@@ -143,6 +148,11 @@ window.LANGUAGES = {
   
   // 🇬🇧 ANGLIČTINA
   en: {
+    tracksLabel: "Tracks",
+    levelShort: "LVL",
+    teamsOccupied: "occupied",
+    cateringAlreadyRunning: "Catering is already in progress.",
+    waitAssign: "Waiting for track assignment",
     selectTrain: "Select a train",
     assignTrack: "Choose platform:",
     occupied: "Occupied",
@@ -297,6 +307,11 @@ window.LANGUAGES = {
 
   // 🇩🇪 NĚMČINA
   de: {
+    tracksLabel: "Gleise",
+    levelShort: "LVL",
+    teamsOccupied: "belegt",
+    cateringAlreadyRunning: "Catering läuft bereits.",
+    waitAssign: "Wartet auf Gleiszuweisung",
     selectTrain: "Zug auswählen",
     assignTrack: "Zielbahnsteig wählen:",
     occupied: "Besetzt",

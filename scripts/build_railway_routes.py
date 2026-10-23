@@ -13,6 +13,12 @@ BUNDLE = ROOT / "stations" / "preparedRoutes.js"
 FORCE_REBUILD = set(filter(None, os.environ.get("ROUTE_KEYS", "").split(",")))
 
 ROUTES = {
+    # Waldbahn-Nebenbahn 5820: reale Stationspunkte Zwiesel (Bay)–Bodenmais.
+    "zwiesel:bodenmais": {
+        "start": [49.020937, 13.2266275],  # Bahnhof Zwiesel (Bay), Stationskoordinaten
+        "end": [49.07021, 13.10082],       # Bahnhof Bodenmais, Stationskoordinaten
+        "label": "Zwiesel (Bay) → Bodenmais",
+    },
     # Trať 180: skutečné úseky hlavní linky Plzeň–Domažlice.
     "plzen:nyrany": {
         "start": [49.74354, 13.38803],

@@ -1166,7 +1166,7 @@ function renderShop() {
     if (owned.has(id)) return;
     const category = categoryNames[item.category] ? item.category : "other";
     if (!groupedCards[category]) groupedCards[category] = [];
-    const requiredLevel = Math.max(Number(item.requiredLevel) || 0, item.category === "local" ? 2 : item.category === "rapid" ? 8 : 0);
+    const requiredLevel = item.shopRequiredLevelOverride ? (Number(item.requiredLevel) || 0) : Math.max(Number(item.requiredLevel) || 0, item.category === "local" ? 2 : item.category === "rapid" ? 8 : 0);
     const locked = level < requiredLevel;
     const cost = Math.max(0, Number(item.purchaseCost) || 0);
     const detail = `${categoryNames[category] || lang().shopOtherCategory} · ${cost === 0 ? lang().free : cost.toLocaleString("cs-CZ") + " Kč"} · ${(Number(item.rewardMoney) || 0).toLocaleString("cs-CZ")} Kč ${lang().shopRoundTripReward}`;
@@ -1181,7 +1181,7 @@ function renderShop() {
   });
 
   const categoryOrder = ["local", "rapid", "express", "longDistance", "international", "other"];
-  const categoryUnlockLevels = { local: 2, rapid: 8 };
+  const categoryUnlockLevels = { local: Math.min(2, ...Object.values(catalog).filter(item => item.category === "local" && item.shopRequiredLevelOverride).map(item => Number(item.requiredLevel) || 0)), rapid: 8 };
   const performanceSections = categoryOrder
     .filter(category => groupedCards[category] && groupedCards[category].length)
     .map(category => {
@@ -1262,7 +1262,7 @@ function buyPerformance(id) {
   if (owned.map(Number).includes(Number(id))) return;
 
   const level = Number((stationLevels[currentStationKey] || {}).lvl) || 0;
-  const requiredLevel = Math.max(Number(item.requiredLevel) || 0, item.category === "local" ? 2 : item.category === "rapid" ? 8 : 0);
+  const requiredLevel = item.shopRequiredLevelOverride ? (Number(item.requiredLevel) || 0) : Math.max(Number(item.requiredLevel) || 0, item.category === "local" ? 2 : item.category === "rapid" ? 8 : 0);
   if (level < requiredLevel) {
     alert(`${lang().serviceUnlocksAt} ${requiredLevel}.`);
     return;

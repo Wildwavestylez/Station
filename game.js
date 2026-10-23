@@ -50,7 +50,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 // Zkontroluj začátek game.js a přidej tam tento řádek pod inicializaci mapy:
 if (!window.STATIONS_REGISTRY) window.STATIONS_REGISTRY = {};
 
-let globalMoney = 100;          // Globální kasa pro nákup nových měst (World of Airports styl)
+let globalMoney = 100;          // Pokladna právě aktivního nádraží
+let stationMoneyByStation = {}; // Samostatná kasa každého nádraží
 let currentStationKey = null;   // ID aktuálního nádraží (např. "plzen")
 let currentStationData = null;  // Celý objekt dat aktivního nádraží
 let stationLevels = {};         // Úrovně jednotlivých měst, např: { plzen: { lvl: 0, xp: 0 } }
@@ -370,13 +371,18 @@ function tryUnlockStation(key, st) {
     alert(`${lang().notEnoughPlzenLevel} ${st.requiredParentLevel}.`);
     return;
   }
-  if (globalMoney < st.unlockCost) {
+  // Odemčení nové stanice se platí z pokladny jejího rodičovského nádraží (zatím Plzeň).
+  const parentKey = "plzen";
+  const parentMoney = parentKey === currentStationKey ? globalMoney : (Number(stationMoneyByStation[parentKey]) || 0);
+  if (parentMoney < st.unlockCost) {
     alert(`${lang().notEnoughGlobalMoney} ${st.unlockCost} Kč.`);
     return;
   }
 
-  // Stržení peněz a přidání mezi odemčená nádraží
-  globalMoney -= st.unlockCost;
+  // Stržení peněz pouze z pokladny rodičovské stanice.
+  const updatedParentMoney = parentMoney - st.unlockCost;
+  stationMoneyByStation[parentKey] = updatedParentMoney;
+  if (parentKey === currentStationKey) globalMoney = updatedParentMoney;
   GLOBAL_PLAYER_DATA.unlockedStations.push(key);
   stationLevels[key] = { lvl: 0, xp: 0 };
   
@@ -414,8 +420,14 @@ function loadStation(stationKey) {
     return;
   }
 
+  // Před přepnutím uložíme aktuální kasu a načteme vlastní kasu cílové stanice.
+  if (currentStationKey) stationMoneyByStation[currentStationKey] = Math.max(0, Number(globalMoney) || 0);
   currentStationKey = stationKey;
   currentStationData = window.STATIONS_REGISTRY[stationKey];
+  if (!Object.prototype.hasOwnProperty.call(stationMoneyByStation, stationKey)) {
+    stationMoneyByStation[stationKey] = 100;
+  }
+  globalMoney = Math.max(0, Number(stationMoneyByStation[stationKey]) || 0);
 
   // Použij připravené kolejové trasy zabalené přímo ve hře, pokud jsou dostupné.
   // Nezapisujeme je do savu hráče a neměníme ostatní data stanice.
@@ -1567,9 +1579,11 @@ function saveGameState() {
   // Aktuální vlaky ukládáme jen pod klíčem aktuálního nádraží.
   if (currentStationKey) savedTrainsByStation[currentStationKey] = serializeCurrentStationTrains();
 
+  if (currentStationKey) stationMoneyByStation[currentStationKey] = Math.max(0, Number(globalMoney) || 0);
   const saveContainer = {
-    saveVersion: 5,
-    globalMoney: globalMoney,
+    saveVersion: 6,
+    globalMoney: globalMoney, // zpětná kompatibilita se staršími savy
+    stationMoneyByStation: stationMoneyByStation,
     unlockedStations: GLOBAL_PLAYER_DATA.unlockedStations,
     stationLevels: stationLevels,
     ownedPerformancesByStation: ownedPerformancesByStation,
@@ -1593,7 +1607,17 @@ function loadGameState() {
       const parsed = JSON.parse(savedData);
       
       const savedMoney = Number(parsed.globalMoney);
-      globalMoney = Number.isFinite(savedMoney) && savedMoney >= 0 ? savedMoney : 100;
+      const legacyMoney = Number.isFinite(savedMoney) && savedMoney >= 0 ? savedMoney : 100;
+      stationMoneyByStation = parsed.stationMoneyByStation && typeof parsed.stationMoneyByStation === "object" && !Array.isArray(parsed.stationMoneyByStation)
+        ? parsed.stationMoneyByStation
+        : {};
+      // Převod starého globálního zůstatku: zachováme ho v Plzni, ostatní stanice začnou vlastní startovní kasou.
+      if (!Object.prototype.hasOwnProperty.call(stationMoneyByStation, "plzen")) stationMoneyByStation.plzen = legacyMoney;
+      for (const [key, value] of Object.entries(stationMoneyByStation)) {
+        const amount = Number(value);
+        stationMoneyByStation[key] = Number.isFinite(amount) && amount >= 0 ? amount : 100;
+      }
+      globalMoney = legacyMoney;
       GLOBAL_PLAYER_DATA.unlockedStations = Array.isArray(parsed.unlockedStations)
         ? parsed.unlockedStations.filter(key => typeof key === "string")
         : ["plzen"];

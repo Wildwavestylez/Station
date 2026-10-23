@@ -107,6 +107,8 @@ function renderLanguageControls() {
   setText("station-shop-description", "stationShopDescription");
   setText("my-stations-label", "myStations");
   setText("reset-game-label", "resetGame");
+  const tracksLabel = document.getElementById("tracks-label");
+  if (tracksLabel) tracksLabel.textContent = lang().tracksLabel + ":";
 }
 
 function initLanguageControls() {
@@ -1416,7 +1418,7 @@ function render() {
     let showDot = t.pendingAction && !isSelected;
 
     let statusText = t.state;
-    if (t.state === "WAIT_ASSIGN") statusText = `${lang().waitClean.split(" ")[0]} [${t.current_turnaround}/${t.required_turnaround}] ⏳`; // Čeká [0/2]
+    if (t.state === "WAIT_ASSIGN") statusText = `${lang().waitAssign} [${t.current_turnaround}/${t.required_turnaround}] ⏳`;
     if (t.state === "COMING") statusText = `${lang().incoming} ${t.track} (${Math.max(0, Math.ceil(t.timer))}s)`;
     if (t.state === "ARRIVED") statusText = lang().arrived;
     if (t.state === "UNLOADING") statusText = `${lang().unloading} (${Math.max(0, Math.ceil(t.timer))}s)`;
@@ -1515,18 +1517,18 @@ function renderActions() {
   } else if (selected.state === "UNLOADING" || selected.state === "CLEANING" || selected.state === "CATERING" || selected.state === "BOARDING") {
     a.innerHTML = `<em>${lang().working}</em>`;
   } else if (selected.state === "WAIT_CATERING") {
-    a.innerHTML = `<p>Cateringové čety: ${cateringTeamsInUse}/${unlockedCateringTeamsCount} obsazeno</p>` +
+    a.innerHTML = `<p>${lang().cateringTeams}: ${cateringTeamsInUse}/${unlockedCateringTeamsCount} ${lang().teamsOccupied}</p>` +
       (selected.hasCateringTeam
-        ? `<em>Catering už probíhá.</em>`
+        ? `<em>${lang().cateringAlreadyRunning}</em>`
         : cateringTeamsInUse < unlockedCateringTeamsCount
           ? `<button class="y" onclick="startTimer('catering')">${lang().startCatering}</button>`
           : `<em>${lang().allCateringBusy}</em>`);
   } else if (selected.state === "WAIT_CLEAN") {
-    a.innerHTML = `<p>Úklidové týmy: ${cleaningTeamsInUse}/${unlockedCleaningTeamsCount} obsazeno</p><button class="y" onclick="startTimer('clean')">${lang().btnClean}</button>`;
+    a.innerHTML = `<p>${lang().cleaningTeams}: ${cleaningTeamsInUse}/${unlockedCleaningTeamsCount} ${lang().teamsOccupied}</p><button class="y" onclick="startTimer('clean')">${lang().btnClean}</button>`;
   } else if (selected.state === "WAIT_CLEAN_TEAM") {
-    a.innerHTML = `<p>Úklidové týmy: ${cleaningTeamsInUse}/${unlockedCleaningTeamsCount} obsazeno</p>` +
+    a.innerHTML = `<p>${lang().cleaningTeams}: ${cleaningTeamsInUse}/${unlockedCleaningTeamsCount} ${lang().teamsOccupied}</p>` +
       (cleaningTeamsInUse < unlockedCleaningTeamsCount
-        ? `<button class="y" onclick="startTimer('clean')">Zahájit úklid</button>`
+        ? `<button class="y" onclick="startTimer('clean')">${lang().startCleaning}</button>`
         : `<em>${lang().waitFreeTeam}</em>`);
   } else if (selected.state === "WAIT_BOARD") {
     a.innerHTML = `<button class="b" onclick="startTimer('board')">${lang().btnBoard}</button>`;

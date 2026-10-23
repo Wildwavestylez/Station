@@ -47,7 +47,7 @@
 
   <!-- 🚉 Živá odjezdová tabule -->
   <button id="departure-board-button" type="button" aria-label="Otevřít odjezdovou tabuli">
-    <span aria-hidden="true">▤</span><span>ODJEZDY</span>
+    <span aria-hidden="true">▤</span><span class="departure-board-button-label">ODJEZDY</span>
   </button>
   <div id="departure-board-modal" class="departure-board-modal" aria-hidden="true">
     <div class="departure-board-backdrop" data-close-departures="true"></div>
@@ -56,18 +56,18 @@
         <div>
           <div class="departure-board-kicker">ODJEZDOVÁ TABULE</div>
           <h2 id="departure-board-title">Odjezdy · Plzeň hl. n.</h2>
-          <div class="departure-board-clock">Místní čas <strong id="departure-board-clock">--:--:--</strong></div>
+          <div class="departure-board-clock"><span class="departure-board-clock-label">Místní čas</span> <strong id="departure-board-clock">--:--:--</strong></div>
         </div>
         <button id="departure-board-close" class="departure-board-close" type="button" aria-label="Zavřít odjezdovou tabuli">✕</button>
       </header>
-      <div class="departure-board-legend"><span class="departure-board-live-dot"></span> AKTUÁLNÍ SPOJE</div>
+      <div class="departure-board-legend"><span class="departure-board-live-dot"></span> <span class="departure-board-legend-label">AKTUÁLNÍ SPOJE</span></div>
       <div class="departure-board-table-wrap">
         <table class="departure-board-table">
-          <thead><tr><th>ČAS</th><th>CÍL</th><th>DOPRAVCE</th></tr></thead>
+          <thead><tr><th class="departure-board-time-header">ČAS</th><th class="departure-board-destination-header">CÍL</th><th class="departure-board-operator-header">DOPRAVCE</th></tr></thead>
           <tbody id="departure-board-rows"><tr><td colspan="3" class="departure-board-empty">Načítám provozní data…</td></tr></tbody>
         </table>
       </div>
-      <footer class="departure-board-footer"><span id="departure-board-count">0 vlaků</span><span>Časy v provozu se aktualizují průběžně</span></footer>
+      <footer class="departure-board-footer"><span id="departure-board-count">0 vlaků</span><span class="departure-board-footer-label">Časy v provozu se aktualizují průběžně</span></footer>
     </section>
   </div>
 
@@ -121,7 +121,7 @@
   <script src="railwayNetwork.js?v=7"></script>
 
   <!-- 🎮 Hlavní herní motor (Engine) -->
-  <script src="game.js?v=48"></script>
+  <script src="game.js?v=49"></script>
 
 </body>
 </html>

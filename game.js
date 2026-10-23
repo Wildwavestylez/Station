@@ -1086,7 +1086,7 @@ function ensureShopUI() {
       <div style="max-width:760px;margin:5vh auto;background:#151515;color:#fff;border:1px solid #444;border-radius:14px;padding:16px;max-height:85vh;overflow:auto;box-shadow:0 10px 35px rgba(0,0,0,.6)">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
           <h2 id="station-shop-title" style="margin:0;color:#4caf50">Obchod nádraží</h2>
-          <button class="r" id="station-shop-close">✕ Zavřít</button>
+          <button class="r" id="station-shop-close">✕ ${lang().shopClose}</button>
         </div>
         <p id="station-shop-summary" style="color:#bbb"></p>
         <div id="station-shop-content"></div>
@@ -1175,7 +1175,7 @@ function renderShop() {
             `${lang().shopCategoryUnlockMessage} ${requiredLevel}.`,
             lang().locked, "", true));
       }
-      return shopSection(categoryNames[category] || "Ostatní výkony", groupedCards[category].join(""));
+      return shopSection(categoryNames[category] || lang().shopOtherCategory, groupedCards[category].join(""));
     })
     .join("");
   const performances = performanceSections || `<p style="color:#999">${lang().shopNoConfiguredServices}</p>`;

@@ -1,5 +1,4 @@
-// Zwiesel (Bayern) – Grundkonfiguration für den Stationsstart.
-// Reale Gleisgeometrien werden später über stations/preparedRoutes.js ergänzt.
+// Zwiesel (Bayern) – Startstation mit echter Waldbahn-Strecke nach Bodenmais.
 if (!window.STATIONS_REGISTRY) window.STATIONS_REGISTRY = {};
 
 window.STATIONS_REGISTRY["zwiesel"] = {
@@ -8,12 +7,14 @@ window.STATIONS_REGISTRY["zwiesel"] = {
   currency: "EUR",
   unlockCost: 0,
   requiredParentLevel: 0,
-  mapCenter: [49.0167, 13.2370],
+  mapCenter: [49.020937, 13.2266275],
   mapZoom: 13,
   startingTracks: 1,
   moneyPerDepart: 20,
-  startingTrains: [],
-  routes: {},
+  startingTrains: [1],
+  routes: {
+    bodenmais: window.STATION_PREPARED_ROUTES["zwiesel:bodenmais"] || []
+  },
   levels: {
     0: {
       xpNeeded: 1,
@@ -26,5 +27,33 @@ window.STATIONS_REGISTRY["zwiesel"] = {
       action: () => {}
     }
   },
-  trainsPool: {}
+  trainsPool: {
+    1: {
+      name: "Waldbahn Regio-Shuttle RS1 → Bodenmais",
+      operator: "Die Länderbahn / Waldbahn",
+      category: "local",
+      routeLabel: "Zwiesel–Bodenmais",
+      boardDestination: "Bodenmais",
+      lineCode: "RB 38",
+      purchaseCost: 0,
+      requiredLevel: 0,
+      image: "assets/trains/germany/waldbahn/WB3.png",
+      routeKey: "bodenmais",
+      speed: 80,
+      stayTime: 10,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, board: 5 },
+      rewardMoney: 800,
+      rewardXP: 1
+    }
+  }
 };
+
+// Trasu zpřístupni pouze tehdy, pokud je v připraveném OSM balíku skutečná geometrie.
+if (
+  window.STATION_BUNDLED_ROUTE_KEYS &&
+  Array.isArray(window.STATIONS_REGISTRY.zwiesel.routes.bodenmais) &&
+  window.STATIONS_REGISTRY.zwiesel.routes.bodenmais.length >= 2
+) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("zwiesel:bodenmais");
+}

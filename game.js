@@ -88,6 +88,7 @@ function setLanguage(language) {
   localStorage.setItem("trainOps_lang", language);
   document.documentElement.lang = language;
   renderLanguageControls();
+  renderDepartureBoardStaticLabels();
   renderSidebar();
   render();
   if (departureBoardOpen) renderDepartureBoard();
@@ -185,9 +186,8 @@ function getReturnEtaSeconds(t) {
 function formatReturnEta(seconds) {
   if (!Number.isFinite(seconds)) return "—";
   const totalMinutes = Math.max(0, Math.ceil(seconds / 60));
-  if (totalMinutes < 1) return "za méně než 1 min";
-  if (totalMinutes === 1) return "za 1 min";
-  return "za " + totalMinutes + " min";
+  if (totalMinutes < 1) return lang().etaLessThan + " 1 " + lang().etaMinute;
+  return lang().etaPrefix + " " + totalMinutes + " " + lang().etaMinute;
 }
 
 function escapeBoardText(value) {
@@ -196,6 +196,21 @@ function escapeBoardText(value) {
   }[char]));
 }
 
+function renderDepartureBoardStaticLabels() {
+  const setText = (selector, value) => {
+    const element = document.querySelector(selector);
+    if (element) element.textContent = value;
+  };
+  setText(".departure-board-button-label", lang().departureBoard);
+  setText(".departure-board-kicker", lang().departureBoardKicker);
+  setText(".departure-board-clock-label", lang().localTime);
+  setText(".departure-board-legend-label", lang().liveServices);
+  setText(".departure-board-time-header", lang().boardTime);
+  setText(".departure-board-destination-header", lang().boardDestination);
+  setText(".departure-board-operator-header", lang().boardOperator);
+  setText(".departure-board-empty", lang().boardLoading);
+  setText(".departure-board-footer-label", lang().boardFooter);
+}
 function renderDepartureBoard() {
   if (!departureBoardOpen) return;
   const rows = document.getElementById("departure-board-rows");
@@ -220,7 +235,7 @@ function renderDepartureBoard() {
   if (count) count.textContent = activeTrains.length + (activeTrains.length === 1 ? " " + lang().trainCountOne : " " + (activeTrains.length >= 2 && activeTrains.length <= 4 ? lang().trainCountFew : lang().trainCountMany));
 
   if (!activeTrains.length) {
-    rows.innerHTML = '<tr><td colspan="3" class="departure-board-empty">${lang().noActiveTrains}</td></tr>';
+    rows.innerHTML = '<tr><td colspan="3" class="departure-board-empty">' + escapeBoardText(lang().noActiveTrains) + '</td></tr>';
     return;
   }
 

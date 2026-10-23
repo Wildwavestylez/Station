@@ -1135,11 +1135,11 @@ function renderShop() {
   if (summary) summary.textContent = `${currentStationData.name} · Level ${level} · ${lang().shopSummaryCash}: ${globalMoney.toLocaleString("cs-CZ")} Kč`;
 
   const categoryNames = {
-    local: "Místní osobní vlaky",
-    rapid: "Rychlíky",
-    express: "Expresní vlaky",
-    longDistance: "Dálkové vlaky",
-    international: "Mezinárodní vlaky"
+    local: lang().shopCategoryLocal,
+    rapid: lang().shopCategoryRapid,
+    express: lang().shopCategoryExpress,
+    longDistance: lang().shopCategoryLongDistance,
+    international: lang().shopCategoryInternational
   };
   const groupedCards = {};
   Object.entries(catalog).forEach(([idText, item]) => {
@@ -1151,13 +1151,13 @@ function renderShop() {
     const requiredLevel = Math.max(Number(item.requiredLevel) || 0, item.category === "local" ? 2 : item.category === "rapid" ? 8 : 0);
     const locked = level < requiredLevel;
     const cost = Math.max(0, Number(item.purchaseCost) || 0);
-    const detail = `${categoryNames[category] || lang().otherRailServices} · ${cost === 0 ? lang().free : cost.toLocaleString("cs-CZ") + " Kč"} · ${(Number(item.rewardMoney) || 0).toLocaleString("cs-CZ")} Kč za dokončenou otočku`;
+    const detail = `${categoryNames[category] || lang().shopOtherCategory} · ${cost === 0 ? lang().free : cost.toLocaleString("cs-CZ") + " Kč"} · ${(Number(item.rewardMoney) || 0).toLocaleString("cs-CZ")} Kč ${lang().shopRoundTripReward}`;
     const label = locked ? `${lang().unlockAt} ${requiredLevel}` :
       globalMoney < cost ? lang().notEnoughMoney : lang().buy;
     const action = locked || globalMoney < cost ? "" : `buyPerformance(${id})`;
     groupedCards[category].push(shopCard(
-      item.name || `Železniční výkon ${id}`,
-      `${item.operator || "Dopravce"} · ${item.routeLabel || item.routeKey || "Trasa podle konfigurace nádraží"}`,
+      item.name || `${lang().shopServiceFallback} ${id}`,
+      `${item.operator || lang().carrier} · ${item.routeLabel || item.routeKey || lang().configuredRoute}`,
       detail, label, action, locked || globalMoney < cost
     ));
   });
@@ -1169,16 +1169,16 @@ function renderShop() {
     .map(category => {
       const requiredLevel = categoryUnlockLevels[category] || 0;
       if (level < requiredLevel) {
-        return shopSection(categoryNames[category] || "Ostatní výkony",
-          shopCard(categoryNames[category] || "Železniční výkony",
+        return shopSection(categoryNames[category] || lang().shopOtherCategory,
+          shopCard(categoryNames[category] || lang().shopServiceFallback,
             `${lang().unlockAt} ${requiredLevel}`,
-            `Tato kategorie bude dostupná po dosažení levelu ${requiredLevel}.`,
+            `${lang().shopCategoryUnlockMessage} ${requiredLevel}.`,
             lang().locked, "", true));
       }
       return shopSection(categoryNames[category] || "Ostatní výkony", groupedCards[category].join(""));
     })
     .join("");
-  const performances = performanceSections || '<p style="color:#999">Pro toto nádraží zatím nejsou nakonfigurované žádné železniční výkony.</p>';
+  const performances = performanceSections || `<p style="color:#999">${lang().shopNoConfiguredServices}</p>`;
 
   const trackCosts = Array.isArray(currentStationData.trackPurchaseCosts) ? currentStationData.trackPurchaseCosts : [];
   const nextTrackCost = Number(trackCosts[unlockedTracksCount]);
@@ -1205,8 +1205,8 @@ function renderShop() {
   const cleaningCost = cleaningPurchased === 0 ? 30000 : 50000;
   const cleaningMax = cleaningCount >= 4 || cleaningPurchased >= 2;
   const cleaningAvailable = level >= 6;
-  const cleaningLabel = !cleaningAvailable ? "Zamčeno" : cleaningMax ? lang().maxTeamsReached :
-    globalMoney >= cleaningCost ? lang().hireTeam : "Nedostatek peněz";
+  const cleaningLabel = !cleaningAvailable ? lang().shopLocked : cleaningMax ? lang().maxTeamsReached :
+    globalMoney >= cleaningCost ? lang().hireTeam : lang().shopInsufficientFunds;
   const cleaningDetail = !cleaningAvailable ? lang().cleaningTeamsUnlock6 :
     cleaningMax ? `${lang().currentState}: ${cleaningCount}/4 ${lang().teams}. ${lang().cleaningLimitReached}` :
     `${lang().currentState}: ${cleaningCount}/4 ${lang().teams} · ${lang().nextTeamCosts} ${cleaningCost.toLocaleString("cs-CZ")} Kč.`;
@@ -1219,11 +1219,11 @@ function renderShop() {
   const cateringCost = 70000;
   const cateringMax = cateringCount >= 3 || cateringPurchased >= 1;
   const cateringAvailable = level >= 11;
-  const cateringLabel = !cateringAvailable ? "Zamčeno" : cateringMax ? "Maximum čet dosaženo" :
-    globalMoney >= cateringCost ? "Najmout četu" : "Nedostatek peněz";
+  const cateringLabel = !cateringAvailable ? lang().shopLocked : cateringMax ? lang().shopTeamLimitReached :
+    globalMoney >= cateringCost ? lang().shopHireCatering : lang().shopInsufficientFunds;
   const cateringDetail = !cateringAvailable ? lang().cateringTeamsUnlock11 :
-    cateringMax ? `Aktuální stav: ${cateringCount}/3 čet. Limit tohoto nádraží dosažen.` :
-    `Aktuální stav: ${cateringCount}/3 čet · Další četa stojí ${cateringCost.toLocaleString("cs-CZ")} Kč.`;
+    cateringMax ? `${lang().shopCurrentStatus}: ${cateringCount}/3 ${lang().teams}. ${lang().shopTeamLimitDetail}` :
+    `${lang().shopCurrentStatus}: ${cateringCount}/3 ${lang().teams} · ${lang().nextTeamCosts} ${cateringCost.toLocaleString("cs-CZ")} Kč.`;
   const cateringCard = shopCard(lang().cateringTeam, lang().stationStaff, cateringDetail,
     cateringLabel, cateringAvailable && !cateringMax && globalMoney >= cateringCost ? "buyCateringTeam()" : "",
     !cateringAvailable || cateringMax || globalMoney < cateringCost);
@@ -1233,7 +1233,7 @@ function renderShop() {
     shopSection(lang().infrastructure, trackCard) +
     shopSection(lang().cleaningStaff, cleaningCard) +
     shopSection(lang().cateringStaff, cateringCard) +
-    `<p style="color:#999;font-size:12px">Nabídka a vlastnictví se řídí konfigurací a postupem nádraží „${currentStationData.name}“. Zakoupené výkony, koleje a čety se evidují samostatně pro každé nádraží.</p>`;
+    `<p style="color:#999;font-size:12px">${lang().shopDisclaimerFull}</p>`;
 }
 
 function buyPerformance(id) {

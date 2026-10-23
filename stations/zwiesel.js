@@ -13,7 +13,8 @@ window.STATIONS_REGISTRY["zwiesel"] = {
   moneyPerDepart: 20,
   startingTrains: [1],
   routes: {
-    bodenmais: window.STATION_PREPARED_ROUTES["zwiesel:bodenmais"] || []
+    bodenmais: window.STATION_PREPARED_ROUTES["zwiesel:bodenmais"] || [],
+    grafenau: window.STATION_PREPARED_ROUTES["zwiesel:grafenau"] || []
   },
   levels: {
     0: {
@@ -45,6 +46,25 @@ window.STATIONS_REGISTRY["zwiesel"] = {
       timers: { exit: 5, clean: 8, board: 5 },
       rewardMoney: 800,
       rewardXP: 1
+    },
+    2: {
+      name: "Waldbahn Regio-Shuttle RS1 → Grafenau",
+      operator: "Die Länderbahn / Waldbahn",
+      category: "local",
+      routeLabel: "Zwiesel–Grafenau",
+      boardDestination: "Grafenau",
+      lineCode: "RB 36",
+      purchaseCost: 1000,
+      requiredLevel: 1,
+      shopRequiredLevelOverride: true,
+      image: "assets/trains/germany/waldbahn/WB2.png",
+      routeKey: "grafenau",
+      speed: 80,
+      stayTime: 10,
+      initialContract: 1,
+      timers: { exit: 5, clean: 8, board: 5 },
+      rewardMoney: 800,
+      rewardXP: 1
     }
   }
 };
@@ -56,4 +76,8 @@ if (
   window.STATIONS_REGISTRY.zwiesel.routes.bodenmais.length >= 2
 ) {
   window.STATION_BUNDLED_ROUTE_KEYS.add("zwiesel:bodenmais");
+}
+
+if (window.STATION_BUNDLED_ROUTE_KEYS && Array.isArray(window.STATIONS_REGISTRY.zwiesel.routes.grafenau) && window.STATIONS_REGISTRY.zwiesel.routes.grafenau.length >= 2) {
+  window.STATION_BUNDLED_ROUTE_KEYS.add("zwiesel:grafenau");
 }

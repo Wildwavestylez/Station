@@ -334,7 +334,13 @@ function renderSidebar() {
   const headerTitle = document.querySelector(".sidebar-header h3");
   if (headerTitle) headerTitle.innerText = lang().sidebarTitle;
 
-  for (const key in window.STATIONS_REGISTRY) {
+  // Zwiesel je první hratelná stanice, proto musí být vždy první i v menu.
+  const stationKeys = Object.keys(window.STATIONS_REGISTRY).sort((a, b) => {
+    if (a === "zwiesel") return -1;
+    if (b === "zwiesel") return 1;
+    return 0;
+  });
+  for (const key of stationKeys) {
     const st = window.STATIONS_REGISTRY[key];
     const isUnlocked = GLOBAL_PLAYER_DATA.unlockedStations.includes(key);
     const isActive = currentStationKey === key;
@@ -1619,8 +1625,12 @@ function loadGameState() {
       }
       globalMoney = legacyMoney;
       GLOBAL_PLAYER_DATA.unlockedStations = Array.isArray(parsed.unlockedStations)
-        ? parsed.unlockedStations.filter(key => typeof key === "string")
-        : ["plzen"];
+         ? parsed.unlockedStations.filter(key => typeof key === "string")
+         : ["zwiesel"];
+      // Zwiesel je výchozí hratelná stanice i pro existující savy; ostatní odemčení zachováme.
+      if (!GLOBAL_PLAYER_DATA.unlockedStations.includes("zwiesel")) {
+        GLOBAL_PLAYER_DATA.unlockedStations.unshift("zwiesel");
+      }
 
       // Ověříme uložené levely; neplatné hodnoty opravíme při načtení konkrétní stanice.
       stationLevels = parsed.stationLevels && typeof parsed.stationLevels === "object" && !Array.isArray(parsed.stationLevels)
@@ -1899,6 +1909,6 @@ requestAnimationFrame(gameLoop);
 loadGameState(); 
 
 // Spuštění první stanice (Plzeň si teď vezme data z načteného savu)
-loadStation("plzen");
+loadStation("zwiesel");
 
 

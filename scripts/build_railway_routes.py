@@ -47,6 +47,27 @@ ROUTES = {
         "end": [48.856173, 13.393515],    # Bahnhof Grafenau
         "label": "Zwiesel (Bay) → Grafenau",
     },
+    # Waldbahn-Laufweg nach Osten: Bayrisch Eisenstein–Zwiesel–Regen–Deggendorf–Plattling.
+    "bayrisch_eisenstein:zwiesel": {
+        "start": [49.1215, 13.2035],     # Bahnhof Bayerisch Eisenstein
+        "end": [49.020937, 13.2266275],  # Bahnhof Zwiesel (Bay)
+        "label": "Bayerisch Eisenstein → Zwiesel (Bay)",
+    },
+    "zwiesel:regen": {
+        "start": [49.020937, 13.2266275], # Bahnhof Zwiesel (Bay)
+        "end": [48.9715, 13.1289],        # Bahnhof Regen
+        "label": "Zwiesel (Bay) → Regen",
+    },
+    "regen:deggendorf": {
+        "start": [48.9715, 13.1289],      # Bahnhof Regen
+        "end": [48.8359, 12.9632],        # Bahnhof Deggendorf
+        "label": "Regen → Deggendorf",
+    },
+    "deggendorf:plattling": {
+        "start": [48.8359, 12.9632],      # Bahnhof Deggendorf
+        "end": [48.7788, 12.8721],        # Bahnhof Plattling
+        "label": "Deggendorf → Plattling",
+    },
     # Trať 180: skutečné úseky hlavní linky Plzeň–Domažlice.
     "plzen:nyrany": {
         "start": [49.74354, 13.38803],

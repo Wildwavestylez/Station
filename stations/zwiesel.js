@@ -50,8 +50,8 @@ function buildZwieselPlattlingRoute() {
 // Ze Zwieselu přes společné nádraží na hranici do Železné Rudy-Alžbětína.
 function buildZwieselAlzbietinRoute() {
   return buildZwieselJoinedRoute([
-    { key: "alzbietin:zwiesel", reverse: true }
-  ], "Waldbahn Zwiesel–Železná Ruda-Alžbětín");
+    { key: "bayerischEisenstein:zwiesel", reverse: true }
+  ], "Waldbahn Zwiesel–Bayerisch Eisenstein");
 }
 
 window.STATIONS_REGISTRY["zwiesel"] = {
@@ -69,7 +69,7 @@ window.STATIONS_REGISTRY["zwiesel"] = {
     bodenmais: window.STATION_PREPARED_ROUTES["zwiesel:bodenmais"] || [],
     grafenau: window.STATION_PREPARED_ROUTES["zwiesel:grafenau"] || [],
     plattling: buildZwieselPlattlingRoute(),
-    alzbietin: buildZwieselAlzbietinRoute()
+    bayerischEisenstein: buildZwieselAlzbietinRoute()
   },
   levels: {
     0: {
@@ -122,10 +122,10 @@ window.STATIONS_REGISTRY["zwiesel"] = {
       rewardXP: 1
     },
     3: {
-      name: "Waldbahn Regio-Shuttle RS1 · Plattling–Zwiesel–Železná Ruda-Alžbětín",
+      name: "Waldbahn Regio-Shuttle RS1 · Plattling–Zwiesel–Bayerisch Eisenstein",
       operator: "Die Länderbahn / Waldbahn",
       category: "local",
-      routeLabel: "Plattling–Deggendorf–Regen–Zwiesel–Železná Ruda-Alžbětín",
+      routeLabel: "Plattling–Deggendorf–Regen–Zwiesel–Bayerisch Eisenstein",
       boardDestination: "Plattling",
       lineCode: "RB 35",
       purchaseCost: 1000,
@@ -133,7 +133,7 @@ window.STATIONS_REGISTRY["zwiesel"] = {
       shopRequiredLevelOverride: true,
       image: "assets/trains/germany/waldbahn/WB3.png",
       routeKey: "plattling",
-      routeSequence: ["plattling", "alzbietin"],
+      routeSequence: ["plattling", "bayerischEisenstein"],
       speed: 80,
       stayTime: 10,
       initialContract: 1,
@@ -145,7 +145,7 @@ window.STATIONS_REGISTRY["zwiesel"] = {
 };
 
 // Zpřístupnit jen trasy, pro které existuje skutečná připravená geometrie.
-for (const key of ["bodenmais", "grafenau", "plattling", "alzbietin"]) {
+for (const key of ["bodenmais", "grafenau", "plattling", "bayerischEisenstein"]) {
   const route = window.STATIONS_REGISTRY.zwiesel.routes[key];
   if (window.STATION_BUNDLED_ROUTE_KEYS && Array.isArray(route) && route.length >= 2) {
     window.STATION_BUNDLED_ROUTE_KEYS.add("zwiesel:" + key);

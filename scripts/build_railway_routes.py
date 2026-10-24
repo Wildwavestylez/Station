@@ -13,25 +13,25 @@ BUNDLE = ROOT / "stations" / "preparedRoutes.js"
 FORCE_REBUILD = set(filter(None, os.environ.get("ROUTE_KEYS", "").split(",")))
 
 ROUTES = {
-    # Waldbahn / Bayerische Regiobahn: abschnittsweise Geometrie für den Umlauf
-    "zwiesel:bayrisch_eisenstein": {
-        "start": [49.020937, 13.2266275],  # Bahnhof Zwiesel (Bay)
-        "end": [49.12192, 13.21018],       # Bahnhof Bayerisch Eisenstein
-        "label": "Zwiesel (Bay) → Bayerisch Eisenstein",
+    # Waldbahn: geprüfte Bahnhofskoordinaten, Streckenabschnitte für den Umlauf
+    "bayrisch_eisenstein:zwiesel": {
+        "start": [49.1215, 13.2035],      # Bahnhof Bayerisch Eisenstein
+        "end": [49.020937, 13.2266275],   # Bahnhof Zwiesel (Bay)
+        "label": "Bayerisch Eisenstein → Zwiesel (Bay)",
     },
     "zwiesel:regen": {
-        "start": [49.020937, 13.2266275],  # Bahnhof Zwiesel (Bay)
-        "end": [48.97170, 13.12890],       # Bahnhof Regen
+        "start": [49.020937, 13.2266275], # Bahnhof Zwiesel (Bay)
+        "end": [48.9715, 13.1289],        # Bahnhof Regen
         "label": "Zwiesel (Bay) → Regen",
     },
     "regen:deggendorf": {
-        "start": [48.97170, 13.12890],     # Bahnhof Regen
-        "end": [48.84090, 12.96050],       # Bahnhof Deggendorf
+        "start": [48.9715, 13.1289],      # Bahnhof Regen
+        "end": [48.8359, 12.9632],        # Bahnhof Deggendorf
         "label": "Regen → Deggendorf",
     },
     "deggendorf:plattling": {
-        "start": [48.84090, 12.96050],     # Bahnhof Deggendorf
-        "end": [48.77850, 12.86720],       # Bahnhof Plattling
+        "start": [48.8359, 12.9632],      # Bahnhof Deggendorf
+        "end": [48.7788, 12.8721],        # Bahnhof Plattling
         "label": "Deggendorf → Plattling",
     },
 

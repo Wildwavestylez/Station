@@ -27,7 +27,7 @@ jobs:
           python-version: "3.12"
       - name: Build route geometry from OSM
         env:
-          ROUTE_KEYS: zwiesel:bayrisch_eisenstein,zwiesel:regen,regen:deggendorf,deggendorf:plattling
+          ROUTE_KEYS: bayrisch_eisenstein:zwiesel,zwiesel:regen,regen:deggendorf,deggendorf:plattling
         run: python scripts/build_railway_routes.py
       - name: Validate JavaScript syntax
         run: node --check stations/preparedRoutes.js

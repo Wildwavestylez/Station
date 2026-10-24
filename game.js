@@ -262,7 +262,9 @@ function renderDepartureBoard() {
       pendolinoOstrava: "Ostrava hl.n.",
       pendolinoCheb: "Cheb",
       railjetFrantiskovy: "Františkovy Lázně",
-      railjetBohumin: "Bohumín"
+      railjetBohumin: "Bohumín",
+      plattling: "Plattling",
+      alzbietin: "Železná Ruda-Alžbětín"
     };
     const boardRouteKey = isDepartureBoardTrain(t) && t.nextRouteKey ? t.nextRouteKey : t.routeKey;
     const destination = template.routeSequence

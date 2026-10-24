@@ -47,10 +47,10 @@ function buildZwieselPlattlingRoute() {
   ], "Waldbahn Zwiesel–Regen–Deggendorf–Plattling");
 }
 
-// Ze Zwieselu přes společné nádraží na hranici do Železné Rudy-Alžbětína.
-function buildZwieselAlzbietinRoute() {
+// Ze Zwieselu přes společné pohraniční nádraží do Bayerisch Eisenstein.
+function buildZwieselBayerischEisensteinRoute() {
   return buildZwieselJoinedRoute([
-    { key: "bayerischEisenstein:zwiesel", reverse: true }
+    { key: "alzbietin:zwiesel", reverse: true }
   ], "Waldbahn Zwiesel–Bayerisch Eisenstein");
 }
 

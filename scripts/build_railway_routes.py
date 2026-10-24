@@ -35,6 +35,11 @@ ROUTES = {
         "label": "Deggendorf → Plattling",
     },
 
+    "alzbietin:zwiesel": {
+        "start": [49.12192, 13.21018],   # Bahnhof Železná Ruda-Alžbětín
+        "end": [49.020937, 13.2266275],  # Bahnhof Zwiesel (Bay)
+        "label": "Železná Ruda-Alžbětín → Zwiesel (Bay)",
+    },
     # Waldbahn-Nebenbahn 5820: reale Stationspunkte Zwiesel (Bay)–Bodenmais.
     "zwiesel:bodenmais": {
         "start": [49.020937, 13.2266275],  # Bahnhof Zwiesel (Bay), Stationskoordinaten

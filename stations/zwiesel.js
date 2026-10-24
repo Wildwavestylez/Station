@@ -69,7 +69,7 @@ window.STATIONS_REGISTRY["zwiesel"] = {
     bodenmais: window.STATION_PREPARED_ROUTES["zwiesel:bodenmais"] || [],
     grafenau: window.STATION_PREPARED_ROUTES["zwiesel:grafenau"] || [],
     plattling: buildZwieselPlattlingRoute(),
-    bayerischEisenstein: buildZwieselAlzbietinRoute()
+    bayerischEisenstein: buildZwieselBayerischEisensteinRoute()
   },
   levels: {
     0: {

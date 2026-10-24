@@ -264,7 +264,7 @@ function renderDepartureBoard() {
       railjetFrantiskovy: "Františkovy Lázně",
       railjetBohumin: "Bohumín",
       plattling: "Plattling",
-      alzbietin: "Železná Ruda-Alžbětín"
+      bayerischEisenstein: "Bayerisch Eisenstein"
     };
     const boardRouteKey = isDepartureBoardTrain(t) && t.nextRouteKey ? t.nextRouteKey : t.routeKey;
     const destination = template.routeSequence

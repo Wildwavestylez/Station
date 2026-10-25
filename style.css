@@ -750,32 +750,45 @@ button {
 }
 
 
-/* Druhý krok tutoriálu: panel nesmí zakrývat ovládací tlačítka na mobilu. */
+/* V kroku s kolejí ponecháme panel v původní široké spodní pozici.
+   Prst přesuneme pod text a otočíme směrem k tlačítku. */
 @media (max-width: 700px) {
   .train-card-tutorial {
-    left: auto;
-    right: 10px;
-    bottom: auto;
-    top: 50%;
-    transform: translateY(-50%);
-    width: min(42vw, 250px);
-    max-width: 250px;
+    left: 12px;
+    right: 12px;
+    bottom: max(14px, env(safe-area-inset-bottom));
+    top: auto;
+    transform: none;
+    width: auto;
+    max-width: none;
   }
   .train-card-tutorial-window {
-    display: block;
-    padding: 10px 11px;
-    border-radius: 12px;
+    display: flex;
+    flex-direction: row;
+    padding: 12px 13px;
+    gap: 9px;
   }
-  .train-card-tutorial-icon {
-    font-size: 20px;
-    margin-bottom: 4px;
+  .train-card-tutorial-window h3 { font-size: 15px; }
+  .train-card-tutorial-window p { font-size: 13px; }
+  .train-card-tutorial.track-step .train-card-tutorial-window {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 7px;
   }
-  .train-card-tutorial-window h3 {
-    font-size: 14px;
-    line-height: 1.25;
+  .train-card-tutorial.track-step .train-card-tutorial-icon {
+    margin: 0;
+    transform: rotate(180deg);
+    font-size: 29px;
+    line-height: 1;
+    animation: tutorial-point-down 0.8s ease-in-out infinite;
   }
-  .train-card-tutorial-window p {
-    font-size: 12px;
-    line-height: 1.35;
+  .train-card-tutorial.track-step .train-card-tutorial-window h3,
+  .train-card-tutorial.track-step .train-card-tutorial-window p {
+    align-self: stretch;
+    text-align: left;
   }
+}
+@keyframes tutorial-point-down {
+  0%, 100% { transform: rotate(180deg) translateY(0); }
+  50% { transform: rotate(180deg) translateY(5px); }
 }

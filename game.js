@@ -89,6 +89,7 @@ function setLanguage(language) {
   localStorage.setItem("trainOps_lang", language);
   document.documentElement.lang = language;
   renderLanguageControls();
+  renderWelcomePopupText();
   renderDepartureBoardStaticLabels();
   renderSidebar();
   render();
@@ -308,6 +309,40 @@ function initDepartureBoard() {
   }
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && departureBoardOpen) closeDepartureBoard();
+  });
+}
+
+// 👋 Úvodní popup: jazyk vždy vychází z aktuálního nastavení hry.
+const WELCOME_SEEN_KEY = "station_zwiesel_welcome_seen_v1";
+function renderWelcomePopupText() {
+  const title = document.getElementById("welcome-title");
+  const body = document.getElementById("welcome-body");
+  const start = document.getElementById("welcome-start");
+  if (title) title.textContent = lang().welcomeTitle || "";
+  if (body) body.textContent = lang().welcomeBody || "";
+  if (start) start.textContent = lang().welcomeStart || "";
+}
+function showWelcomePopup() {
+  const modal = document.getElementById("welcome-modal");
+  if (!modal || currentStationKey !== "zwiesel" || localStorage.getItem(WELCOME_SEEN_KEY) === "1") return;
+  renderWelcomePopupText();
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+}
+function closeWelcomePopup() {
+  const modal = document.getElementById("welcome-modal");
+  if (!modal) return;
+  localStorage.setItem(WELCOME_SEEN_KEY, "1");
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden", "true");
+}
+function initWelcomePopup() {
+  renderWelcomePopupText();
+  const start = document.getElementById("welcome-start");
+  if (start) start.addEventListener("click", closeWelcomePopup);
+  document.addEventListener("keydown", event => {
+    const modal = document.getElementById("welcome-modal");
+    if (event.key === "Escape" && modal && modal.classList.contains("open")) closeWelcomePopup();
   });
 }
 
@@ -1912,5 +1947,7 @@ loadGameState();
 
 // Spuštění první stanice (Plzeň si teď vezme data z načteného savu)
 loadStation("zwiesel");
+initWelcomePopup();
+showWelcomePopup();
 
 

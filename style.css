@@ -494,6 +494,17 @@ button {
 }
 #departure-board-button span:first-child { font-size: 19px; line-height: 1; }
 #departure-board-button:hover { background: #273442; }
+#departure-board-button.departure-board-tutorial-target {
+  outline: 4px solid #facc15 !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(250, 204, 21, 0.35), 0 0 24px 8px rgba(250, 204, 21, 0.9) !important;
+  animation: departure-board-tutorial-pulse 0.9s ease-in-out infinite !important;
+  z-index: 3201;
+}
+@keyframes departure-board-tutorial-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.25), 0 0 14px 4px rgba(250, 204, 21, 0.65); }
+  50% { box-shadow: 0 0 0 7px rgba(250, 204, 21, 0.5), 0 0 26px 10px rgba(250, 204, 21, 1); }
+}
 
 .departure-board-modal {
   display: none;

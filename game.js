@@ -781,9 +781,6 @@ function assignTrack(trackIndex) {
     return;
   }
 
-  // Po skutečném přidělení koleje dokončíme druhý krok úvodního tutoriálu.
-  if (trainCardTutorialActive && trainCardTutorialStep === "track") finishTrainCardTutorial();
-
   // Zarezervujeme kolej pro tento vlak (uložíme jeho ID)
   tracks[trackIndex] = selected.id;
   
@@ -797,6 +794,9 @@ function assignTrack(trackIndex) {
 
   render();
   saveGameState(); // Uložíme zarezervovanou kolej do paměti
+
+  // Tutoriál dokončíme až po skutečné změně stavu vlaku a uložení přidělené koleje.
+  if (trainCardTutorialActive && trainCardTutorialStep === "track") finishTrainCardTutorial();
 }
 
 

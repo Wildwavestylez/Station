@@ -795,7 +795,7 @@ button {
     justify-content: space-between;
   }
   .train-card-tutorial.departure-board-button-step .train-card-tutorial-icon {
-    order: 2;
+    order: 0;
     flex: 0 0 auto;
     margin: 0 2px 0 10px;
     transform: none;

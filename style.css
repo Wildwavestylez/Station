@@ -736,3 +736,15 @@ button {
   .train-card-tutorial-window h3 { font-size: 15px; }
   .train-card-tutorial-window p { font-size: 13px; }
 }
+
+
+/* Zweiter Tutorial-Schritt: freie Plattform deutlich hervorheben. */
+.track-tutorial-target {
+  outline: 4px solid #b7ffca !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(139, 233, 168, 0.45), 0 0 24px 9px rgba(139, 233, 168, 0.9) !important;
+  animation: train-tutorial-pulse 0.9s ease-in-out infinite !important;
+  transform: scale(1.04);
+  position: relative;
+  z-index: 1202;
+}

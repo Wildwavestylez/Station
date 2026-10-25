@@ -866,16 +866,24 @@ button {
   }
   /* Jen otevřená odjezdová tabule: bublina dole, prst nahoru. */
   .train-card-tutorial.departure-board-step .train-card-tutorial-window {
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 7px;
+    justify-content: space-between;
+    gap: 9px;
   }
   .train-card-tutorial.departure-board-step .train-card-tutorial-icon {
-    margin: 0;
+    order: -1;
+    flex: 0 0 auto;
+    margin: 0 2px 0 0;
     transform: none;
     font-size: 29px;
     line-height: 1;
     animation: tutorial-point-up 0.8s ease-in-out infinite;
+  }
+  .train-card-tutorial.departure-board-step .train-card-tutorial-window > div {
+    order: 1;
+    flex: 1 1 auto;
+    min-width: 0;
   }
   .train-card-tutorial.track-step .train-card-tutorial-window h3,
   .train-card-tutorial.track-step .train-card-tutorial-window p,

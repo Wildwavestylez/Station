@@ -173,7 +173,7 @@ window.LANGUAGES = {
     boardTutorialTitle: "Další krok: nástup",
     boardTutorialBody: "Vlak je uklizený a připravený. Klepni na zvýrazněné tlačítko Nástup, aby cestující mohli nastoupit.",
     departTutorialTitle: "Tvůj první vlak je připraven!",
-    departTutorialBody: "Skvělá práce! Cestující už sedí ve vlaku a čekají na odjezd. Klikni na tlačítko Odjezd a vyprav svůj první vlak na cestu do cíle."
+    departTutorialBody: "Skvělá práce! Cestující už sedí ve vlaku a čekají na odjezd. Klikni na tlačítko Odjezd a vyprav svůj první vlak na cestu do cíle.",
     trainCardTutorialTitle: "Nejdřív karta vlaku",
     trainCardTutorialBody: "Tady vidíš název soupravy a její aktuální stav. Klepni na zvýrazněnou kartu — tím vlak vybereš a zobrazíš jeho ovládání.",
     welcomeTitle: "Vítej na bavorské straně Šumavy!",
@@ -367,7 +367,7 @@ window.LANGUAGES = {
     boardTutorialTitle: "Next: boarding",
     boardTutorialBody: "The train is clean and ready. Tap the highlighted Boarding button so passengers can get on.",
     departTutorialTitle: "Your first train is ready!",
-    departTutorialBody: "Great job! The passengers are on board and waiting to depart. Tap the highlighted Depart button to send your first train on its way to its destination."
+    departTutorialBody: "Great job! The passengers are on board and waiting to depart. Tap the highlighted Depart button to send your first train on its way to its destination.",
     trainCardTutorialTitle: "First, the train card",
     trainCardTutorialBody: "Here you can see the train name and its current status. Tap the highlighted card to select the train and open its controls.",
     welcomeTitle: "Welcome to the Bavarian Forest!",
@@ -547,7 +547,7 @@ window.LANGUAGES = {
     boardTutorialTitle: "Als Nächstes: Einstieg",
     boardTutorialBody: "Der Zug ist gereinigt und bereit. Tippe auf die hervorgehobene Schaltfläche Einstieg, damit die Fahrgäste einsteigen können.",
     departTutorialTitle: "Dein erster Zug ist bereit!",
-    departTutorialBody: "Gut gemacht! Die Fahrgäste sitzen im Zug und warten auf die Abfahrt. Tippe auf die hervorgehobene Schaltfläche Abfahrt, um deinen ersten Zug auf die Reise zu schicken."
+    departTutorialBody: "Gut gemacht! Die Fahrgäste sitzen im Zug und warten auf die Abfahrt. Tippe auf die hervorgehobene Schaltfläche Abfahrt, um deinen ersten Zug auf die Reise zu schicken.",
     trainCardTutorialTitle: "Zuerst die Zugkarte",
     trainCardTutorialBody: "Hier siehst du den Namen des Zuges und seinen aktuellen Status. Tippe auf die hervorgehobene Karte, um den Zug auszuwählen und seine Steuerung zu öffnen.",
     welcomeTitle: "Willkommen im Bayerwald!",

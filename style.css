@@ -768,7 +768,8 @@ button {
   }
   /* Krok s kolejí: panel zvedneme nad tlačítko. První krok zůstává dole. */
   /* Nápověda k vlaku na mapě se zobrazí hned pod mapou, ne dole u okraje telefonu. */
-  .train-card-tutorial.map-step {
+  .train-card-tutorial.map-step,
+  .train-card-tutorial.train-info-step {
     top: calc(40% + 8px);
     bottom: auto;
   }
@@ -806,7 +807,13 @@ button {
   .train-card-tutorial.clean-step .train-card-tutorial-icon,
   .train-card-tutorial.board-step .train-card-tutorial-icon,
   .train-card-tutorial.depart-step .train-card-tutorial-icon,
-  .train-card-tutorial.train-info-step .train-card-tutorial-icon,
+  .train-card-tutorial.train-info-step .train-card-tutorial-icon {
+    margin: 0;
+    transform: none;
+    font-size: 29px;
+    line-height: 1;
+    animation: tutorial-point-up 0.8s ease-in-out infinite;
+  }
   .train-card-tutorial.departure-board-step .train-card-tutorial-icon {
     margin: 0;
     transform: rotate(180deg);
@@ -833,6 +840,10 @@ button {
 @keyframes tutorial-point-down {
   0%, 100% { transform: rotate(180deg) translateY(0); }
   50% { transform: rotate(180deg) translateY(5px); }
+}
+@keyframes tutorial-point-up {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
 

@@ -162,6 +162,9 @@ window.LANGUAGES = {
     deleteSaveConfirm: "⚠️ POZOR! Opravdu chceš smazat veškerý postup, peníze, levely i vlaky a začít úplně od nuly?",
     shopSummaryCash: "Pokladna",
     cateringStatus: "Doplňování cateringu",
+    welcomeTitle: "Vítej na bavorské straně Šumavy!",
+    welcomeBody: "Tohle je tvoje první nádraží – Zwiesel. Tvým úkolem je vypravovat vlaky, odbavovat cestující a postupně rozšiřovat provoz. Začneme tvou první soupravou.",
+    welcomeStart: "Pojďme na to!",
   },
   
   // 🇬🇧 ANGLIČTINA
@@ -339,6 +342,9 @@ window.LANGUAGES = {
     deleteSaveConfirm: "⚠️ WARNING! Are you sure you want to delete all progress, money, levels and trains and start from scratch?",
     shopSummaryCash: "Cash",
     cateringStatus: "Catering in progress",
+    welcomeTitle: "Welcome to the Bavarian side of the Šumava!",
+    welcomeBody: "This is your first railway station – Zwiesel. Your job is to dispatch trains, handle passengers, and gradually expand your operations. Let's get started with your first train.",
+    welcomeStart: "Let's get started!",
   },
 
   // 🇩🇪 NĚMČINA
@@ -502,5 +508,8 @@ window.LANGUAGES = {
     deleteSaveConfirm: "⚠️ ACHTUNG! Möchtest du wirklich den gesamten Fortschritt, das Geld, die Level und Züge löschen und ganz von vorn beginnen?",
     shopSummaryCash: "Kasse",
     cateringStatus: "Catering läuft",
+    welcomeTitle: "Willkommen auf der bayerischen Seite des Böhmerwalds!",
+    welcomeBody: "Das ist dein erster Bahnhof – Zwiesel. Deine Aufgabe ist es, Züge abzufertigen, Fahrgäste zu betreuen und den Betrieb Schritt für Schritt auszubauen. Beginnen wir mit deinem ersten Zug.",
+    welcomeStart: "Los geht's!",
   }
 };

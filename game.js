@@ -360,6 +360,8 @@ function renderTrainCardTutorialText() {
   const isCleanStep = trainCardTutorialStep === "clean";
   const isBoardStep = trainCardTutorialStep === "board";
   const isDepartStep = trainCardTutorialStep === "depart";
+  const isMapStep = trainCardTutorialStep === "map";
+  const isTrainInfoStep = trainCardTutorialStep === "trainInfo";
   if (modal) {
     modal.classList.toggle("track-step", isTrackStep);
     modal.classList.toggle("coming-step", isComingStep);
@@ -367,6 +369,8 @@ function renderTrainCardTutorialText() {
     modal.classList.toggle("clean-step", isCleanStep);
     modal.classList.toggle("board-step", isBoardStep);
     modal.classList.toggle("depart-step", isDepartStep);
+    modal.classList.toggle("map-step", isMapStep);
+    modal.classList.toggle("train-info-step", isTrainInfoStep);
   }
   if (title) title.textContent = isTrackStep
     ? (lang().trackTutorialTitle || "")
@@ -375,6 +379,8 @@ function renderTrainCardTutorialText() {
     : isCleanStep ? (lang().cleanTutorialTitle || "")
     : isBoardStep ? (lang().boardTutorialTitle || "")
     : isDepartStep ? (lang().departTutorialTitle || "")
+    : isMapStep ? (lang().mapTutorialTitle || "")
+    : isTrainInfoStep ? (lang().trainInfoTutorialTitle || "")
     : (lang().trainCardTutorialTitle || "");
   if (body) body.textContent = isTrackStep
     ? (lang().trackTutorialBody || "")
@@ -383,6 +389,8 @@ function renderTrainCardTutorialText() {
     : isCleanStep ? (lang().cleanTutorialBody || "")
     : isBoardStep ? (lang().boardTutorialBody || "")
     : isDepartStep ? (lang().departTutorialBody || "")
+    : isMapStep ? (lang().mapTutorialBody || "")
+    : isTrainInfoStep ? (lang().trainInfoTutorialBody || "")
     : (lang().trainCardTutorialBody || "");
 }
 function showTrainCardTutorial() {
@@ -919,7 +927,8 @@ async function depart() {
   if (!selected || selected.state !== "READY_DEPART") return;
 
   const t = selected;
-  if (trainCardTutorialActive && trainCardTutorialStep === "depart") finishTrainCardTutorial();
+  const tutorialTrainId = trainCardTutorialActive && trainCardTutorialStep === "depart" ? t.id : null;
+  if (tutorialTrainId !== null) window.__tutorialTrainId = tutorialTrainId;
   // Společný plánovač: každou linku zkusíme naplánovat nejvýše jednou za herní session.
   // Úspěšná geometrie se sdílí mezi všemi vlaky stejné linky; chyba neblokuje odjezd
   // a nevyvolává opakované dotazy na Overpass při každém dalším odjezdu.
@@ -1030,6 +1039,13 @@ async function depart() {
     t.marker.bindPopup(() => getTrainPopupHtml(t), { className: "train-info-popup" });
     t.marker.on("click", () => {
       selected = t;
+      if (trainCardTutorialActive && trainCardTutorialStep === "map" && Number(t.id) === Number(window.__tutorialTrainId)) {
+        trainCardTutorialStep = "trainInfo";
+        renderTrainCardTutorialText();
+        const modal = document.getElementById("train-card-tutorial");
+        if (modal) { modal.classList.add("open"); modal.setAttribute("aria-hidden", "false"); }
+        if (t.marker._icon) t.marker._icon.classList.remove("tutorial-train-highlight");
+      }
       updateDetail();
       render();
     });
@@ -1039,6 +1055,21 @@ async function depart() {
 
   t.progress = { exit: 0, clean: 0, catering: 0, board: 0 };
   selected = null;
+  if (tutorialTrainId !== null) {
+    trainCardTutorialStep = "mapWait";
+    const tutorial = document.getElementById("train-card-tutorial");
+    if (tutorial) { tutorial.classList.remove("open"); tutorial.setAttribute("aria-hidden", "true"); }
+    window.setTimeout(() => {
+      if (!trainCardTutorialActive || trainCardTutorialStep !== "mapWait") return;
+      const activeTrain = trains.find(item => Number(item.id) === Number(tutorialTrainId));
+      if (!activeTrain || activeTrain.state !== "EN_ROUTE_THERE" || !activeTrain.marker) return;
+      trainCardTutorialStep = "map";
+      renderTrainCardTutorialText();
+      if (activeTrain.marker._icon) activeTrain.marker._icon.classList.add("tutorial-train-highlight");
+      const modal = document.getElementById("train-card-tutorial");
+      if (modal) { modal.classList.add("open"); modal.setAttribute("aria-hidden", "false"); }
+    }, 5000);
+  }
   render();
   saveGameState();
 }

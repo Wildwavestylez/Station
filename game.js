@@ -362,6 +362,7 @@ function renderTrainCardTutorialText() {
   const isDepartStep = trainCardTutorialStep === "depart";
   const isMapStep = trainCardTutorialStep === "map";
   const isTrainInfoStep = trainCardTutorialStep === "trainInfo";
+  const isDepartureBoardStep = trainCardTutorialStep === "departureBoard";
   if (modal) {
     modal.classList.toggle("track-step", isTrackStep);
     modal.classList.toggle("coming-step", isComingStep);
@@ -371,6 +372,7 @@ function renderTrainCardTutorialText() {
     modal.classList.toggle("depart-step", isDepartStep);
     modal.classList.toggle("map-step", isMapStep);
     modal.classList.toggle("train-info-step", isTrainInfoStep);
+    modal.classList.toggle("departure-board-step", isDepartureBoardStep);
   }
   if (title) title.textContent = isTrackStep
     ? (lang().trackTutorialTitle || "")
@@ -381,6 +383,7 @@ function renderTrainCardTutorialText() {
     : isDepartStep ? (lang().departTutorialTitle || "")
     : isMapStep ? (lang().mapTutorialTitle || "")
     : isTrainInfoStep ? (lang().trainInfoTutorialTitle || "")
+    : isDepartureBoardStep ? (lang().departureBoardTutorialTitle || "")
     : (lang().trainCardTutorialTitle || "");
   if (body) body.textContent = isTrackStep
     ? (lang().trackTutorialBody || "")
@@ -391,7 +394,13 @@ function renderTrainCardTutorialText() {
     : isDepartStep ? (lang().departTutorialBody || "")
     : isMapStep ? (lang().mapTutorialBody || "")
     : isTrainInfoStep ? (lang().trainInfoTutorialBody || "")
+    : isDepartureBoardStep ? (lang().departureBoardTutorialBody || "")
     : (lang().trainCardTutorialBody || "");
+  const nextButton = document.getElementById("train-card-tutorial-next");
+  if (nextButton) {
+    nextButton.textContent = isTrainInfoStep ? (lang().tutorialNext || "Rozumím, jdeme dál") : (lang().tutorialFinish || "Fajn, díky!");
+    nextButton.hidden = !(isTrainInfoStep || isDepartureBoardStep);
+  }
 }
 function showTrainCardTutorial() {
   const modal = document.getElementById("train-card-tutorial");
@@ -418,6 +427,23 @@ function finishTrainCardTutorial() {
   render();
 }
 function initTrainCardTutorial() {
+  const nextButton = document.getElementById("train-card-tutorial-next");
+  if (nextButton && !nextButton.dataset.bound) {
+    nextButton.dataset.bound = "1";
+    nextButton.addEventListener("click", () => {
+      if (!trainCardTutorialActive) return;
+      if (trainCardTutorialStep === "trainInfo") {
+        trainCardTutorialStep = "departureBoard";
+        renderTrainCardTutorialText();
+        openDepartureBoard();
+        const modal = document.getElementById("train-card-tutorial");
+        if (modal) { modal.classList.add("open"); modal.setAttribute("aria-hidden", "false"); }
+      } else if (trainCardTutorialStep === "departureBoard") {
+        closeDepartureBoard();
+        finishTrainCardTutorial();
+      }
+    });
+  }
   renderTrainCardTutorialText();
   const welcome = document.getElementById("welcome-modal");
   if (!welcome || !welcome.classList.contains("open")) showTrainCardTutorial();
@@ -1064,6 +1090,8 @@ async function depart() {
       const activeTrain = trains.find(item => Number(item.id) === Number(tutorialTrainId));
       if (!activeTrain || activeTrain.state !== "EN_ROUTE_THERE" || !activeTrain.marker) return;
       trainCardTutorialStep = "map";
+      // Posuň pouze pohled mapy k aktuální pozici vlaku; zoom ani poloha vlaku se nemění.
+      map.panTo(activeTrain.marker.getLatLng(), { animate: true, duration: 0.6 });
       renderTrainCardTutorialText();
       if (activeTrain.marker._icon) activeTrain.marker._icon.classList.add("tutorial-train-highlight");
       const modal = document.getElementById("train-card-tutorial");

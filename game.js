@@ -355,11 +355,23 @@ function renderTrainCardTutorialText() {
   const body = document.getElementById("train-card-tutorial-body");
   const modal = document.getElementById("train-card-tutorial");
   const isTrackStep = trainCardTutorialStep === "track";
-  if (modal) modal.classList.toggle("track-step", isTrackStep);
+  const isComingStep = trainCardTutorialStep === "coming";
+  const isUnloadStep = trainCardTutorialStep === "unload";
+  if (modal) {
+    modal.classList.toggle("track-step", isTrackStep);
+    modal.classList.toggle("coming-step", isComingStep);
+    modal.classList.toggle("unload-step", isUnloadStep);
+  }
   if (title) title.textContent = isTrackStep
-    ? (lang().trackTutorialTitle || "") : (lang().trainCardTutorialTitle || "");
+    ? (lang().trackTutorialTitle || "")
+    : isComingStep ? (lang().comingTutorialTitle || "")
+    : isUnloadStep ? (lang().unloadTutorialTitle || "")
+    : (lang().trainCardTutorialTitle || "");
   if (body) body.textContent = isTrackStep
-    ? (lang().trackTutorialBody || "") : (lang().trainCardTutorialBody || "");
+    ? (lang().trackTutorialBody || "")
+    : isComingStep ? (lang().comingTutorialBody || "")
+    : isUnloadStep ? (lang().unloadTutorialBody || "")
+    : (lang().trainCardTutorialBody || "");
 }
 function showTrainCardTutorial() {
   const modal = document.getElementById("train-card-tutorial");
@@ -798,8 +810,16 @@ function assignTrack(trackIndex) {
   render();
   saveGameState(); // Uložíme zarezervovanou kolej do paměti
 
-  // Tutoriál dokončíme až po skutečné změně stavu vlaku a uložení přidělené koleje.
-  if (trainCardTutorialActive && trainCardTutorialStep === "track") finishTrainCardTutorial();
+  // Po přidělení koleje přejdeme do krátkého informačního kroku během příjezdu.
+  if (trainCardTutorialActive && trainCardTutorialStep === "track") {
+    trainCardTutorialStep = "coming";
+    renderTrainCardTutorialText();
+    const tutorial = document.getElementById("train-card-tutorial");
+    if (tutorial) {
+      tutorial.classList.add("open");
+      tutorial.setAttribute("aria-hidden", "false");
+    }
+  }
 }
 
 
@@ -1626,7 +1646,7 @@ function renderActions() {
   else if (selected.state === "COMING") {
     a.innerHTML = `<em>${lang().incoming} ${selected.track}... (${Math.max(0, Math.ceil(selected.timer))}s)</em>`;
   } else if (selected.state === "ARRIVED") {
-    a.innerHTML = `<button class="g" onclick="startTimer('exit')">${lang().btnUnload}</button>`;
+    a.innerHTML = `<button class="g${trainCardTutorialActive && trainCardTutorialStep === "unload" ? " track-tutorial-target" : ""}" onclick="startTimer('exit')">${lang().btnUnload}</button>`;
   } else if (selected.state === "UNLOADING" || selected.state === "CLEANING" || selected.state === "CATERING" || selected.state === "BOARDING") {
     a.innerHTML = `<em>${lang().working}</em>`;
   } else if (selected.state === "WAIT_CATERING") {
@@ -1886,6 +1906,10 @@ function gameLoop(now) {
       if (t.timer <= 0) {
         t.state = "ARRIVED";    // Vlak fyzicky dorazil k nástupišti
         t.pendingAction = true;  // Rozsvítí se upozornění pro Vyložení
+        if (trainCardTutorialActive && trainCardTutorialStep === "coming" && selected && selected.id === t.id) {
+          trainCardTutorialStep = "unload";
+          renderTrainCardTutorialText();
+        }
       }
     }
 

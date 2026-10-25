@@ -448,6 +448,7 @@ function initTrainCardTutorial() {
     nextButton.addEventListener("click", () => {
       if (!trainCardTutorialActive) return;
       if (trainCardTutorialStep === "trainInfo") {
+        if (typeof map !== "undefined" && map && typeof map.closePopup === "function") map.closePopup();
         trainCardTutorialStep = "departureBoardButton";
         renderTrainCardTutorialText();
         const modal = document.getElementById("train-card-tutorial");

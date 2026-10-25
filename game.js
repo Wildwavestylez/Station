@@ -359,12 +359,14 @@ function renderTrainCardTutorialText() {
   const isUnloadStep = trainCardTutorialStep === "unload";
   const isCleanStep = trainCardTutorialStep === "clean";
   const isBoardStep = trainCardTutorialStep === "board";
+  const isDepartStep = trainCardTutorialStep === "depart";
   if (modal) {
     modal.classList.toggle("track-step", isTrackStep);
     modal.classList.toggle("coming-step", isComingStep);
     modal.classList.toggle("unload-step", isUnloadStep);
     modal.classList.toggle("clean-step", isCleanStep);
     modal.classList.toggle("board-step", isBoardStep);
+    modal.classList.toggle("depart-step", isDepartStep);
   }
   if (title) title.textContent = isTrackStep
     ? (lang().trackTutorialTitle || "")
@@ -372,6 +374,7 @@ function renderTrainCardTutorialText() {
     : isUnloadStep ? (lang().unloadTutorialTitle || "")
     : isCleanStep ? (lang().cleanTutorialTitle || "")
     : isBoardStep ? (lang().boardTutorialTitle || "")
+    : isDepartStep ? (lang().departTutorialTitle || "")
     : (lang().trainCardTutorialTitle || "");
   if (body) body.textContent = isTrackStep
     ? (lang().trackTutorialBody || "")
@@ -379,6 +382,7 @@ function renderTrainCardTutorialText() {
     : isUnloadStep ? (lang().unloadTutorialBody || "")
     : isCleanStep ? (lang().cleanTutorialBody || "")
     : isBoardStep ? (lang().boardTutorialBody || "")
+    : isDepartStep ? (lang().departTutorialBody || "")
     : (lang().trainCardTutorialBody || "");
 }
 function showTrainCardTutorial() {
@@ -904,7 +908,9 @@ function startTimer(type) {
     if (tutorial) { tutorial.classList.remove("open"); tutorial.setAttribute("aria-hidden", "true"); }
   }
   if (type === "board" && trainCardTutorialActive && trainCardTutorialStep === "board") {
-    finishTrainCardTutorial();
+    trainCardTutorialStep = "boarding";
+    const tutorial = document.getElementById("train-card-tutorial");
+    if (tutorial) { tutorial.classList.remove("open"); tutorial.setAttribute("aria-hidden", "true"); }
   }
 }
 
@@ -913,6 +919,7 @@ async function depart() {
   if (!selected || selected.state !== "READY_DEPART") return;
 
   const t = selected;
+  if (trainCardTutorialActive && trainCardTutorialStep === "depart") finishTrainCardTutorial();
   // Společný plánovač: každou linku zkusíme naplánovat nejvýše jednou za herní session.
   // Úspěšná geometrie se sdílí mezi všemi vlaky stejné linky; chyba neblokuje odjezd
   // a nevyvolává opakované dotazy na Overpass při každém dalším odjezdu.
@@ -1695,7 +1702,7 @@ function renderActions() {
   } else if (selected.state === "WAIT_BOARD") {
     a.innerHTML = `<button class="b${trainCardTutorialActive && trainCardTutorialStep === "board" ? " track-tutorial-target" : ""}" onclick="startTimer('board')">${lang().btnBoard}</button>`;
   } else if (selected.state === "READY_DEPART") {
-    a.innerHTML = `<button class="r" onclick="depart()">${lang().btnDepart}</button>`;
+    a.innerHTML = `<button class="r${trainCardTutorialActive && trainCardTutorialStep === "depart" ? " track-tutorial-target" : ""}" onclick="depart()">${lang().btnDepart}</button>`;
   } else {
     a.innerHTML = `<em>${lang().onRoute}</em>`;
   }
@@ -2041,6 +2048,12 @@ function gameLoop(now) {
       t.progress.board = (1 - t.timer / t.timers.board) * 100;
       if (t.timer <= 0) {
         t.state = "READY_DEPART";
+        if (trainCardTutorialActive && trainCardTutorialStep === "boarding" && selected && selected.id === t.id) {
+          trainCardTutorialStep = "depart";
+          renderTrainCardTutorialText();
+          const tutorial = document.getElementById("train-card-tutorial");
+          if (tutorial) { tutorial.classList.add("open"); tutorial.setAttribute("aria-hidden", "false"); }
+        }
         t.pendingAction = true;
       }
     }

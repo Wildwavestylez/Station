@@ -731,6 +731,10 @@ button {
 .train-card-tutorial-icon { flex: 0 0 auto; font-size: 25px; line-height: 1.2; }
 .train-card-tutorial-window h3 { margin: 0 0 5px; color: #a7f3c0; font-size: 16px; }
 .train-card-tutorial-window p { margin: 0; color: #e4ebe7; font-size: 14px; line-height: 1.45; }
+.tutorial-next-button { margin-top: 12px; pointer-events: auto; min-height: 38px; padding: 8px 14px; border-radius: 9px; font-weight: 700; }
+.tutorial-next-button[hidden] { display: none; }
+.train-card-tutorial-window { pointer-events: auto; }
+.train-card-tutorial.departure-board-step { z-index: 3100; }
 @media (max-width: 600px) {
   .train-card-tutorial-window { padding: 12px 13px; gap: 9px; }
   .train-card-tutorial-window h3 { font-size: 15px; }
@@ -768,7 +772,9 @@ button {
   .train-card-tutorial.unload-step,
   .train-card-tutorial.clean-step,
   .train-card-tutorial.board-step,
-  .train-card-tutorial.depart-step {
+  .train-card-tutorial.depart-step,
+  .train-card-tutorial.train-info-step,
+  .train-card-tutorial.departure-board-step {
     bottom: calc(max(14px, env(safe-area-inset-bottom)) + 135px);
   }
   .train-card-tutorial-window {
@@ -783,7 +789,9 @@ button {
   .train-card-tutorial.unload-step .train-card-tutorial-window,
   .train-card-tutorial.clean-step .train-card-tutorial-window,
   .train-card-tutorial.board-step .train-card-tutorial-window,
-  .train-card-tutorial.depart-step .train-card-tutorial-window {
+  .train-card-tutorial.depart-step .train-card-tutorial-window,
+  .train-card-tutorial.train-info-step .train-card-tutorial-window,
+  .train-card-tutorial.departure-board-step .train-card-tutorial-window {
     flex-direction: column-reverse;
     align-items: center;
     gap: 7px;
@@ -792,7 +800,9 @@ button {
   .train-card-tutorial.unload-step .train-card-tutorial-icon,
   .train-card-tutorial.clean-step .train-card-tutorial-icon,
   .train-card-tutorial.board-step .train-card-tutorial-icon,
-  .train-card-tutorial.depart-step .train-card-tutorial-icon {
+  .train-card-tutorial.depart-step .train-card-tutorial-icon,
+  .train-card-tutorial.train-info-step .train-card-tutorial-icon,
+  .train-card-tutorial.departure-board-step .train-card-tutorial-icon {
     margin: 0;
     transform: rotate(180deg);
     font-size: 29px;
@@ -808,7 +818,9 @@ button {
   .train-card-tutorial.board-step .train-card-tutorial-window h3,
   .train-card-tutorial.board-step .train-card-tutorial-window p,
   .train-card-tutorial.depart-step .train-card-tutorial-window h3,
-  .train-card-tutorial.depart-step .train-card-tutorial-window p {
+  .train-card-tutorial.depart-step .train-card-tutorial-window p,
+  .train-card-tutorial.train-info-step .train-card-tutorial-window p,
+  .train-card-tutorial.departure-board-step .train-card-tutorial-window p {
     align-self: stretch;
     text-align: left;
   }

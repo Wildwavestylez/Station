@@ -353,9 +353,12 @@ let trainCardTutorialStep = "card";
 function renderTrainCardTutorialText() {
   const title = document.getElementById("train-card-tutorial-title");
   const body = document.getElementById("train-card-tutorial-body");
-  if (title) title.textContent = trainCardTutorialStep === "track"
+  const modal = document.getElementById("train-card-tutorial");
+  const isTrackStep = trainCardTutorialStep === "track";
+  if (modal) modal.classList.toggle("track-step", isTrackStep);
+  if (title) title.textContent = isTrackStep
     ? (lang().trackTutorialTitle || "") : (lang().trainCardTutorialTitle || "");
-  if (body) body.textContent = trainCardTutorialStep === "track"
+  if (body) body.textContent = isTrackStep
     ? (lang().trackTutorialBody || "") : (lang().trainCardTutorialBody || "");
 }
 function showTrainCardTutorial() {

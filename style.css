@@ -795,9 +795,9 @@ button {
     justify-content: space-between;
   }
   .train-card-tutorial.departure-board-button-step .train-card-tutorial-icon {
-    order: 0;
+    order: 2;
     flex: 0 0 auto;
-    margin: 0 2px 0 10px;
+    margin: 0 10px 0 2px;
     transform: none;
     font-size: 29px;
     line-height: 1;
@@ -807,6 +807,10 @@ button {
     order: 1;
     flex: 1 1 auto;
     min-width: 0;
+  }
+  /* Po otevření tabule už prst není potřeba — zůstane jen text. */
+  .train-card-tutorial.departure-board-step .train-card-tutorial-icon {
+    display: none;
   }
   .train-card-tutorial.track-step,
   .train-card-tutorial.coming-step,

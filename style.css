@@ -767,7 +767,8 @@ button {
   .train-card-tutorial.coming-step,
   .train-card-tutorial.unload-step,
   .train-card-tutorial.clean-step,
-  .train-card-tutorial.board-step {
+  .train-card-tutorial.board-step,
+  .train-card-tutorial.depart-step {
     bottom: calc(max(14px, env(safe-area-inset-bottom)) + 135px);
   }
   .train-card-tutorial-window {
@@ -781,7 +782,8 @@ button {
   .train-card-tutorial.track-step .train-card-tutorial-window,
   .train-card-tutorial.unload-step .train-card-tutorial-window,
   .train-card-tutorial.clean-step .train-card-tutorial-window,
-  .train-card-tutorial.board-step .train-card-tutorial-window {
+  .train-card-tutorial.board-step .train-card-tutorial-window,
+  .train-card-tutorial.depart-step .train-card-tutorial-window {
     flex-direction: column-reverse;
     align-items: center;
     gap: 7px;
@@ -789,7 +791,8 @@ button {
   .train-card-tutorial.track-step .train-card-tutorial-icon,
   .train-card-tutorial.unload-step .train-card-tutorial-icon,
   .train-card-tutorial.clean-step .train-card-tutorial-icon,
-  .train-card-tutorial.board-step .train-card-tutorial-icon {
+  .train-card-tutorial.board-step .train-card-tutorial-icon,
+  .train-card-tutorial.depart-step .train-card-tutorial-icon {
     margin: 0;
     transform: rotate(180deg);
     font-size: 29px;
@@ -803,7 +806,9 @@ button {
   .train-card-tutorial.clean-step .train-card-tutorial-window h3,
   .train-card-tutorial.clean-step .train-card-tutorial-window p,
   .train-card-tutorial.board-step .train-card-tutorial-window h3,
-  .train-card-tutorial.board-step .train-card-tutorial-window p {
+  .train-card-tutorial.board-step .train-card-tutorial-window p,
+  .train-card-tutorial.depart-step .train-card-tutorial-window h3,
+  .train-card-tutorial.depart-step .train-card-tutorial-window p {
     align-self: stretch;
     text-align: left;
   }

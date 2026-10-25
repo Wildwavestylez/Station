@@ -813,6 +813,18 @@ button {
     align-items: center;
     gap: 7px;
   }
+  .train-card-tutorial.track-step .train-card-tutorial-icon,
+  .train-card-tutorial.unload-step .train-card-tutorial-icon,
+  .train-card-tutorial.clean-step .train-card-tutorial-icon,
+  .train-card-tutorial.board-step .train-card-tutorial-icon,
+  .train-card-tutorial.depart-step .train-card-tutorial-icon,
+  .train-card-tutorial.departure-board-step .train-card-tutorial-icon {
+    margin: 0;
+    transform: rotate(180deg);
+    font-size: 29px;
+    line-height: 1;
+    animation: tutorial-point-down 0.8s ease-in-out infinite;
+  }
   .train-card-tutorial.train-info-step .train-card-tutorial-icon {
     margin: 0;
     transform: none;

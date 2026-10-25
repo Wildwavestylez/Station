@@ -302,7 +302,17 @@ function initDepartureBoard() {
   const button = document.getElementById("departure-board-button");
   const close = document.getElementById("departure-board-close");
   const modal = document.getElementById("departure-board-modal");
-  if (button) button.addEventListener("click", openDepartureBoard);
+  if (button) button.addEventListener("click", () => {
+    if (trainCardTutorialActive && trainCardTutorialStep === "departureBoardButton") {
+      openDepartureBoard();
+      trainCardTutorialStep = "departureBoard";
+      renderTrainCardTutorialText();
+      const tutorial = document.getElementById("train-card-tutorial");
+      if (tutorial) { tutorial.classList.add("open"); tutorial.setAttribute("aria-hidden", "false"); }
+      return;
+    }
+    openDepartureBoard();
+  });
   if (close) close.addEventListener("click", closeDepartureBoard);
   if (modal) {
     modal.querySelectorAll("[data-close-departures]").forEach(el => el.addEventListener("click", closeDepartureBoard));
@@ -363,6 +373,7 @@ function renderTrainCardTutorialText() {
   const isMapStep = trainCardTutorialStep === "map";
   const isTrainInfoStep = trainCardTutorialStep === "trainInfo";
   const isDepartureBoardStep = trainCardTutorialStep === "departureBoard";
+  const isDepartureBoardButtonStep = trainCardTutorialStep === "departureBoardButton";
   if (modal) {
     modal.classList.toggle("track-step", isTrackStep);
     modal.classList.toggle("coming-step", isComingStep);
@@ -373,6 +384,9 @@ function renderTrainCardTutorialText() {
     modal.classList.toggle("map-step", isMapStep);
     modal.classList.toggle("train-info-step", isTrainInfoStep);
     modal.classList.toggle("departure-board-step", isDepartureBoardStep);
+    modal.classList.toggle("departure-board-button-step", isDepartureBoardButtonStep);
+    const boardButton = document.getElementById("departure-board-button");
+    if (boardButton) boardButton.classList.toggle("departure-board-tutorial-target", isDepartureBoardButtonStep);
   }
   if (title) title.textContent = isTrackStep
     ? (lang().trackTutorialTitle || "")
@@ -383,7 +397,7 @@ function renderTrainCardTutorialText() {
     : isDepartStep ? (lang().departTutorialTitle || "")
     : isMapStep ? (lang().mapTutorialTitle || "")
     : isTrainInfoStep ? (lang().trainInfoTutorialTitle || "")
-    : isDepartureBoardStep ? (lang().departureBoardTutorialTitle || "")
+    : (isDepartureBoardStep || isDepartureBoardButtonStep) ? (lang().departureBoardTutorialTitle || "")
     : (lang().trainCardTutorialTitle || "");
   if (body) body.textContent = isTrackStep
     ? (lang().trackTutorialBody || "")
@@ -394,6 +408,7 @@ function renderTrainCardTutorialText() {
     : isDepartStep ? (lang().departTutorialBody || "")
     : isMapStep ? (lang().mapTutorialBody || "")
     : isTrainInfoStep ? (lang().trainInfoTutorialBody || "")
+    : isDepartureBoardButtonStep ? (lang().departureBoardButtonTutorialBody || "")
     : isDepartureBoardStep ? (lang().departureBoardTutorialBody || "")
     : (lang().trainCardTutorialBody || "");
   const nextButton = document.getElementById("train-card-tutorial-next");
@@ -433,9 +448,8 @@ function initTrainCardTutorial() {
     nextButton.addEventListener("click", () => {
       if (!trainCardTutorialActive) return;
       if (trainCardTutorialStep === "trainInfo") {
-        trainCardTutorialStep = "departureBoard";
+        trainCardTutorialStep = "departureBoardButton";
         renderTrainCardTutorialText();
-        openDepartureBoard();
         const modal = document.getElementById("train-card-tutorial");
         if (modal) { modal.classList.add("open"); modal.setAttribute("aria-hidden", "false"); }
       } else if (trainCardTutorialStep === "departureBoard") {

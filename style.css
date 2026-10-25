@@ -694,3 +694,34 @@ button {
 .welcome-window p { margin:0 0 22px; color:#d5dbe1; font-size:15px; line-height:1.55; }
 #welcome-start { width:100%; margin:0; padding:13px 16px; font-size:15px; }
 @media (max-width:420px) { .welcome-window { padding:22px 18px 18px; } .welcome-window h2 { font-size:21px; } }
+
+
+/* První krok tutoriálu: zvýraznění skutečné karty vlaku. */
+.train.train-tutorial-target {
+  position: relative; z-index: 1201; outline: 3px solid #8be9a8; outline-offset: 1px;
+  box-shadow: 0 0 0 5px rgba(139, 233, 168, 0.18), 0 0 22px rgba(139, 233, 168, 0.55);
+  animation: train-tutorial-pulse 1.8s ease-in-out infinite;
+}
+@keyframes train-tutorial-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(139, 233, 168, 0.12), 0 0 12px rgba(139, 233, 168, 0.35); }
+  50% { box-shadow: 0 0 0 7px rgba(139, 233, 168, 0.20), 0 0 22px rgba(139, 233, 168, 0.65); }
+}
+.train-card-tutorial {
+  display: none; position: fixed; z-index: 1200; left: 12px; right: 12px;
+  bottom: max(14px, env(safe-area-inset-bottom)); pointer-events: none;
+}
+.train-card-tutorial.open { display: block; }
+.train-card-tutorial-window {
+  display: flex; align-items: flex-start; gap: 12px; max-width: 560px; margin: 0 auto;
+  padding: 14px 16px; color: #f4f7f5; background: rgba(22, 31, 29, 0.97);
+  border: 1px solid rgba(139, 233, 168, 0.75); border-radius: 14px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.38);
+}
+.train-card-tutorial-icon { flex: 0 0 auto; font-size: 25px; line-height: 1.2; }
+.train-card-tutorial-window h3 { margin: 0 0 5px; color: #a7f3c0; font-size: 16px; }
+.train-card-tutorial-window p { margin: 0; color: #e4ebe7; font-size: 14px; line-height: 1.45; }
+@media (max-width: 600px) {
+  .train-card-tutorial-window { padding: 12px 13px; gap: 9px; }
+  .train-card-tutorial-window h3 { font-size: 15px; }
+  .train-card-tutorial-window p { font-size: 13px; }
+}

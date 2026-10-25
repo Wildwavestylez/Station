@@ -877,6 +877,9 @@ function startTimer(type) {
   selected.timer = selected.timers[type];
   selected.pendingAction = false;
   render();
+  if (type === "exit" && trainCardTutorialActive && trainCardTutorialStep === "unload") {
+    finishTrainCardTutorial();
+  }
 }
 
 // 🚂 12. ODJEZD VLAKU Z NÁDRAŽÍ NA TRAŤ

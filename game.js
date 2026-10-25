@@ -357,20 +357,28 @@ function renderTrainCardTutorialText() {
   const isTrackStep = trainCardTutorialStep === "track";
   const isComingStep = trainCardTutorialStep === "coming";
   const isUnloadStep = trainCardTutorialStep === "unload";
+  const isCleanStep = trainCardTutorialStep === "clean";
+  const isBoardStep = trainCardTutorialStep === "board";
   if (modal) {
     modal.classList.toggle("track-step", isTrackStep);
     modal.classList.toggle("coming-step", isComingStep);
     modal.classList.toggle("unload-step", isUnloadStep);
+    modal.classList.toggle("clean-step", isCleanStep);
+    modal.classList.toggle("board-step", isBoardStep);
   }
   if (title) title.textContent = isTrackStep
     ? (lang().trackTutorialTitle || "")
     : isComingStep ? (lang().comingTutorialTitle || "")
     : isUnloadStep ? (lang().unloadTutorialTitle || "")
+    : isCleanStep ? (lang().cleanTutorialTitle || "")
+    : isBoardStep ? (lang().boardTutorialTitle || "")
     : (lang().trainCardTutorialTitle || "");
   if (body) body.textContent = isTrackStep
     ? (lang().trackTutorialBody || "")
     : isComingStep ? (lang().comingTutorialBody || "")
     : isUnloadStep ? (lang().unloadTutorialBody || "")
+    : isCleanStep ? (lang().cleanTutorialBody || "")
+    : isBoardStep ? (lang().boardTutorialBody || "")
     : (lang().trainCardTutorialBody || "");
 }
 function showTrainCardTutorial() {
@@ -878,6 +886,16 @@ function startTimer(type) {
   selected.pendingAction = false;
   render();
   if (type === "exit" && trainCardTutorialActive && trainCardTutorialStep === "unload") {
+    trainCardTutorialStep = "unloading";
+    const tutorial = document.getElementById("train-card-tutorial");
+    if (tutorial) { tutorial.classList.remove("open"); tutorial.setAttribute("aria-hidden", "true"); }
+  }
+  if (type === "clean" && trainCardTutorialActive && trainCardTutorialStep === "clean") {
+    trainCardTutorialStep = "cleaning";
+    const tutorial = document.getElementById("train-card-tutorial");
+    if (tutorial) { tutorial.classList.remove("open"); tutorial.setAttribute("aria-hidden", "true"); }
+  }
+  if (type === "board" && trainCardTutorialActive && trainCardTutorialStep === "board") {
     finishTrainCardTutorial();
   }
 }
@@ -1660,14 +1678,14 @@ function renderActions() {
           ? `<button class="y" onclick="startTimer('catering')">${lang().startCatering}</button>`
           : `<em>${lang().allCateringBusy}</em>`);
   } else if (selected.state === "WAIT_CLEAN") {
-    a.innerHTML = `<p>${lang().cleaningTeams}: ${cleaningTeamsInUse}/${unlockedCleaningTeamsCount} ${lang().teamsOccupied}</p><button class="y" onclick="startTimer('clean')">${lang().btnClean}</button>`;
+    a.innerHTML = `<p>${lang().cleaningTeams}: ${cleaningTeamsInUse}/${unlockedCleaningTeamsCount} ${lang().teamsOccupied}</p><button class="y${trainCardTutorialActive && trainCardTutorialStep === "clean" ? " track-tutorial-target" : ""}" onclick="startTimer('clean')">${lang().btnClean}</button>`;
   } else if (selected.state === "WAIT_CLEAN_TEAM") {
     a.innerHTML = `<p>${lang().cleaningTeams}: ${cleaningTeamsInUse}/${unlockedCleaningTeamsCount} ${lang().teamsOccupied}</p>` +
       (cleaningTeamsInUse < unlockedCleaningTeamsCount
         ? `<button class="y" onclick="startTimer('clean')">${lang().startCleaning}</button>`
         : `<em>${lang().waitFreeTeam}</em>`);
   } else if (selected.state === "WAIT_BOARD") {
-    a.innerHTML = `<button class="b" onclick="startTimer('board')">${lang().btnBoard}</button>`;
+    a.innerHTML = `<button class="b${trainCardTutorialActive && trainCardTutorialStep === "board" ? " track-tutorial-target" : ""}" onclick="startTimer('board')">${lang().btnBoard}</button>`;
   } else if (selected.state === "READY_DEPART") {
     a.innerHTML = `<button class="r" onclick="depart()">${lang().btnDepart}</button>`;
   } else {
@@ -1944,6 +1962,12 @@ function gameLoop(now) {
       if (t.timer <= 0) {
         t.state = "WAIT_CLEAN";
         t.pendingAction = true;
+        if (trainCardTutorialActive && trainCardTutorialStep === "unloading" && selected && selected.id === t.id) {
+          trainCardTutorialStep = "clean";
+          renderTrainCardTutorialText();
+          const tutorial = document.getElementById("train-card-tutorial");
+          if (tutorial) { tutorial.classList.add("open"); tutorial.setAttribute("aria-hidden", "false"); }
+        }
       }
     }
 
@@ -1964,6 +1988,12 @@ function gameLoop(now) {
         } else {
           t.state = "WAIT_BOARD";
           t.pendingAction = true;
+        }
+        if (trainCardTutorialActive && trainCardTutorialStep === "cleaning" && selected && selected.id === t.id && t.state === "WAIT_BOARD") {
+          trainCardTutorialStep = "board";
+          renderTrainCardTutorialText();
+          const tutorial = document.getElementById("train-card-tutorial");
+          if (tutorial) { tutorial.classList.add("open"); tutorial.setAttribute("aria-hidden", "false"); }
         }
         if (t.hasCleaningTeam) {
           t.hasCleaningTeam = false;

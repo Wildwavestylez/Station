@@ -174,6 +174,10 @@ window.LANGUAGES = {
     boardTutorialBody: "Vlak je uklizený a připravený. Klepni na zvýrazněné tlačítko Nástup, aby cestující mohli nastoupit.",
     departTutorialTitle: "Tvůj první vlak je připraven!",
     departTutorialBody: "Skvělá práce! Cestující už sedí ve vlaku a čekají na odjezd. Klikni na tlačítko Odjezd a vyprav svůj první vlak na cestu do cíle.",
+    mapTutorialTitle: "Tvůj vlak je na cestě!",
+    mapTutorialBody: "Pojďme se na něj podívat zblízka. Klepni na zvýrazněný vlak na mapě.",
+    trainInfoTutorialTitle: "Informace o vlaku",
+    trainInfoTutorialBody: "Tady najdeš informace o svém vlaku, jeho aktuálním stavu a počtu otoček v kontraktu. Kontrakty si vysvětlíme, až se vlak vrátí do stanice."
     trainCardTutorialTitle: "Nejdřív karta vlaku",
     trainCardTutorialBody: "Tady vidíš název soupravy a její aktuální stav. Klepni na zvýrazněnou kartu — tím vlak vybereš a zobrazíš jeho ovládání.",
     welcomeTitle: "Vítej na bavorské straně Šumavy!",
@@ -368,6 +372,10 @@ window.LANGUAGES = {
     boardTutorialBody: "The train is clean and ready. Tap the highlighted Boarding button so passengers can get on.",
     departTutorialTitle: "Your first train is ready!",
     departTutorialBody: "Great job! The passengers are on board and waiting to depart. Tap the highlighted Depart button to send your first train on its way to its destination.",
+    mapTutorialTitle: "Your train is on its way!",
+    mapTutorialBody: "Let’s take a closer look. Tap the highlighted train on the map.",
+    trainInfoTutorialTitle: "Train information",
+    trainInfoTutorialBody: "Here you can see information about your train, its current status and the number of contract trips remaining. We’ll explain contracts when the train returns to the station."
     trainCardTutorialTitle: "First, the train card",
     trainCardTutorialBody: "Here you can see the train name and its current status. Tap the highlighted card to select the train and open its controls.",
     welcomeTitle: "Welcome to the Bavarian Forest!",
@@ -548,6 +556,10 @@ window.LANGUAGES = {
     boardTutorialBody: "Der Zug ist gereinigt und bereit. Tippe auf die hervorgehobene Schaltfläche Einstieg, damit die Fahrgäste einsteigen können.",
     departTutorialTitle: "Dein erster Zug ist bereit!",
     departTutorialBody: "Gut gemacht! Die Fahrgäste sitzen im Zug und warten auf die Abfahrt. Tippe auf die hervorgehobene Schaltfläche Abfahrt, um deinen ersten Zug auf die Reise zu schicken.",
+    mapTutorialTitle: "Dein Zug ist unterwegs!",
+    mapTutorialBody: "Schauen wir ihn uns aus der Nähe an. Tippe auf den hervorgehobenen Zug auf der Karte.",
+    trainInfoTutorialTitle: "Zuginformationen",
+    trainInfoTutorialBody: "Hier findest du Informationen zu deinem Zug, seinem aktuellen Status und den verbleibenden Vertragsumläufen. Die Verträge erklären wir, wenn der Zug zum Bahnhof zurückkehrt."
     trainCardTutorialTitle: "Zuerst die Zugkarte",
     trainCardTutorialBody: "Hier siehst du den Namen des Zuges und seinen aktuellen Status. Tippe auf die hervorgehobene Karte, um den Zug auszuwählen und seine Steuerung zu öffnen.",
     welcomeTitle: "Willkommen im Bayerwald!",

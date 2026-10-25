@@ -841,11 +841,30 @@ button {
     align-items: center;
     gap: 7px;
   }
+  /* Ostatní kroky ukazují dolů k ovládacímu tlačítku. */
   .train-card-tutorial.track-step .train-card-tutorial-icon,
   .train-card-tutorial.unload-step .train-card-tutorial-icon,
   .train-card-tutorial.clean-step .train-card-tutorial-icon,
   .train-card-tutorial.board-step .train-card-tutorial-icon,
-  .train-card-tutorial.depart-step .train-card-tutorial-icon,
+  .train-card-tutorial.depart-step .train-card-tutorial-icon {
+    margin: 0;
+    transform: rotate(180deg);
+    font-size: 29px;
+    line-height: 1;
+    animation: tutorial-point-down 0.8s ease-in-out infinite;
+  }
+  /* Jen informace o vlaku: prst nahoru nad textem. */
+  .train-card-tutorial.train-info-step .train-card-tutorial-window {
+    flex-direction: column;
+  }
+  .train-card-tutorial.train-info-step .train-card-tutorial-icon {
+    margin: 0;
+    transform: none;
+    font-size: 29px;
+    line-height: 1;
+    animation: tutorial-point-up 0.8s ease-in-out infinite;
+  }
+  /* Jen otevřená odjezdová tabule: bublina dole, prst nahoru. */
   .train-card-tutorial.departure-board-step .train-card-tutorial-window {
     flex-direction: column;
     align-items: center;
@@ -857,24 +876,6 @@ button {
     font-size: 29px;
     line-height: 1;
     animation: tutorial-point-up 0.8s ease-in-out infinite;
-  }
-  /* Pouze u informací o vlaku má být prst NAD textem. */
-  .train-card-tutorial.train-info-step .train-card-tutorial-window {
-    flex-direction: column;
-  }
-  .train-card-tutorial.train-info-step .train-card-tutorial-icon {
-    margin: 0;
-    transform: none;
-    font-size: 29px;
-    line-height: 1;
-    animation: tutorial-point-up 0.8s ease-in-out infinite;
-  }
-  .train-card-tutorial.departure-board-step .train-card-tutorial-icon {
-    margin: 0;
-    transform: rotate(180deg);
-    font-size: 29px;
-    line-height: 1;
-    animation: tutorial-point-down 0.8s ease-in-out infinite;
   }
   .train-card-tutorial.track-step .train-card-tutorial-window h3,
   .train-card-tutorial.track-step .train-card-tutorial-window p,

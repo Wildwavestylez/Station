@@ -825,6 +825,10 @@ button {
     line-height: 1;
     animation: tutorial-point-down 0.8s ease-in-out infinite;
   }
+  /* Pouze u informací o vlaku má být prst NAD textem. */
+  .train-card-tutorial.train-info-step .train-card-tutorial-window {
+    flex-direction: column;
+  }
   .train-card-tutorial.train-info-step .train-card-tutorial-icon {
     margin: 0;
     transform: none;

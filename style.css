@@ -764,7 +764,7 @@ button {
   }
   /* Krok s kolejí: panel zvedneme nad tlačítko. První krok zůstává dole. */
   .train-card-tutorial.track-step {
-    bottom: calc(max(14px, env(safe-area-inset-bottom)) + 175px);
+    bottom: calc(max(14px, env(safe-area-inset-bottom)) + 135px);
   }
   .train-card-tutorial-window {
     display: flex;

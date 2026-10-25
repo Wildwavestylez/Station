@@ -1989,11 +1989,16 @@ function gameLoop(now) {
           t.state = "WAIT_BOARD";
           t.pendingAction = true;
         }
-        if (trainCardTutorialActive && trainCardTutorialStep === "cleaning" && selected && selected.id === t.id && t.state === "WAIT_BOARD") {
-          trainCardTutorialStep = "board";
-          renderTrainCardTutorialText();
-          const tutorial = document.getElementById("train-card-tutorial");
-          if (tutorial) { tutorial.classList.add("open"); tutorial.setAttribute("aria-hidden", "false"); }
+        if (trainCardTutorialActive && trainCardTutorialStep === "cleaning" && selected && selected.id === t.id) {
+          if (t.state === "WAIT_BOARD") {
+            trainCardTutorialStep = "board";
+            renderTrainCardTutorialText();
+            const tutorial = document.getElementById("train-card-tutorial");
+            if (tutorial) { tutorial.classList.add("open"); tutorial.setAttribute("aria-hidden", "false"); }
+          } else {
+            // If this train requires catering, end the first-train tutorial cleanly here.
+            finishTrainCardTutorial();
+          }
         }
         if (t.hasCleaningTeam) {
           t.hasCleaningTeam = false;

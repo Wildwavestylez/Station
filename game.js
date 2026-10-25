@@ -1710,6 +1710,8 @@ function resetGameState() {
   if (confirm(lang().deleteSaveConfirm)) {
     // 1. Vymažeme komplet data z paměti prohlížeče
     localStorage.removeItem('trainOps_save');
+    // Reset tutoriálu: při novém začátku se welcome popup ve Zwieselu ukáže znovu.
+    localStorage.removeItem('station_zwiesel_welcome_seen_v1');
     
     // 2. Smažeme markery jedoucích vlaků, aby nezůstaly viset na mapě
     trains.forEach(t => { if (t.marker) map.removeLayer(t.marker); });

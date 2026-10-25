@@ -698,13 +698,24 @@ button {
 
 /* První krok tutoriálu: zvýraznění skutečné karty vlaku. */
 .train.train-tutorial-target {
-  position: relative; z-index: 1201; outline: 3px solid #8be9a8; outline-offset: 1px;
-  box-shadow: 0 0 0 5px rgba(139, 233, 168, 0.18), 0 0 22px rgba(139, 233, 168, 0.55);
-  animation: train-tutorial-pulse 1.8s ease-in-out infinite;
+  position: relative;
+  z-index: 1201;
+  outline: 4px solid #b7ffca !important;
+  outline-offset: 2px;
+  border: 2px solid #b7ffca !important;
+  background: #254b35 !important;
+  transform: scale(1.025);
+  animation: train-tutorial-pulse 0.9s ease-in-out infinite !important;
 }
 @keyframes train-tutorial-pulse {
-  0%, 100% { box-shadow: 0 0 0 3px rgba(139, 233, 168, 0.12), 0 0 12px rgba(139, 233, 168, 0.35); }
-  50% { box-shadow: 0 0 0 7px rgba(139, 233, 168, 0.20), 0 0 22px rgba(139, 233, 168, 0.65); }
+  0%, 100% {
+    outline-color: #b7ffca;
+    box-shadow: 0 0 0 5px rgba(139, 233, 168, 0.45), 0 0 18px 8px rgba(139, 233, 168, 0.8);
+  }
+  50% {
+    outline-color: #ffffff;
+    box-shadow: 0 0 0 9px rgba(139, 233, 168, 0.65), 0 0 30px 13px rgba(139, 233, 168, 1);
+  }
 }
 .train-card-tutorial {
   display: none; position: fixed; z-index: 1200; left: 12px; right: 12px;

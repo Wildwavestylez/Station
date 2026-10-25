@@ -853,6 +853,14 @@ function startTimer(type) {
     train.timer = Number(train.timers && train.timers.clean) || 0;
     train.pendingAction = false;
     render();
+    if (trainCardTutorialActive && trainCardTutorialStep === "clean") {
+      trainCardTutorialStep = "cleaning";
+      const tutorial = document.getElementById("train-card-tutorial");
+      if (tutorial) {
+        tutorial.classList.remove("open");
+        tutorial.setAttribute("aria-hidden", "true");
+      }
+    }
     return;
   }
 

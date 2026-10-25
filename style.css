@@ -796,7 +796,10 @@ button {
   }
   /* Prst sedí pod tlačítkem ODJEZDY, ne jen na opačné straně textu. */
   .train-card-tutorial.departure-board-button-step .train-card-tutorial-icon {
+    display: block !important;
+    visibility: visible !important;
     position: absolute;
+    z-index: 2;
     right: 63px;
     top: 38px;
     margin: 0;

@@ -1517,7 +1517,7 @@ function render() {
     d.className = "train";
     if (selected && selected.id === t.id) d.className += " selected";
     const tutorialTrain = orderedTrains.find(train => train.state === "WAIT_ASSIGN");
-    const tutorialTarget = trainCardTutorialActive && tutorialTrain && t.id === tutorialTrain.id;
+    const tutorialTarget = trainCardTutorialActive && trainCardTutorialStep === "card" && tutorialTrain && t.id === tutorialTrain.id;
     if (tutorialTarget) d.className += " train-tutorial-target";
     if (trainCardTutorialActive && trainCardTutorialStep === "track" && selected && selected.id === t.id) {
       d.classList.add("train-tutorial-selected");

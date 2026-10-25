@@ -1506,8 +1506,8 @@ function render() {
     let d = document.createElement("div");
     d.className = "train";
     if (selected && selected.id === t.id) d.className += " selected";
-    const tutorialTarget = trainCardTutorialActive && t.state === "WAIT_ASSIGN"
-      && !trains.some(train => train.state === "WAIT_ASSIGN" && Number(train.queuePriority || 0) > Number(t.queuePriority || 0));
+    const tutorialTrain = orderedTrains.find(train => train.state === "WAIT_ASSIGN");
+    const tutorialTarget = trainCardTutorialActive && tutorialTrain && t.id === tutorialTrain.id;
     if (tutorialTarget) d.className += " train-tutorial-target";
 
     let isSelected = selected && selected.id === t.id;

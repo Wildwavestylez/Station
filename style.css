@@ -748,3 +748,34 @@ button {
   position: relative;
   z-index: 1202;
 }
+
+
+/* Druhý krok tutoriálu: panel nesmí zakrývat ovládací tlačítka na mobilu. */
+@media (max-width: 700px) {
+  .train-card-tutorial {
+    left: auto;
+    right: 10px;
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    width: min(42vw, 250px);
+    max-width: 250px;
+  }
+  .train-card-tutorial-window {
+    display: block;
+    padding: 10px 11px;
+    border-radius: 12px;
+  }
+  .train-card-tutorial-icon {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+  .train-card-tutorial-window h3 {
+    font-size: 14px;
+    line-height: 1.25;
+  }
+  .train-card-tutorial-window p {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+}

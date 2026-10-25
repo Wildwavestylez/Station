@@ -746,6 +746,20 @@ button {
 .tutorial-next-button[hidden] { display: none; }
 .train-card-tutorial-window { pointer-events: auto; }
 .train-card-tutorial.departure-board-step { z-index: 3100; }
+.menu-tutorial-target {
+  outline: 4px solid #b7ffca !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(139, 233, 168, .5), 0 0 24px 9px rgba(139, 233, 168, .9) !important;
+  animation: train-tutorial-pulse .9s ease-in-out infinite !important;
+  z-index: 1300 !important;
+}
+.train-card-tutorial.menu-button-step {
+  top: 72px;
+  bottom: auto;
+}
+.train-card-tutorial.menu-open-step {
+  z-index: 1205;
+}
 @media (max-width: 600px) {
   .train-card-tutorial-window { padding: 12px 13px; gap: 9px; }
   .train-card-tutorial-window h3 { font-size: 15px; }

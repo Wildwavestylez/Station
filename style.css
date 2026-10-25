@@ -765,7 +765,9 @@ button {
   /* Krok s kolejí: panel zvedneme nad tlačítko. První krok zůstává dole. */
   .train-card-tutorial.track-step,
   .train-card-tutorial.coming-step,
-  .train-card-tutorial.unload-step {
+  .train-card-tutorial.unload-step,
+  .train-card-tutorial.clean-step,
+  .train-card-tutorial.board-step {
     bottom: calc(max(14px, env(safe-area-inset-bottom)) + 135px);
   }
   .train-card-tutorial-window {
@@ -777,13 +779,17 @@ button {
   .train-card-tutorial-window h3 { font-size: 15px; }
   .train-card-tutorial-window p { font-size: 13px; }
   .train-card-tutorial.track-step .train-card-tutorial-window,
-  .train-card-tutorial.unload-step .train-card-tutorial-window {
+  .train-card-tutorial.unload-step .train-card-tutorial-window,
+  .train-card-tutorial.clean-step .train-card-tutorial-window,
+  .train-card-tutorial.board-step .train-card-tutorial-window {
     flex-direction: column-reverse;
     align-items: center;
     gap: 7px;
   }
   .train-card-tutorial.track-step .train-card-tutorial-icon,
-  .train-card-tutorial.unload-step .train-card-tutorial-icon {
+  .train-card-tutorial.unload-step .train-card-tutorial-icon,
+  .train-card-tutorial.clean-step .train-card-tutorial-icon,
+  .train-card-tutorial.board-step .train-card-tutorial-icon {
     margin: 0;
     transform: rotate(180deg);
     font-size: 29px;
@@ -793,7 +799,11 @@ button {
   .train-card-tutorial.track-step .train-card-tutorial-window h3,
   .train-card-tutorial.track-step .train-card-tutorial-window p,
   .train-card-tutorial.unload-step .train-card-tutorial-window h3,
-  .train-card-tutorial.unload-step .train-card-tutorial-window p {
+  .train-card-tutorial.unload-step .train-card-tutorial-window p,
+  .train-card-tutorial.clean-step .train-card-tutorial-window h3,
+  .train-card-tutorial.clean-step .train-card-tutorial-window p,
+  .train-card-tutorial.board-step .train-card-tutorial-window h3,
+  .train-card-tutorial.board-step .train-card-tutorial-window p {
     align-self: stretch;
     text-align: left;
   }
@@ -801,4 +811,10 @@ button {
 @keyframes tutorial-point-down {
   0%, 100% { transform: rotate(180deg) translateY(0); }
   50% { transform: rotate(180deg) translateY(5px); }
+}
+
+
+/* Během samotného příjezdu je to informační bublina, bez ukazujícího prstu. */
+@media (max-width: 700px) {
+  .train-card-tutorial.coming-step .train-card-tutorial-icon { display: none; }
 }

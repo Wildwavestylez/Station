@@ -790,22 +790,23 @@ button {
     bottom: auto;
   }
   .train-card-tutorial.departure-board-button-step .train-card-tutorial-window {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    position: relative;
+    display: block;
+    padding-right: 86px;
   }
+  /* Prst sedí pod tlačítkem ODJEZDY, ne jen na opačné straně textu. */
   .train-card-tutorial.departure-board-button-step .train-card-tutorial-icon {
-    order: 2;
-    flex: 0 0 auto;
-    margin: 0 10px 0 2px;
+    position: absolute;
+    right: 63px;
+    top: 38px;
+    margin: 0;
     transform: none;
     font-size: 29px;
     line-height: 1;
     animation: tutorial-point-up 0.8s ease-in-out infinite;
   }
   .train-card-tutorial.departure-board-button-step .train-card-tutorial-window > div {
-    order: 1;
-    flex: 1 1 auto;
+    width: 100%;
     min-width: 0;
   }
   /* Po otevření tabule už prst není potřeba — zůstane jen text. */

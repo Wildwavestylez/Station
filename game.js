@@ -374,6 +374,8 @@ function renderTrainCardTutorialText() {
   const isTrainInfoStep = trainCardTutorialStep === "trainInfo";
   const isDepartureBoardStep = trainCardTutorialStep === "departureBoard";
   const isDepartureBoardButtonStep = trainCardTutorialStep === "departureBoardButton";
+  const isMenuButtonStep = trainCardTutorialStep === "menuButton";
+  const isMenuOpenStep = trainCardTutorialStep === "menuOpen";
   if (modal) {
     modal.classList.toggle("track-step", isTrackStep);
     modal.classList.toggle("coming-step", isComingStep);
@@ -385,8 +387,12 @@ function renderTrainCardTutorialText() {
     modal.classList.toggle("train-info-step", isTrainInfoStep);
     modal.classList.toggle("departure-board-step", isDepartureBoardStep);
     modal.classList.toggle("departure-board-button-step", isDepartureBoardButtonStep);
+    modal.classList.toggle("menu-button-step", isMenuButtonStep);
+    modal.classList.toggle("menu-open-step", isMenuOpenStep);
     const boardButton = document.getElementById("departure-board-button");
     if (boardButton) boardButton.classList.toggle("departure-board-tutorial-target", isDepartureBoardButtonStep);
+    const menuButton = document.getElementById("menu-btn");
+    if (menuButton) menuButton.classList.toggle("menu-tutorial-target", isMenuButtonStep);
   }
   if (title) title.textContent = isTrackStep
     ? (lang().trackTutorialTitle || "")
@@ -398,6 +404,7 @@ function renderTrainCardTutorialText() {
     : isMapStep ? (lang().mapTutorialTitle || "")
     : isTrainInfoStep ? (lang().trainInfoTutorialTitle || "")
     : (isDepartureBoardStep || isDepartureBoardButtonStep) ? (lang().departureBoardTutorialTitle || "")
+    : (isMenuButtonStep || isMenuOpenStep) ? (lang().menuTutorialTitle || "Hlavní menu")
     : (lang().trainCardTutorialTitle || "");
   if (body) body.textContent = isTrackStep
     ? (lang().trackTutorialBody || "")
@@ -410,11 +417,13 @@ function renderTrainCardTutorialText() {
     : isTrainInfoStep ? (lang().trainInfoTutorialBody || "")
     : isDepartureBoardButtonStep ? (lang().departureBoardButtonTutorialBody || "")
     : isDepartureBoardStep ? (lang().departureBoardTutorialBody || "")
+    : isMenuButtonStep ? (lang().menuButtonTutorialBody || "")
+    : isMenuOpenStep ? (lang().menuOpenTutorialBody || "")
     : (lang().trainCardTutorialBody || "");
   const nextButton = document.getElementById("train-card-tutorial-next");
   if (nextButton) {
     nextButton.textContent = isTrainInfoStep ? (lang().tutorialNext || "Rozumím, jdeme dál") : (lang().tutorialFinish || "Fajn, díky!");
-    nextButton.hidden = !(isTrainInfoStep || isDepartureBoardStep);
+    nextButton.hidden = !(isTrainInfoStep || isDepartureBoardStep || isMenuOpenStep);
   }
 }
 function showTrainCardTutorial() {
@@ -455,6 +464,12 @@ function initTrainCardTutorial() {
         if (modal) { modal.classList.add("open"); modal.setAttribute("aria-hidden", "false"); }
       } else if (trainCardTutorialStep === "departureBoard") {
         closeDepartureBoard();
+        trainCardTutorialStep = "menuButton";
+        renderTrainCardTutorialText();
+        const modal = document.getElementById("train-card-tutorial");
+        if (modal) { modal.classList.add("open"); modal.setAttribute("aria-hidden", "false"); }
+      } else if (trainCardTutorialStep === "menuOpen") {
+        toggleSidebar();
         finishTrainCardTutorial();
       }
     });
@@ -467,8 +482,13 @@ function initTrainCardTutorial() {
 // 🍔 3. FUNKCE PRO VYSUNUTÍ / ZASUNUTÍ BOČNÍHO MENU
 function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
-  if (sidebar) {
-    sidebar.classList.toggle("open");
+  if (!sidebar) return;
+  sidebar.classList.toggle("open");
+  if (trainCardTutorialActive && trainCardTutorialStep === "menuButton" && sidebar.classList.contains("open")) {
+    trainCardTutorialStep = "menuOpen";
+    renderTrainCardTutorialText();
+    const tutorial = document.getElementById("train-card-tutorial");
+    if (tutorial) { tutorial.classList.add("open"); tutorial.setAttribute("aria-hidden", "false"); }
   }
 }
 

@@ -335,6 +335,7 @@ function closeWelcomePopup() {
   localStorage.setItem(WELCOME_SEEN_KEY, "1");
   modal.classList.remove("open");
   modal.setAttribute("aria-hidden", "true");
+  showTrainCardTutorial();
 }
 function initWelcomePopup() {
   renderWelcomePopupText();
@@ -344,6 +345,43 @@ function initWelcomePopup() {
     const modal = document.getElementById("welcome-modal");
     if (event.key === "Escape" && modal && modal.classList.contains("open")) closeWelcomePopup();
   });
+}
+
+const TRAIN_CARD_TUTORIAL_KEY = "station_zwiesel_train_card_tutorial_v1";
+let trainCardTutorialActive = false;
+function renderTrainCardTutorialText() {
+  const title = document.getElementById("train-card-tutorial-title");
+  const body = document.getElementById("train-card-tutorial-body");
+  if (title) title.textContent = lang().trainCardTutorialTitle || "";
+  if (body) body.textContent = lang().trainCardTutorialBody || "";
+}
+function showTrainCardTutorial() {
+  const modal = document.getElementById("train-card-tutorial");
+  if (!modal || currentStationKey !== "zwiesel") return;
+  if (localStorage.getItem(TRAIN_CARD_TUTORIAL_KEY) === "1") return;
+  const welcome = document.getElementById("welcome-modal");
+  if (welcome && welcome.classList.contains("open")) return;
+  if (!trains.some(train => train.state === "WAIT_ASSIGN")) return;
+  trainCardTutorialActive = true;
+  renderTrainCardTutorialText();
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+  render();
+}
+function finishTrainCardTutorial() {
+  const modal = document.getElementById("train-card-tutorial");
+  trainCardTutorialActive = false;
+  localStorage.setItem(TRAIN_CARD_TUTORIAL_KEY, "1");
+  if (modal) {
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+  }
+  render();
+}
+function initTrainCardTutorial() {
+  renderTrainCardTutorialText();
+  const welcome = document.getElementById("welcome-modal");
+  if (!welcome || !welcome.classList.contains("open")) showTrainCardTutorial();
 }
 
 // 🍔 3. FUNKCE PRO VYSUNUTÍ / ZASUNUTÍ BOČNÍHO MENU
@@ -1468,6 +1506,9 @@ function render() {
     let d = document.createElement("div");
     d.className = "train";
     if (selected && selected.id === t.id) d.className += " selected";
+    const tutorialTarget = trainCardTutorialActive && t.state === "WAIT_ASSIGN"
+      && !trains.some(train => train.state === "WAIT_ASSIGN" && Number(train.queuePriority || 0) > Number(t.queuePriority || 0));
+    if (tutorialTarget) d.className += " train-tutorial-target";
 
     let isSelected = selected && selected.id === t.id;
     let showDot = t.pendingAction && !isSelected;
@@ -1501,7 +1542,8 @@ function render() {
       selected = t;
       t.queuePriority = ++trainQueuePriority;
       updateDetail();
-      render();
+      if (trainCardTutorialActive && t.state === "WAIT_ASSIGN") finishTrainCardTutorial();
+      else render();
     };
     q.appendChild(d);
   });
@@ -1712,6 +1754,7 @@ function resetGameState() {
     localStorage.removeItem('trainOps_save');
     // Reset tutoriálu: při novém začátku se welcome popup ve Zwieselu ukáže znovu.
     localStorage.removeItem('station_zwiesel_welcome_seen_v1');
+    localStorage.removeItem('station_zwiesel_train_card_tutorial_v1');
     
     // 2. Smažeme markery jedoucích vlaků, aby nezůstaly viset na mapě
     trains.forEach(t => { if (t.marker) map.removeLayer(t.marker); });
@@ -1951,5 +1994,6 @@ loadGameState();
 loadStation("zwiesel");
 initWelcomePopup();
 showWelcomePopup();
+initTrainCardTutorial();
 
 

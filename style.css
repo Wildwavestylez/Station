@@ -813,11 +813,6 @@ button {
     align-items: center;
     gap: 7px;
   }
-  .train-card-tutorial.track-step .train-card-tutorial-icon,
-  .train-card-tutorial.unload-step .train-card-tutorial-icon,
-  .train-card-tutorial.clean-step .train-card-tutorial-icon,
-  .train-card-tutorial.board-step .train-card-tutorial-icon,
-  .train-card-tutorial.depart-step .train-card-tutorial-icon,
   .train-card-tutorial.train-info-step .train-card-tutorial-icon {
     margin: 0;
     transform: none;

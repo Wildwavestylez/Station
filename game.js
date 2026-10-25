@@ -349,11 +349,14 @@ function initWelcomePopup() {
 
 const TRAIN_CARD_TUTORIAL_KEY = "station_zwiesel_train_card_tutorial_v1";
 let trainCardTutorialActive = false;
+let trainCardTutorialStep = "card";
 function renderTrainCardTutorialText() {
   const title = document.getElementById("train-card-tutorial-title");
   const body = document.getElementById("train-card-tutorial-body");
-  if (title) title.textContent = lang().trainCardTutorialTitle || "";
-  if (body) body.textContent = lang().trainCardTutorialBody || "";
+  if (title) title.textContent = trainCardTutorialStep === "track"
+    ? (lang().trackTutorialTitle || "") : (lang().trainCardTutorialTitle || "");
+  if (body) body.textContent = trainCardTutorialStep === "track"
+    ? (lang().trackTutorialBody || "") : (lang().trainCardTutorialBody || "");
 }
 function showTrainCardTutorial() {
   const modal = document.getElementById("train-card-tutorial");
@@ -371,6 +374,7 @@ function showTrainCardTutorial() {
 function finishTrainCardTutorial() {
   const modal = document.getElementById("train-card-tutorial");
   trainCardTutorialActive = false;
+  trainCardTutorialStep = "card";
   localStorage.setItem(TRAIN_CARD_TUTORIAL_KEY, "1");
   if (modal) {
     modal.classList.remove("open");
@@ -776,6 +780,9 @@ function assignTrack(trackIndex) {
     alert(lang().trackOccupied);
     return;
   }
+
+  // Po skutečném přidělení koleje dokončíme druhý krok úvodního tutoriálu.
+  if (trainCardTutorialActive && trainCardTutorialStep === "track") finishTrainCardTutorial();
 
   // Zarezervujeme kolej pro tento vlak (uložíme jeho ID)
   tracks[trackIndex] = selected.id;
@@ -1509,6 +1516,9 @@ function render() {
     const tutorialTrain = orderedTrains.find(train => train.state === "WAIT_ASSIGN");
     const tutorialTarget = trainCardTutorialActive && tutorialTrain && t.id === tutorialTrain.id;
     if (tutorialTarget) d.className += " train-tutorial-target";
+    if (trainCardTutorialActive && trainCardTutorialStep === "track" && selected && selected.id === t.id) {
+      d.classList.add("train-tutorial-selected");
+    }
 
     let isSelected = selected && selected.id === t.id;
     let showDot = t.pendingAction && !isSelected;
@@ -1542,8 +1552,11 @@ function render() {
       selected = t;
       t.queuePriority = ++trainQueuePriority;
       updateDetail();
-      if (trainCardTutorialActive && t.state === "WAIT_ASSIGN") finishTrainCardTutorial();
-      else render();
+      if (trainCardTutorialActive && trainCardTutorialStep === "card" && t.state === "WAIT_ASSIGN") {
+        trainCardTutorialStep = "track";
+        renderTrainCardTutorialText();
+        render();
+      } else render();
     };
     q.appendChild(d);
   });
@@ -1602,7 +1615,7 @@ function renderActions() {
       if (tracks[i] !== null) {
         htmlButtons += `<button class="r" style="opacity: 0.4; cursor: not-allowed;" disabled>${lang().platform} ${i+1} (${lang().occupied})</button>`;
       } else {
-        htmlButtons += `<button class="g" onclick="assignTrack(${i})">${lang().platform} ${i+1}</button>`;
+        htmlButtons += `<button class="g${trainCardTutorialActive && trainCardTutorialStep === "track" ? " track-tutorial-target" : ""}" onclick="assignTrack(${i})">${lang().platform} ${i+1}</button>`;
       }
     }
     a.innerHTML = htmlButtons;

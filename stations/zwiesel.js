@@ -81,7 +81,7 @@ window.STATIONS_REGISTRY["zwiesel"] = {
     },
     1: {
       xpNeeded: 5,
-      rewardText: "Zwiesel: Level 2 erreicht!",
+      rewardTextKey: "zwieselLevel1Reward",
       action: () => {}
     },
     2: {

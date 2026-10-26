@@ -334,7 +334,7 @@ function initDepartureBoard() {
 
 // 👋 Úvodní popup: jazyk vždy vychází z aktuálního nastavení hry.
 const WELCOME_SEEN_KEY = "station_zwiesel_welcome_seen_v1";
-const FIRST_CONTRACT_TUTORIAL_KEY = "station_zwiesel_first_contract_tutorial_v1";
+const FIRST_CONTRACT_TUTORIAL_KEY = "station_zwiesel_first_contract_tutorial_v2";
 function renderFirstContractTutorialText() {
   const copy = lang();
   const title = document.getElementById("first-contract-tutorial-title");
@@ -2058,6 +2058,8 @@ function resetGameState() {
     // Reset tutoriálu: při novém začátku se welcome popup ve Zwieselu ukáže znovu.
     localStorage.removeItem('station_zwiesel_welcome_seen_v1');
     localStorage.removeItem('station_zwiesel_train_card_tutorial_v1');
+    localStorage.removeItem('station_zwiesel_first_contract_tutorial_v1');
+    localStorage.removeItem('station_zwiesel_first_contract_tutorial_v2');
     
     // 2. Smažeme markery jedoucích vlaků, aby nezůstaly viset na mapě
     trains.forEach(t => { if (t.marker) map.removeLayer(t.marker); });

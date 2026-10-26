@@ -1419,7 +1419,10 @@ function checkLevelUp() {
     }
     unlockedCateringTeamsCount = Math.min(3, Math.max(unlockedCateringTeamsCount, Math.floor(nextCateringTeams)));
 
-    const rewardText = [reachedConfig.rewardText, ...rewards].filter(Boolean).join("\\n• ");
+    const configuredRewardText = reachedConfig.rewardTextKey
+      ? (lang()[reachedConfig.rewardTextKey] || reachedConfig.rewardText || "")
+      : (reachedConfig.rewardText || "");
+    const rewardText = [configuredRewardText, ...rewards].filter(Boolean).join("\\n• ");
     levelUpMessages.push(`${lang().levelUp} ${currentStationData.name} ${lang().stationAdvanced} ${reachedLevel}!\\n\\n${lang().reward}\\n• ${rewardText || lang().continueDevelop}`);
   }
 

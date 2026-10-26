@@ -951,3 +951,15 @@ button {
 #premium-coins { font-weight: 700; }
 #zwiesel-coin-wrap { white-space: nowrap; }
 #zwiesel-coin-wrap[hidden] { display: none !important; }
+
+
+/* First-trip speed-up tutorial bubble */
+.speed-up-tutorial-bubble { display:none; position:fixed; inset:0; z-index:3200; pointer-events:none; }
+.speed-up-tutorial-bubble.open { display:block; }
+.speed-up-tutorial-window { position:absolute; left:50%; bottom:22px; transform:translateX(-50%); width:min(420px, calc(100vw - 28px)); display:flex; align-items:flex-start; gap:12px; padding:16px; border:1px solid rgba(167,243,208,.35); border-radius:14px; background:rgba(15,23,42,.97); box-shadow:0 12px 36px rgba(0,0,0,.4); color:#e4ebe7; pointer-events:auto; }
+.speed-up-tutorial-icon { font-size:30px; line-height:1.2; }
+.speed-up-tutorial-copy { flex:1; min-width:0; }
+.speed-up-tutorial-copy h3 { margin:0 0 6px; color:#a7f3c0; font-size:17px; }
+.speed-up-tutorial-copy p { margin:0; font-size:14px; line-height:1.45; }
+.speed-up-tutorial-copy button { margin-top:12px; width:100%; }
+@media (max-width:600px) { .speed-up-tutorial-window { bottom:14px; padding:13px; gap:10px; } .speed-up-tutorial-copy h3 { font-size:16px; } .speed-up-tutorial-copy p { font-size:13px; } }

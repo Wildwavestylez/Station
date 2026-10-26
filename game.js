@@ -358,7 +358,8 @@ function closeFirstContractTutorial() {
   localStorage.setItem(FIRST_CONTRACT_TUTORIAL_KEY, "1");
   modal.classList.remove("open");
   modal.setAttribute("aria-hidden", "true");
-  if (typeof toggleSidebar === "function") toggleSidebar(true);
+  const sidebar = document.getElementById("sidebar");
+  if (sidebar) sidebar.classList.add("open");
   const shopButton = document.getElementById("station-shop-button");
   if (shopButton) shopButton.classList.add("tutorial-highlight");
 }

@@ -1353,6 +1353,7 @@ function checkLevelUp() {
   if (!myData || !currentStationData || !currentStationData.levels) return;
 
   const levelUpMessages = [];
+  let reachedZwieselLevel1 = false;
 
   // Zpracuj všechny levely, na které hráč získanými XP dosáhl.
   // XPNeeded je cena postupu z aktuálního levelu na následující.
@@ -1366,6 +1367,7 @@ function checkLevelUp() {
     myData.xp -= requiredXp;
     myData.lvl += 1;
     const reachedLevel = myData.lvl;
+    if (currentStationKey === "zwiesel" && reachedLevel === 1) reachedZwieselLevel1 = true;
     const reachedConfig = currentStationData.levels[reachedLevel] || {};
     const rewards = [];
 
@@ -1435,6 +1437,9 @@ function checkLevelUp() {
   saveGameState();
   render();
   if (shopOpen) renderShop();
+
+  // Show the existing first-contract tutorial only after the Level Up alert is dismissed.
+  if (reachedZwieselLevel1) showFirstContractTutorial();
 }
 
 // ==========================================

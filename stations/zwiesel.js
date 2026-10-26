@@ -81,6 +81,16 @@ window.STATIONS_REGISTRY["zwiesel"] = {
       xpNeeded: 5,
       rewardText: "Zwiesel: Level 2 erreicht!",
       action: () => {}
+    },
+    2: {
+      xpNeeded: 10,
+      rewardText: "Level 3: Möglichkeit zum Kauf einer zweiten Reinigungsmannschaft wird freigeschaltet.",
+      action: () => {}
+    },
+    3: {
+      xpNeeded: 20,
+      rewardText: "Level 4: Plzeň wird als nächster Bahnhof freigeschaltet.",
+      action: () => {}
     }
   },
   trainsPool: {

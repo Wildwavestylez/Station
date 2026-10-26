@@ -128,7 +128,7 @@ window.STATIONS_REGISTRY["zwiesel"] = {
       routeLabel: "Plattling–Deggendorf–Regen–Zwiesel–Bayerisch Eisenstein",
       boardDestination: "Plattling",
       lineCode: "RB 35",
-      purchaseCost: 1000,
+      purchaseCost: 5000,
       requiredLevel: 0,
       shopRequiredLevelOverride: true,
       image: "assets/trains/germany/waldbahn/WB3.png",

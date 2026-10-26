@@ -766,8 +766,10 @@ function loadStation(stationKey) {
       levelUnlockedTeams = Math.max(levelUnlockedTeams, Math.floor(teamsAtLevel));
     }
   }
-  // Druhá četa je základní odměna levelu 6 nezávisle na konfiguraci konkrétní stanice.
-  if (myLvl >= 6) levelUnlockedTeams = Math.max(levelUnlockedTeams, 2);
+  const cleaningTeamFreeLevel = Number(currentStationData.cleaningTeamFreeLevel);
+  if (Number.isFinite(cleaningTeamFreeLevel) && cleaningTeamFreeLevel > 0 && myLvl >= cleaningTeamFreeLevel) {
+    levelUnlockedTeams = Math.max(levelUnlockedTeams, 2);
+  }
   const savedHiredTeams = Number(hiredCleaningTeamsByStation[stationKey]);
   const hiredTeams = Number.isFinite(savedHiredTeams) && savedHiredTeams >= 0
     ? Math.min(2, Math.floor(savedHiredTeams))
@@ -787,7 +789,10 @@ function loadStation(stationKey) {
       levelUnlockedCateringTeams = Math.max(levelUnlockedCateringTeams, Math.floor(teamsAtLevel));
     }
   }
-  if (myLvl >= 11) levelUnlockedCateringTeams = Math.max(levelUnlockedCateringTeams, 2);
+  const cateringTeamFreeLevel = Number(currentStationData.cateringTeamFreeLevel);
+  if (Number.isFinite(cateringTeamFreeLevel) && cateringTeamFreeLevel > 0 && myLvl >= cateringTeamFreeLevel) {
+    levelUnlockedCateringTeams = Math.max(levelUnlockedCateringTeams, 2);
+  }
   const savedHiredCateringTeams = Number(hiredCateringTeamsByStation[stationKey]);
   const hiredCateringTeams = Number.isFinite(savedHiredCateringTeams) && savedHiredCateringTeams >= 0
     ? Math.min(1, Math.floor(savedHiredCateringTeams))
@@ -1394,11 +1399,10 @@ function checkLevelUp() {
       const teamsAtLevel = Number(currentStationData.levels[level] && currentStationData.levels[level].unlocksCleaningTeams);
       if (Number.isFinite(teamsAtLevel) && teamsAtLevel >= 1) nextTeams = Math.max(nextTeams, Math.floor(teamsAtLevel));
     }
-    if (reachedLevel >= 6) {
+    const cleaningTeamFreeLevel = Number(currentStationData.cleaningTeamFreeLevel);
+    if (Number.isFinite(cleaningTeamFreeLevel) && cleaningTeamFreeLevel > 0 && reachedLevel >= cleaningTeamFreeLevel) {
       nextTeams = Math.max(nextTeams, 2);
-      if (reachedLevel === 6) {
-        rewards.push(lang().cleaningTeamFree);
-      }
+      if (reachedLevel === cleaningTeamFreeLevel) rewards.push(lang().cleaningTeamFree);
     }
     unlockedCleaningTeamsCount = Math.min(4, Math.max(unlockedCleaningTeamsCount, Math.floor(nextTeams)));
 
@@ -1408,11 +1412,10 @@ function checkLevelUp() {
       const count = Number(currentStationData.levels[level] && currentStationData.levels[level].unlocksCateringTeams);
       if (Number.isFinite(count) && count >= 1) nextCateringTeams = Math.max(nextCateringTeams, Math.floor(count));
     }
-    if (reachedLevel >= 11) {
+    const cateringTeamFreeLevel = Number(currentStationData.cateringTeamFreeLevel);
+    if (Number.isFinite(cateringTeamFreeLevel) && cateringTeamFreeLevel > 0 && reachedLevel >= cateringTeamFreeLevel) {
       nextCateringTeams = Math.max(nextCateringTeams, 2);
-      if (reachedLevel === 11) {
-        rewards.push(lang().cateringTeamFree);
-      }
+      if (reachedLevel === cateringTeamFreeLevel) rewards.push(lang().cateringTeamFree);
     }
     unlockedCateringTeamsCount = Math.min(3, Math.max(unlockedCateringTeamsCount, Math.floor(nextCateringTeams)));
 
@@ -1629,8 +1632,9 @@ function buyCleaningTeam() {
   if (!currentStationData || !currentStationKey) return;
 
   const level = Number((stationLevels[currentStationKey] || {}).lvl) || 0;
-  if (level < 6) {
-    alert(lang().unlockCleaningLevel);
+  const cleaningShopLevel = Number(currentStationData.cleaningTeamShopLevel ?? 6);
+  if (level < cleaningShopLevel) {
+    alert(String(lang().unlockCleaningLevel).replace("6", String(cleaningShopLevel)));
     return;
   }
 
@@ -1686,8 +1690,9 @@ function buyCateringTeam() {
 function buyTrack() {
   if (!currentStationData || !currentStationKey) return;
   const level = Number((stationLevels[currentStationKey] || {}).lvl) || 0;
-  if (level < 4) {
-    alert(lang().unlockTrackLevel);
+  const trackPurchaseLevel = Number(currentStationData.trackPurchaseLevel ?? 4);
+  if (level < trackPurchaseLevel) {
+    alert(String(lang().unlockTrackLevel).replace("4", String(trackPurchaseLevel)));
     return;
   }
   const costs = currentStationData.trackPurchaseCosts || [];

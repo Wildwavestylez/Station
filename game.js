@@ -475,7 +475,7 @@ function activateZwieselBodenmaisSpeedBoost() {
   }
   premiumCoins -= 1;
   train.speedUpOriginalSpeed = Number(train.speed) || 80;
-  train.speed = 250;
+  train.speed = 300;
   train.speedUpBonusActive = true;
   const route = currentStationData.routes.bodenmais;
   const routeLength = Number(route && route.totalLength);

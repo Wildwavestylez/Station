@@ -196,7 +196,7 @@ window.LANGUAGES = {
     trainCardTutorialTitle: "Nejdřív karta vlaku",
     trainCardTutorialBody: "Tady vidíš název soupravy a její aktuální stav. Klepni na zvýrazněnou kartu — tím vlak vybereš a zobrazíš jeho ovládání.",
     welcomeTitle: "Vítej na bavorské straně Šumavy!",
-    welcomeBody: "Tohle je tvoje první nádraží – Zwiesel. Tvým úkolem je vypravovat vlaky, odbavovat cestující a postupně rozšiřovat provoz. Začneme tvou první soupravou.",
+    welcomeBody: "Tohle je tvoje první nádraží – Zwiesel. Tvým úkolem je vypravovat vlaky, odbavovat cestující a postupně rozšiřovat provoz. Začneme s první soupravou.",
     welcomeStart: "Pojďme na to!",
   },
   
@@ -408,8 +408,8 @@ window.LANGUAGES = {
     tutorialFinish: "All right, thanks!",
     trainCardTutorialTitle: "First, the train card",
     trainCardTutorialBody: "Here you can see the train name and its current status. Tap the highlighted card to select the train and open its controls.",
-    welcomeTitle: "Welcome to the Bavarian Forest!",
-    welcomeBody: "This is your first railway station – Zwiesel. Your job is to dispatch trains, handle passengers, and gradually expand your operations. Let's get started with your first train.",
+    welcomeTitle: "Welcome to the Bavarian side of the Šumava!",
+    welcomeBody: "This is your first railway station — Zwiesel. Your job is to dispatch trains, handle passengers, and gradually expand your operations. Let's get started with your first train.",
     welcomeStart: "Let's get started!",
   },
 
@@ -608,7 +608,7 @@ window.LANGUAGES = {
     tutorialFinish: "Alles klar, danke!",
     trainCardTutorialTitle: "Zuerst die Zugkarte",
     trainCardTutorialBody: "Hier siehst du den Namen des Zuges und seinen aktuellen Status. Tippe auf die hervorgehobene Karte, um den Zug auszuwählen und seine Steuerung zu öffnen.",
-    welcomeTitle: "Willkommen im Bayerwald!",
+    welcomeTitle: "Willkommen im Bayerischen Wald!",
     welcomeBody: "Das ist dein erster Bahnhof – Zwiesel. Deine Aufgabe ist es, Züge abzufertigen, Fahrgäste zu betreuen und den Betrieb Schritt für Schritt auszubauen. Beginnen wir mit deinem ersten Zug.",
     welcomeStart: "Los geht's!",
   }

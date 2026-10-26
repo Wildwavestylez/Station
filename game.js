@@ -51,6 +51,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 if (!window.STATIONS_REGISTRY) window.STATIONS_REGISTRY = {};
 
 let globalMoney = 100;          // Pokladna právě aktivního nádraží
+let premiumCoins = 0;            // Premium coiny sdílené mezi všemi nádražími
+let zwieselTutorialCoinAvailable = false; // Jednorázový coin vázaný výhradně na Zwiesel
 let stationMoneyByStation = {}; // Samostatná kasa každého nádraží
 let currentStationKey = null;   // ID aktuálního nádraží (např. "plzen")
 let currentStationData = null;  // Celý objekt dat aktivního nádraží
@@ -109,6 +111,10 @@ function renderLanguageControls() {
   setText("station-shop-description", "stationShopDescription");
   setText("my-stations-label", "myStations");
   setText("reset-game-label", "resetGame");
+  const premiumCoinsLabel = document.getElementById("premium-coins-label");
+  if (premiumCoinsLabel) premiumCoinsLabel.textContent = lang().premiumCoinsLabel || "Coins";
+  const zwieselCoinLabel = document.getElementById("zwiesel-coin-label");
+  if (zwieselCoinLabel) zwieselCoinLabel.textContent = lang().zwieselCoinLabel || "Zwiesel";
   const tracksLabel = document.getElementById("tracks-label");
   if (tracksLabel) tracksLabel.textContent = lang().tracksLabel + ":";
 }
@@ -1615,6 +1621,12 @@ function render() {
 
   ensureShopUI();
   document.getElementById("money").innerText = globalMoney;
+  const premiumCoinsEl = document.getElementById("premium-coins");
+  if (premiumCoinsEl) premiumCoinsEl.innerText = premiumCoins;
+  const zwieselCoinWrap = document.getElementById("zwiesel-coin-wrap");
+  const zwieselCoinEl = document.getElementById("zwiesel-tutorial-coin");
+  if (zwieselCoinWrap) zwieselCoinWrap.hidden = currentStationKey !== "zwiesel";
+  if (zwieselCoinEl) zwieselCoinEl.innerText = zwieselTutorialCoinAvailable ? "1" : "0";
   document.getElementById("station-name").innerText = currentStationData.name;
   const safeTrackCapacity = Number.isFinite(Number(unlockedTracksCount)) && Number(unlockedTracksCount) >= 1
     ? Math.floor(Number(unlockedTracksCount))
@@ -1832,7 +1844,9 @@ function saveGameState() {
 
   if (currentStationKey) stationMoneyByStation[currentStationKey] = Math.max(0, Number(globalMoney) || 0);
   const saveContainer = {
-    saveVersion: 6,
+    saveVersion: 7,
+    premiumCoins: Math.max(0, Math.floor(Number(premiumCoins) || 0)),
+    zwieselTutorialCoinAvailable: zwieselTutorialCoinAvailable === true,
     globalMoney: globalMoney, // zpětná kompatibilita se staršími savy
     stationMoneyByStation: stationMoneyByStation,
     unlockedStations: GLOBAL_PLAYER_DATA.unlockedStations,
@@ -1869,6 +1883,9 @@ function loadGameState() {
         stationMoneyByStation[key] = Number.isFinite(amount) && amount >= 0 ? amount : 100;
       }
       globalMoney = legacyMoney;
+      const savedCoins = Number(parsed.premiumCoins);
+      premiumCoins = Number.isFinite(savedCoins) && savedCoins >= 0 ? Math.floor(savedCoins) : 0;
+      zwieselTutorialCoinAvailable = parsed.zwieselTutorialCoinAvailable === true;
       GLOBAL_PLAYER_DATA.unlockedStations = Array.isArray(parsed.unlockedStations)
          ? parsed.unlockedStations.filter(key => typeof key === "string")
          : ["zwiesel"];

@@ -51,8 +51,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 if (!window.STATIONS_REGISTRY) window.STATIONS_REGISTRY = {};
 
 let globalMoney = 100;          // Pokladna právě aktivního nádraží
-let premiumCoins = 0;            // Premium coiny sdílené mezi všemi nádražími
-let zwieselTutorialCoinAvailable = false; // Jednorázový coin vázaný výhradně na Zwiesel
+let premiumCoins = 1;            // Globální premium coiny sdílené mezi všemi nádražími
+let speedUpTutorialBubbleShown = false;
 let stationMoneyByStation = {}; // Samostatná kasa každého nádraží
 let currentStationKey = null;   // ID aktuálního nádraží (např. "plzen")
 let currentStationData = null;  // Celý objekt dat aktivního nádraží
@@ -113,8 +113,6 @@ function renderLanguageControls() {
   setText("reset-game-label", "resetGame");
   const premiumCoinsLabel = document.getElementById("premium-coins-label");
   if (premiumCoinsLabel) premiumCoinsLabel.textContent = lang().premiumCoinsLabel || "Coins";
-  const zwieselCoinLabel = document.getElementById("zwiesel-coin-label");
-  if (zwieselCoinLabel) zwieselCoinLabel.textContent = lang().zwieselCoinLabel || "Zwiesel";
   const tracksLabel = document.getElementById("tracks-label");
   if (tracksLabel) tracksLabel.textContent = lang().tracksLabel + ":";
 }
@@ -445,6 +443,28 @@ function showTrainCardTutorial() {
   modal.setAttribute("aria-hidden", "false");
   render();
 }
+function showSpeedUpTutorialBubble() {
+  if (currentStationKey !== "zwiesel" || speedUpTutorialBubbleShown || premiumCoins < 1) return;
+  const bubble = document.getElementById("speed-up-tutorial-bubble");
+  if (!bubble) return;
+  bubble.classList.add("open");
+  bubble.setAttribute("aria-hidden", "false");
+  speedUpTutorialBubbleShown = true;
+  saveGameState();
+}
+function closeSpeedUpTutorialBubble() {
+  const bubble = document.getElementById("speed-up-tutorial-bubble");
+  if (!bubble) return;
+  bubble.classList.remove("open");
+  bubble.setAttribute("aria-hidden", "true");
+}
+function initSpeedUpTutorialBubble() {
+  const button = document.getElementById("speed-up-tutorial-button");
+  if (button && !button.dataset.bound) {
+    button.dataset.bound = "1";
+    button.addEventListener("click", () => closeSpeedUpTutorialBubble());
+  }
+}
 function finishTrainCardTutorial() {
   const modal = document.getElementById("train-card-tutorial");
   trainCardTutorialActive = false;
@@ -455,6 +475,7 @@ function finishTrainCardTutorial() {
     modal.setAttribute("aria-hidden", "true");
   }
   render();
+  showSpeedUpTutorialBubble();
 }
 function initTrainCardTutorial() {
   const nextButton = document.getElementById("train-card-tutorial-next");
@@ -612,7 +633,7 @@ function loadStation(stationKey) {
   currentStationKey = stationKey;
   currentStationData = window.STATIONS_REGISTRY[stationKey];
   if (!Object.prototype.hasOwnProperty.call(stationMoneyByStation, stationKey)) {
-    stationMoneyByStation[stationKey] = 100;
+    stationMoneyByStation[stationKey] = stationKey === "zwiesel" ? 200 : 100;
   }
   globalMoney = Math.max(0, Number(stationMoneyByStation[stationKey]) || 0);
 
@@ -1623,10 +1644,7 @@ function render() {
   document.getElementById("money").innerText = globalMoney;
   const premiumCoinsEl = document.getElementById("premium-coins");
   if (premiumCoinsEl) premiumCoinsEl.innerText = premiumCoins;
-  const zwieselCoinWrap = document.getElementById("zwiesel-coin-wrap");
-  const zwieselCoinEl = document.getElementById("zwiesel-tutorial-coin");
-  if (zwieselCoinWrap) zwieselCoinWrap.hidden = currentStationKey !== "zwiesel";
-  if (zwieselCoinEl) zwieselCoinEl.innerText = zwieselTutorialCoinAvailable ? "1" : "0";
+
   document.getElementById("station-name").innerText = currentStationData.name;
   const safeTrackCapacity = Number.isFinite(Number(unlockedTracksCount)) && Number(unlockedTracksCount) >= 1
     ? Math.floor(Number(unlockedTracksCount))
@@ -1846,7 +1864,7 @@ function saveGameState() {
   const saveContainer = {
     saveVersion: 7,
     premiumCoins: Math.max(0, Math.floor(Number(premiumCoins) || 0)),
-    zwieselTutorialCoinAvailable: zwieselTutorialCoinAvailable === true,
+    speedUpTutorialBubbleShown: speedUpTutorialBubbleShown === true,
     globalMoney: globalMoney, // zpětná kompatibilita se staršími savy
     stationMoneyByStation: stationMoneyByStation,
     unlockedStations: GLOBAL_PLAYER_DATA.unlockedStations,
@@ -1878,14 +1896,15 @@ function loadGameState() {
         : {};
       // Převod starého globálního zůstatku: zachováme ho v Plzni, ostatní stanice začnou vlastní startovní kasou.
       if (!Object.prototype.hasOwnProperty.call(stationMoneyByStation, "plzen")) stationMoneyByStation.plzen = legacyMoney;
+      if (!Object.prototype.hasOwnProperty.call(stationMoneyByStation, "zwiesel")) stationMoneyByStation.zwiesel = 200;
       for (const [key, value] of Object.entries(stationMoneyByStation)) {
         const amount = Number(value);
         stationMoneyByStation[key] = Number.isFinite(amount) && amount >= 0 ? amount : 100;
       }
       globalMoney = legacyMoney;
       const savedCoins = Number(parsed.premiumCoins);
-      premiumCoins = Number.isFinite(savedCoins) && savedCoins >= 0 ? Math.floor(savedCoins) : 0;
-      zwieselTutorialCoinAvailable = parsed.zwieselTutorialCoinAvailable === true;
+      premiumCoins = Number.isFinite(savedCoins) && savedCoins >= 0 ? Math.floor(savedCoins) : 1;
+      speedUpTutorialBubbleShown = parsed.speedUpTutorialBubbleShown === true;
       GLOBAL_PLAYER_DATA.unlockedStations = Array.isArray(parsed.unlockedStations)
          ? parsed.unlockedStations.filter(key => typeof key === "string")
          : ["zwiesel"];
@@ -2205,5 +2224,6 @@ loadStation("zwiesel");
 initWelcomePopup();
 showWelcomePopup();
 initTrainCardTutorial();
+initSpeedUpTutorialBubble();
 
 

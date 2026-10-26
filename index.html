@@ -12,7 +12,7 @@
   />
 
  <!-- 🎨 Hlavní styl -->
-  <link rel="stylesheet" href="style.css?v=36">
+  <link rel="stylesheet" href="style.css?v=37">
 </head>
 
 <body>
@@ -65,6 +65,15 @@
         <p id="speed-up-tutorial-body">Naštěstí víme, jak ho popohnat. Použij coin, který jsi dostal na začátku, a zkrať si čekání.</p>
         <button id="speed-up-tutorial-button" class="g tutorial-next-button" type="button">Zrychlit vlak · 🪙 1</button>
       </div>
+    </section>
+  </div>
+  <div id="first-contract-tutorial" class="first-contract-tutorial" aria-hidden="true">
+    <div class="first-contract-tutorial-backdrop"></div>
+    <section class="first-contract-tutorial-window" role="dialog" aria-modal="true" aria-labelledby="first-contract-tutorial-title">
+      <div class="first-contract-tutorial-icon" aria-hidden="true">🎉</div>
+      <h2 id="first-contract-tutorial-title"></h2>
+      <p id="first-contract-tutorial-body"></p>
+      <button id="first-contract-tutorial-button" class="g tutorial-next-button" type="button"></button>
     </section>
   </div>
   <div id="train-card-tutorial" class="train-card-tutorial" aria-hidden="true">
@@ -138,7 +147,7 @@
   <!-- 📊 Globální konfigurace hráče -->
   <script src="data.js"></script> 
 
-<script src="config/languages.js?v=13"></script>
+<script src="config/languages.js?v=14"></script>
 
   <!-- 🚉 Datové balíčky jednotlivých měst -->
   <script src="stations/preparedRoutes.js?v=7"></script>
@@ -155,7 +164,7 @@
   <script src="railwayNetwork.js?v=7"></script>
 
   <!-- 🎮 Hlavní herní motor (Engine) -->
-  <script src="game.js?v=71"></script>
+  <script src="game.js?v=72"></script>
 
 </body>
 </html>

@@ -945,3 +945,9 @@ button {
   0%, 100% { filter: drop-shadow(0 0 7px #facc15) drop-shadow(0 0 12px #facc15); }
   50% { filter: drop-shadow(0 0 12px #facc15) drop-shadow(0 0 23px #facc15); }
 }
+
+
+/* Premium currency display */
+#premium-coins { font-weight: 700; }
+#zwiesel-coin-wrap { white-space: nowrap; }
+#zwiesel-coin-wrap[hidden] { display: none !important; }

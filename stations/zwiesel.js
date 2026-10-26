@@ -63,6 +63,8 @@ window.STATIONS_REGISTRY["zwiesel"] = {
   mapCenter: [49.020937, 13.2266275],
   mapZoom: 13,
   startingTracks: 1,
+  trackPurchaseLevel: 2,
+  cleaningTeamShopLevel: 3,
   moneyPerDepart: 20,
   startingTrains: [1],
   routes: {

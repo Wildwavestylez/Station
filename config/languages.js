@@ -5,6 +5,9 @@ window.LANGUAGES = {
   cs: {
     tracksLabel: "Koleje",
     premiumCoinsLabel: "Coiny",
+    speedUpTutorialTitle: "Tenhle vlak se pěkně loudá!",
+    speedUpTutorialBody: "Naštěstí víme, jak ho popohnat. Použij coin, který jsi dostal na začátku, a zkrať si čekání.",
+    speedUpTutorialButton: "Zrychlit vlak · 🪙 1",
     levelShort: "LVL",
     teamsOccupied: "obsazeno",
     cateringAlreadyRunning: "Catering už probíhá.",
@@ -198,6 +201,9 @@ window.LANGUAGES = {
   en: {
     tracksLabel: "Tracks",
     premiumCoinsLabel: "Coins",
+    speedUpTutorialTitle: "This train is taking its time!",
+    speedUpTutorialBody: "Luckily, we know how to speed things up. Use the coin you received at the start to get your train back sooner.",
+    speedUpTutorialButton: "Speed up train · 🪙 1",
     levelShort: "LVL",
     teamsOccupied: "occupied",
     cateringAlreadyRunning: "Catering is already in progress.",
@@ -405,6 +411,9 @@ window.LANGUAGES = {
   de: {
     tracksLabel: "Gleise",
     premiumCoinsLabel: "Coins",
+    speedUpTutorialTitle: "Dieser Zug lässt sich ganz schön Zeit!",
+    speedUpTutorialBody: "Zum Glück wissen wir, wie wir ihn beschleunigen können. Nutze den Coin vom Spielstart, damit dein Zug schneller zurückkommt.",
+    speedUpTutorialButton: "Zug beschleunigen · 🪙 1",
     zwieselCoinLabel: "Zwiesel",
     levelShort: "LVL",
     teamsOccupied: "belegt",

@@ -510,6 +510,10 @@ window.STATIONS_REGISTRY["plzen"] = {
 
   // Začátek: jedno bezplatné nástupiště a dva bezplatné místní výkony.
   startingTracks: 1,
+  trackPurchaseLevel: 4,
+  cleaningTeamShopLevel: 6,
+  cleaningTeamFreeLevel: 6,
+  cateringTeamFreeLevel: 11,
   startingCleaningTeams: 1,
   trackPurchaseCosts: [0, 5000, 12000, 22000, 35000],
   startingTrains: [1, 2],

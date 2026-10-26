@@ -111,6 +111,9 @@ function renderLanguageControls() {
   setText("station-shop-description", "stationShopDescription");
   setText("my-stations-label", "myStations");
   setText("reset-game-label", "resetGame");
+  setText("speed-up-tutorial-title", "speedUpTutorialTitle");
+  setText("speed-up-tutorial-body", "speedUpTutorialBody");
+  setText("speed-up-tutorial-button", "speedUpTutorialButton");
   const premiumCoinsLabel = document.getElementById("premium-coins-label");
   if (premiumCoinsLabel) premiumCoinsLabel.textContent = lang().premiumCoinsLabel || "Coins";
   const tracksLabel = document.getElementById("tracks-label");

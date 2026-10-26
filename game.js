@@ -114,6 +114,9 @@ function renderLanguageControls() {
   setText("speed-up-tutorial-title", "speedUpTutorialTitle");
   setText("speed-up-tutorial-body", "speedUpTutorialBody");
   setText("speed-up-tutorial-button", "speedUpTutorialButton");
+  setText("first-contract-tutorial-title", "firstContractTutorialTitle");
+  setText("first-contract-tutorial-body", "firstContractTutorialBody");
+  setText("first-contract-tutorial-button", "firstContractTutorialButton");
   const premiumCoinsLabel = document.getElementById("premium-coins-label");
   if (premiumCoinsLabel) premiumCoinsLabel.textContent = lang().premiumCoinsLabel || "Coins";
   const tracksLabel = document.getElementById("tracks-label");
@@ -331,6 +334,38 @@ function initDepartureBoard() {
 
 // 👋 Úvodní popup: jazyk vždy vychází z aktuálního nastavení hry.
 const WELCOME_SEEN_KEY = "station_zwiesel_welcome_seen_v1";
+const FIRST_CONTRACT_TUTORIAL_KEY = "station_zwiesel_first_contract_tutorial_v1";
+function renderFirstContractTutorialText() {
+  const copy = lang();
+  const title = document.getElementById("first-contract-tutorial-title");
+  const body = document.getElementById("first-contract-tutorial-body");
+  const button = document.getElementById("first-contract-tutorial-button");
+  if (title) title.textContent = copy.firstContractTutorialTitle || "";
+  if (body) body.textContent = copy.firstContractTutorialBody || "";
+  if (button) button.textContent = copy.firstContractTutorialButton || "";
+}
+function showFirstContractTutorial() {
+  if (currentStationKey !== "zwiesel" || localStorage.getItem(FIRST_CONTRACT_TUTORIAL_KEY) === "1") return;
+  const modal = document.getElementById("first-contract-tutorial");
+  if (!modal) return;
+  renderFirstContractTutorialText();
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+}
+function closeFirstContractTutorial() {
+  const modal = document.getElementById("first-contract-tutorial");
+  if (!modal) return;
+  localStorage.setItem(FIRST_CONTRACT_TUTORIAL_KEY, "1");
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden", "true");
+  if (typeof toggleSidebar === "function") toggleSidebar(true);
+  const shopButton = document.getElementById("station-shop-button");
+  if (shopButton) shopButton.classList.add("tutorial-highlight");
+}
+function initFirstContractTutorial() {
+  const button = document.getElementById("first-contract-tutorial-button");
+  if (button) button.addEventListener("click", closeFirstContractTutorial);
+}
 function renderWelcomePopupText() {
   const title = document.getElementById("welcome-title");
   const body = document.getElementById("welcome-body");
@@ -1280,6 +1315,7 @@ function processTrainReturn(t) {
     t.current_turnaround = 0;
 
     checkLevelUp();
+    if (currentStationKey === "zwiesel" && Number(t.id) === 1 && Number(t.current_turnaround) === 0 && Number(t.required_turnaround) === 2) showFirstContractTutorial();
   }
 
   // Po dokončené otočce zvol další výkon podle trasy, kterou vlak právě dokončil.
@@ -2269,6 +2305,7 @@ loadGameState();
 // Spuštění první stanice (Plzeň si teď vezme data z načteného savu)
 loadStation("zwiesel");
 initWelcomePopup();
+initFirstContractTutorial();
 showWelcomePopup();
 initTrainCardTutorial();
 initSpeedUpTutorialBubble();

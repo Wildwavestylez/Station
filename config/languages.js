@@ -5,6 +5,9 @@ window.LANGUAGES = {
   cs: {
     tracksLabel: "Koleje",
     premiumCoinsLabel: "Coiny",
+    firstContractTutorialTitle: "První kontrakt splněn!",
+    firstContractTutorialBody: "Tvůj vlak dokončil první otočku a získal první XP. Zkušenosti získává také tvoje nádraží.\n\nNa každé lince plníš kontrakty, které vyžadují určitý počet otoček. Za jejich splnění získáváš XP nádraží. Jakmile nasbíráš dostatek bodů, postoupíš na další level a získáš nové odměny.\n\n🎖️ Dosáhl jsi prvního levelu!\n\nOdemkl se ti obchod nádraží. 🛒 Pojď se podívat a kup si svou další linku!",
+    firstContractTutorialButton: "Do obchodu nádraží",
     speedUpTutorialTitle: "Tenhle vlak se pěkně loudá!",
     speedUpTutorialBody: "Naštěstí víme, jak ho popohnat. Použij coin, který jsi dostal na začátku, a zkrať si čekání.",
     speedUpTutorialButton: "Zrychlit vlak · 🪙 1",
@@ -201,6 +204,9 @@ window.LANGUAGES = {
   en: {
     tracksLabel: "Tracks",
     premiumCoinsLabel: "Coins",
+    firstContractTutorialTitle: "First contract completed!",
+    firstContractTutorialBody: "Your train has completed its first round trip and earned its first XP. Your station earns experience too.\n\nEach route has contracts that require a certain number of round trips. Completing them earns station XP. Collect enough points to level up and unlock new rewards.\n\n🎖️ You’ve reached level 1!\n\nThe station shop is now unlocked. 🛒 Take a look and buy your next route!",
+    firstContractTutorialButton: "Open station shop",
     speedUpTutorialTitle: "This train is taking its time!",
     speedUpTutorialBody: "Luckily, we know how to speed things up. Use the coin you received at the start to get your train back sooner.",
     speedUpTutorialButton: "Speed up train · 🪙 1",
@@ -411,6 +417,9 @@ window.LANGUAGES = {
   de: {
     tracksLabel: "Gleise",
     premiumCoinsLabel: "Coins",
+    firstContractTutorialTitle: "Ersten Vertrag abgeschlossen!",
+    firstContractTutorialBody: "Dein Zug hat seine erste Hin- und Rückfahrt abgeschlossen und die ersten XP erhalten. Auch dein Bahnhof sammelt Erfahrung.\n\nAuf jeder Strecke erfüllst du Verträge, für die eine bestimmte Anzahl an Rundfahrten nötig ist. Dafür erhältst du Bahnhof-XP. Sammle genügend Punkte, steige ein Level auf und schalte neue Belohnungen frei.\n\n🎖️ Du hast Level 1 erreicht!\n\nDer Bahnhofsshop ist jetzt freigeschaltet. 🛒 Schau hinein und kaufe deine nächste Strecke!",
+    firstContractTutorialButton: "Bahnhofsshop öffnen",
     speedUpTutorialTitle: "Dieser Zug lässt sich ganz schön Zeit!",
     speedUpTutorialBody: "Zum Glück wissen wir, wie wir ihn beschleunigen können. Nutze den Coin vom Spielstart, damit dein Zug schneller zurückkommt.",
     speedUpTutorialButton: "Zug beschleunigen · 🪙 1",

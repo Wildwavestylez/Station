@@ -1424,14 +1424,14 @@ function checkLevelUp() {
     const configuredRewardText = reachedConfig.rewardTextKey
       ? (lang()[reachedConfig.rewardTextKey] || reachedConfig.rewardText || "")
       : (reachedConfig.rewardText || "");
-    const rewardText = [configuredRewardText, ...rewards].filter(Boolean).join("\\n• ");
-    levelUpMessages.push(`${lang().levelUp} ${currentStationData.name} ${lang().stationAdvanced} ${reachedLevel}!\\n\\n${lang().reward}\\n• ${rewardText || lang().continueDevelop}`);
+    const rewardText = [configuredRewardText, ...rewards].filter(Boolean).join("\n• ");
+    levelUpMessages.push(`${lang().levelUp} ${currentStationData.name} ${lang().stationAdvanced} ${reachedLevel}!\n\n${lang().reward}\n• ${rewardText || lang().continueDevelop}`);
   }
 
   if (!levelUpMessages.length) return;
 
   // Upozornění po jednom souhrnném alertu; žádný level ani odměna se nepřeskočí.
-  alert(levelUpMessages.join("\\n\\n"));
+  alert(levelUpMessages.join("\n\n"));
 
   renderSidebar();
   saveGameState();

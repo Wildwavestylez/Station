@@ -4,6 +4,8 @@ window.LANGUAGES = {
   // 🇨🇿 ČEŠTINA
   cs: {
     tracksLabel: "Koleje",
+    premiumCoinsLabel: "Coiny",
+    zwieselCoinLabel: "Zwiesel",
     levelShort: "LVL",
     teamsOccupied: "obsazeno",
     cateringAlreadyRunning: "Catering už probíhá.",
@@ -196,6 +198,8 @@ window.LANGUAGES = {
   // 🇬🇧 ANGLIČTINA
   en: {
     tracksLabel: "Tracks",
+    premiumCoinsLabel: "Coins",
+    zwieselCoinLabel: "Zwiesel",
     levelShort: "LVL",
     teamsOccupied: "occupied",
     cateringAlreadyRunning: "Catering is already in progress.",
@@ -402,6 +406,8 @@ window.LANGUAGES = {
   // 🇩🇪 NĚMČINA
   de: {
     tracksLabel: "Gleise",
+    premiumCoinsLabel: "Coins",
+    zwieselCoinLabel: "Zwiesel",
     levelShort: "LVL",
     teamsOccupied: "belegt",
     cateringAlreadyRunning: "Catering läuft bereits.",

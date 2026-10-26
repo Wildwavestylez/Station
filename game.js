@@ -458,11 +458,43 @@ function closeSpeedUpTutorialBubble() {
   bubble.classList.remove("open");
   bubble.setAttribute("aria-hidden", "true");
 }
+function activateZwieselBodenmaisSpeedBoost() {
+  if (currentStationKey !== "zwiesel") return false;
+  if (premiumCoins < 1) {
+    alert("Nemáš žádný coin. Tenhle bonus už teď aktivovat nejde.");
+    return false;
+  }
+  const train = trains.find(t => Number(t.id) === 1 && t.routeKey === "bodenmais");
+  if (!train || !["EN_ROUTE_THERE", "AT_DESTINATION", "EN_ROUTE_BACK"].includes(train.state)) {
+    alert("Bonus je určený pro první vlak Waldbahn na lince Zwiesel–Bodenmais. Počkej, až bude na této lince na cestě.");
+    return false;
+  }
+  if (train.speedUpBonusActive) {
+    closeSpeedUpTutorialBubble();
+    return false;
+  }
+  premiumCoins -= 1;
+  train.speedUpOriginalSpeed = Number(train.speed) || 80;
+  train.speed = 250;
+  train.speedUpBonusActive = true;
+  const route = currentStationData.routes.bodenmais;
+  const routeLength = Number(route && route.totalLength);
+  if (Number.isFinite(routeLength) && routeLength > 0) {
+    const outbound = train.state === "EN_ROUTE_THERE" ? Math.max(0, routeLength - (Number(train.distance) || 0)) / train.speed : 0;
+    const destinationStay = train.state === "AT_DESTINATION" ? Math.max(0, Number(train.stayTimer) || 0) : 0;
+    const returnDistance = train.state === "EN_ROUTE_BACK" ? Math.max(0, Number(train.distance) || 0) : routeLength;
+    train.returnCountdownSeconds = outbound + destinationStay + returnDistance / train.speed;
+  }
+  closeSpeedUpTutorialBubble();
+  saveGameState();
+  render();
+  return true;
+}
 function initSpeedUpTutorialBubble() {
   const button = document.getElementById("speed-up-tutorial-button");
   if (button && !button.dataset.bound) {
     button.dataset.bound = "1";
-    button.addEventListener("click", () => closeSpeedUpTutorialBubble());
+    button.addEventListener("click", activateZwieselBodenmaisSpeedBoost);
   }
 }
 function finishTrainCardTutorial() {
@@ -769,7 +801,9 @@ function loadStation(stationKey) {
       routeSequenceIndex: Array.isArray(template.routeSequence) && template.routeSequence.includes(saved.routeKey) ? template.routeSequence.indexOf(saved.routeKey) : 0,
       nextRouteKey: saved.nextRouteKey || null,
       distance: Number.isFinite(Number(saved.distance)) ? Math.max(0, Number(saved.distance)) : 0,
-      speed: Number.isFinite(Number(template.speed)) ? Number(template.speed) : 0,
+      speed: saved.speedUpBonusActive && Number.isFinite(Number(saved.speed)) ? Number(saved.speed) : (Number.isFinite(Number(template.speed)) ? Number(template.speed) : 0),
+      speedUpBonusActive: saved.speedUpBonusActive === true,
+      speedUpOriginalSpeed: Number(saved.speedUpOriginalSpeed) || Number(template.speed) || 80,
       stayTime: Number.isFinite(Number(template.stayTime)) ? Number(template.stayTime) : 0,
       stayTimer: Number.isFinite(Number(saved.stayTimer)) ? Math.max(0, Number(saved.stayTimer)) : 0,
       returnCountdownSeconds: Number.isFinite(Number(saved.returnCountdownSeconds)) ? Math.max(0, Number(saved.returnCountdownSeconds)) : null,
@@ -1217,6 +1251,13 @@ function getTrainPopupHtml(t) {
 
 // 🏆 13. ZPRACOVÁNÍ NÁVRATU VLAKU (WoA KONTRAKT)
 function processTrainReturn(t) {
+  // Výukový speed boost platí jen pro jednu otočku Zwiesel–Bodenmais tam i zpět.
+  // Po návratu do Zwieselu se původní rychlost obnoví.
+  if (t.speedUpBonusActive === true) {
+    t.speed = Number(t.speedUpOriginalSpeed) || Number((currentStationData.trainsPool || {})[t.id]?.speed) || 80;
+    t.speedUpBonusActive = false;
+    t.speedUpOriginalSpeed = null;
+  }
   // Pevná odměna za každou dokončenou otočku, bez složitého provozního výpočtu.
   globalMoney += Number(t.rewardMoney) || 0;
   const moneyElement = document.getElementById("money");
@@ -1852,6 +1893,9 @@ function serializeCurrentStationTrains() {
     distance: Number(t.distance) || 0,
     stayTimer: Number(t.stayTimer) || 0,
     returnCountdownSeconds: Number.isFinite(Number(t.returnCountdownSeconds)) ? Number(t.returnCountdownSeconds) : null,
+    speedUpBonusActive: t.speedUpBonusActive === true,
+    speedUpOriginalSpeed: Number(t.speedUpOriginalSpeed) || null,
+    speed: Number(t.speed) || null,
     pendingAction: false
   }));
 }

@@ -963,3 +963,15 @@ button {
 .speed-up-tutorial-copy p { margin:0; font-size:14px; line-height:1.45; }
 .speed-up-tutorial-copy button { margin-top:12px; width:100%; }
 @media (max-width:600px) { .speed-up-tutorial-window { bottom:82px; padding:13px; gap:10px; } .speed-up-tutorial-copy h3 { font-size:16px; } .speed-up-tutorial-copy p { font-size:13px; } }
+
+/* First contract completion tutorial */
+.first-contract-tutorial { display:none; position:fixed; inset:0; z-index:3400; align-items:center; justify-content:center; padding:18px; }
+.first-contract-tutorial.open { display:flex; }
+.first-contract-tutorial-backdrop { position:absolute; inset:0; background:rgba(0,0,0,.72); }
+.first-contract-tutorial-window { position:relative; width:min(430px,100%); max-height:calc(100dvh - 36px); overflow-y:auto; box-sizing:border-box; padding:22px; border:1px solid rgba(167,243,208,.35); border-radius:16px; background:#111827; box-shadow:0 16px 48px rgba(0,0,0,.5); color:#e4ebe7; }
+.first-contract-tutorial-icon { font-size:30px; margin-bottom:8px; }
+.first-contract-tutorial-window h2 { margin:0 0 10px; color:#a7f3c0; font-size:21px; }
+.first-contract-tutorial-window p { margin:0; white-space:pre-line; font-size:15px; line-height:1.5; }
+.first-contract-tutorial-window button { width:100%; margin-top:18px; }
+.tutorial-highlight { outline:3px solid #a7f3c0 !important; outline-offset:3px; }
+@media (max-width:600px) { .first-contract-tutorial-window { padding:18px; } .first-contract-tutorial-window h2 { font-size:19px; } .first-contract-tutorial-window p { font-size:14px; line-height:1.45; } }

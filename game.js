@@ -1321,7 +1321,6 @@ function processTrainReturn(t) {
     t.current_turnaround = 0;
 
     checkLevelUp();
-    if (currentStationKey === "zwiesel" && Number(t.id) === 1 && Number(t.current_turnaround) === 0 && Number(t.required_turnaround) === 2) showFirstContractTutorial();
   }
 
   // Po dokončené otočce zvol další výkon podle trasy, kterou vlak právě dokončil.
@@ -1438,8 +1437,13 @@ function checkLevelUp() {
   render();
   if (shopOpen) renderShop();
 
-  // Show the existing first-contract tutorial only after the Level Up alert is dismissed.
-  if (reachedZwieselLevel1) showFirstContractTutorial();
+  // Show the first-contract tutorial after the level-up flow and train-return render finish.
+  // Deferring avoids the level-up UI/render cycle covering the tutorial modal.
+  if (reachedZwieselLevel1) {
+    window.setTimeout(() => {
+      if (currentStationKey === "zwiesel") showFirstContractTutorial();
+    }, 250);
+  }
 }
 
 // ==========================================

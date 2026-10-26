@@ -5,7 +5,6 @@ window.LANGUAGES = {
   cs: {
     tracksLabel: "Koleje",
     premiumCoinsLabel: "Coiny",
-    zwieselCoinLabel: "Zwiesel",
     levelShort: "LVL",
     teamsOccupied: "obsazeno",
     cateringAlreadyRunning: "Catering už probíhá.",
@@ -199,7 +198,6 @@ window.LANGUAGES = {
   en: {
     tracksLabel: "Tracks",
     premiumCoinsLabel: "Coins",
-    zwieselCoinLabel: "Zwiesel",
     levelShort: "LVL",
     teamsOccupied: "occupied",
     cateringAlreadyRunning: "Catering is already in progress.",

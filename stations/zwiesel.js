@@ -88,7 +88,7 @@ window.STATIONS_REGISTRY["zwiesel"] = {
     },
     2: {
       xpNeeded: 10,
-      rewardText: "Level 3: Möglichkeit zum Kauf einer zweiten Reinigungsmannschaft wird freigeschaltet.",
+      rewardTextKey: "zwieselLevel3Reward",
       action: () => {}
     },
     3: {

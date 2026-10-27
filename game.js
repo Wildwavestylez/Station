@@ -1195,6 +1195,11 @@ async function depart() {
   t.tripStartedAt = Date.now();
   t.pendingAction = false;
 
+  // První nákladní vlak se objeví až po vypravení obou osobních linek ve Zwieselu.
+  if (currentStationKey === "zwiesel" && [1, 2].includes(Number(t.id))) {
+    registerZwieselPassengerDeparture(Number(t.id));
+  }
+
   // Vytvoření markeru vlaku; kliknutí otevře provozní informace.
   if (!t.marker) {
     t.marker = L.marker(route[0], {
@@ -1516,6 +1521,45 @@ function showTwoLinesTutorialIfReady() {
   modal.classList.add("open");
   modal.setAttribute("aria-hidden", "false");
 }
+const ZWIESEL_DEPARTURES_KEY = "station_zwiesel_tutorial_departures_v1";
+const ZWIESEL_CARGO_TUTORIAL_KEY = "station_zwiesel_cargo_tutorial_v1";
+function showCargoTutorialPopup() {
+  const modal = document.getElementById("cargo-tutorial");
+  if (!modal || localStorage.getItem(ZWIESEL_CARGO_TUTORIAL_KEY) === "1") return;
+  const copy = {
+    cs: ["Pozor, nákladní vlak!", "Skvěle! Obě osobní linky jsou vypravené. Na mapě právě vyrazil nákladní vlak, který veze zboží. Během cesty z něj může něco vypadnout. Sleduj trať a klepnutím na ztracený náklad ho seber — čekají tě zajímavé bonusy!", "Rozumím, budu hlídat trať"],
+    en: ["Freight train on the move!", "Great work! Both passenger services are on their way. A freight train carrying goods has now appeared on the map. Sometimes cargo can fall off along the route. Keep an eye on the track and tap any lost cargo to collect it for exciting bonuses!", "Got it, I'll watch the tracks"],
+    de: ["Achtung, Güterzug!", "Gut gemacht! Beide Personenzüge sind unterwegs. Jetzt ist ein Güterzug mit Waren auf der Karte gestartet. Unterwegs kann gelegentlich Ladung herunterfallen. Behalte die Strecke im Blick und tippe auf verlorene Fracht, um sie einzusammeln — dafür gibt es interessante Boni!", "Alles klar, ich passe auf"]
+  }[currentLanguage] || ["Freight train on the move!", "A freight train is carrying goods. Sometimes cargo can fall off. Tap it to collect it and earn bonuses!", "Got it"];
+  document.getElementById("cargo-tutorial-title").textContent = copy[0];
+  document.getElementById("cargo-tutorial-body").textContent = copy[1];
+  document.getElementById("cargo-tutorial-button").textContent = copy[2];
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+}
+function closeCargoTutorialPopup() {
+  const modal = document.getElementById("cargo-tutorial");
+  if (modal) { modal.classList.remove("open"); modal.setAttribute("aria-hidden", "true"); }
+  localStorage.setItem(ZWIESEL_CARGO_TUTORIAL_KEY, "1");
+}
+function registerZwieselPassengerDeparture(trainId) {
+  if (localStorage.getItem(ZWIESEL_CARGO_TUTORIAL_KEY) === "1" || sessionStorage.getItem("station_zwiesel_cargo_spawned_v1") === "1") return;
+  let departed = [];
+  try { departed = JSON.parse(localStorage.getItem(ZWIESEL_DEPARTURES_KEY) || "[]"); } catch (_) {}
+  if (!departed.includes(trainId)) departed.push(trainId);
+  localStorage.setItem(ZWIESEL_DEPARTURES_KEY, JSON.stringify(departed));
+  if (![1, 2].every(id => departed.includes(id))) return;
+  sessionStorage.setItem("station_zwiesel_cargo_spawned_v1", "1");
+  window.setTimeout(() => {
+    if (currentStationKey !== "zwiesel" || typeof window.spawnTutorialCargoTrain !== "function") return;
+    const spawned = window.spawnTutorialCargoTrain();
+    if (spawned) showCargoTutorialPopup();
+    else {
+      // Trasa může ještě chybět v aktuálním výřezu mapy; další pokus po přiblížení/posunu.
+      sessionStorage.removeItem("station_zwiesel_cargo_spawned_v1");
+    }
+  }, 5000);
+}
 function closeTwoLinesTutorial() {
   const modal = document.getElementById("two-lines-tutorial");
   if (modal) {
@@ -1525,6 +1569,8 @@ function closeTwoLinesTutorial() {
   localStorage.setItem(TWO_LINES_TUTORIAL_KEY, "1");
 }
 function initTwoLinesTutorial() {
+  const cargoButton = document.getElementById("cargo-tutorial-button");
+  if (cargoButton) cargoButton.addEventListener("click", closeCargoTutorialPopup);
   const button = document.getElementById("two-lines-tutorial-button");
   if (button) button.addEventListener("click", closeTwoLinesTutorial);
   renderTwoLinesTutorialText();
@@ -2114,6 +2160,9 @@ function resetGameState() {
     localStorage.removeItem('station_zwiesel_first_contract_tutorial_v1');
     localStorage.removeItem('station_zwiesel_first_contract_tutorial_v2');
     localStorage.removeItem("station_zwiesel_two_lines_tutorial_v1");
+    localStorage.removeItem("station_zwiesel_tutorial_departures_v1");
+    localStorage.removeItem("station_zwiesel_cargo_tutorial_v1");
+    sessionStorage.removeItem("station_zwiesel_cargo_spawned_v1");
     
     // 2. Smažeme markery jedoucích vlaků, aby nezůstaly viset na mapě
     trains.forEach(t => { if (t.marker) map.removeLayer(t.marker); });

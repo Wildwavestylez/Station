@@ -738,8 +738,11 @@ function loadStation(stationKey) {
   const baseTracks = Number.isFinite(configuredTracks) && configuredTracks >= 1
     ? Math.floor(configuredTracks)
     : 1;
-  const savedTrackCount = Number(unlockedTracksByStation[stationKey]);
   const currentLevel = stationLevels[stationKey].lvl;
+  let savedTrackCount = Number(unlockedTracksByStation[stationKey]);
+  // Staré save mohly mít ve Zwieselu druhou kolej zdarma už od levelu 1.
+  // Dokud hráč nedosáhne levelu 2, ponecháme jen výchozí kolej.
+  if (stationKey === "zwiesel" && currentLevel < 2) savedTrackCount = baseTracks;
   let levelTrackCount = baseTracks;
   for (let level = 0; level <= currentLevel; level++) {
     const count = Number(currentStationData.levels[level] && currentStationData.levels[level].unlocksTrack);
@@ -1580,9 +1583,15 @@ function renderShop() {
     trackLabel = lang().maximum;
     trackDisabled = true;
   }
-  const trackCard = level >= 4
+  const trackPurchaseLevel = Number(currentStationData.trackPurchaseLevel ?? 4);
+  const trackCard = level >= trackPurchaseLevel
     ? shopCard(lang().tracksPlatforms, lang().stationInfrastructure, trackDetail, trackLabel, trackAction, trackDisabled)
-    : shopCard(lang().tracksPlatforms, lang().unlockLevel4, lang().unlockTracksAt4, lang().locked, "", true);
+    : shopCard(
+        lang().tracksPlatforms,
+        String(lang().unlockLevel4 || "").replace("4", String(trackPurchaseLevel)),
+        String(lang().unlockTracksAt4 || "").replaceAll("4", String(trackPurchaseLevel)),
+        lang().locked, "", true
+      );
 
   const cleaningPurchased = Math.max(0, Math.min(2, Math.floor(Number(hiredCleaningTeamsByStation[stationKey]) || 0)));
   const cleaningCount = unlockedCleaningTeamsCount;

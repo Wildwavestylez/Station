@@ -93,7 +93,7 @@ window.STATIONS_REGISTRY["zwiesel"] = {
     },
     3: {
       xpNeeded: 20,
-      rewardText: "Level 4: Plzeň wird als nächster Bahnhof freigeschaltet.",
+      rewardTextKey: "zwieselLevel4Reward",
       action: () => {}
     }
   },

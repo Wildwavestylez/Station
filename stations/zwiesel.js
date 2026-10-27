@@ -83,7 +83,6 @@ window.STATIONS_REGISTRY["zwiesel"] = {
     1: {
       xpNeeded: 5,
       rewardTextKey: "zwieselLevel2Reward",
-      unlocksTrack: 2,
       action: () => {}
     },
     2: {

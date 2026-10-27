@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kontrola nákladní trasy Zwiesel–Klatovy</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+html,body{height:100%;margin:0;font:15px system-ui,sans-serif}#map{height:calc(100% - 78px)}
+header{height:78px;box-sizing:border-box;padding:10px 14px;background:#fff;position:relative;z-index:1000}
+h1{font-size:18px;margin:0 0 4px}p{margin:0;font-size:13px;color:#444}
+</style>
+</head>
+<body>
+<header>
+<h1>Kontrola nákladní trasy: Zwiesel → Klatovy</h1>
+<p>Modrá čára = sestavená nákladní trasa. Zelený bod = Zwiesel, červený bod = Klatovy. Ověř prosím návaznost a průběh.</p>
+</header>
+<div id="map"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="stations/preparedRoutes.js"></script>
+<script src="cargoRoutes.js"></script>
+<script>
+(function(){
+ const map=L.map('map');
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map);
+ const route=(window.STATION_CARGO_ROUTES||[]).find(r=>r.id==='zwiesel-klatovy');
+ if(!route){document.querySelector('p').textContent='CHYBA: Trasa zwiesel-klatovy se nesestavila. Zkontroluj konzoli a segmenty.';map.setView([49.1,13.1],9);return;}
+ const line=L.polyline(route.points,{color:'#1769ff',weight:5,opacity:.9}).addTo(map);
+ const start=route.points[0],end=route.points[route.points.length-1];
+ L.circleMarker(start,{radius:8,color:'#087f23',fillColor:'#21c55d',fillOpacity:1}).addTo(map).bindPopup('Začátek trasy: Zwiesel');
+ L.circleMarker(end,{radius:8,color:'#991b1b',fillColor:'#ef4444',fillOpacity:1}).addTo(map).bindPopup('Konec trasy: Klatovy');
+ map.fitBounds(line.getBounds(),{padding:[24,24]});
+ const km=route.points.slice(1).reduce((sum,p,i)=>{const a=route.points[i],rad=Math.PI/180,dLat=(p[0]-a[0])*rad,dLon=(p[1]-a[1])*rad,q=Math.sin(dLat/2)**2+Math.cos(a[0]*rad)*Math.cos(p[0]*rad)*Math.sin(dLon/2)**2;return sum+6371*2*Math.atan2(Math.sqrt(q),Math.sqrt(Math.max(0,1-q)));},0);
+ document.querySelector('p').textContent='Sestaveno: '+route.points.length+' bodů, délka geometrie přibližně '+km.toFixed(1)+' km. Modrá čára = nákladní trasa; kliknutím na krajní body zobrazíš jejich souřadnice.';
+})();
+</script>
+</body>
+</html>

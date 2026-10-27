@@ -975,3 +975,8 @@ button {
 .first-contract-tutorial-window button { width:100%; margin-top:18px; }
 .tutorial-highlight { outline:3px solid #a7f3c0 !important; outline-offset:3px; }
 @media (max-width:600px) { .first-contract-tutorial-window { padding:18px; } .first-contract-tutorial-window h2 { font-size:19px; } .first-contract-tutorial-window p { font-size:14px; line-height:1.45; } }
+
+
+.cargo-train-div-icon { background: transparent !important; border: 0 !important; }
+.cargo-train-marker { font-size: 25px; line-height: 30px; width: 42px; height: 30px; text-align: center; cursor: pointer; filter: drop-shadow(0 2px 3px rgba(0,0,0,.85)); user-select: none; }
+.cargo-train-marker:hover { transform: scale(1.18); }

@@ -9,6 +9,7 @@
 html,body{height:100%;margin:0;font:15px system-ui,sans-serif}#map{height:calc(100% - 78px)}
 header{height:78px;box-sizing:border-box;padding:10px 14px;background:#fff;position:relative;z-index:1000}
 h1{font-size:18px;margin:0 0 4px}p{margin:0;font-size:13px;color:#444}
+.cargo-preview-icon{background:transparent;border:0}.cargo-preview-icon img{width:58px;height:36px;object-fit:contain;filter:drop-shadow(0 1px 2px #333)}
 </style>
 </head>
 <body>
@@ -26,13 +27,31 @@ h1{font-size:18px;margin:0 0 4px}p{margin:0;font-size:13px;color:#444}
  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map);
  const route=(window.STATION_CARGO_ROUTES||[]).find(r=>r.id==='zwiesel-klatovy');
  if(!route){document.querySelector('p').textContent='CHYBA: Trasa zwiesel-klatovy se nesestavila. Zkontroluj konzoli a segmenty.';map.setView([49.1,13.1],9);return;}
- const line=L.polyline(route.points,{color:'#1769ff',weight:5,opacity:.9}).addTo(map);
+ const line=L.polyline(route.points,{color:'#1769ff',weight:3,opacity:.45}).addTo(map);
  const start=route.points[0],end=route.points[route.points.length-1];
- L.circleMarker(start,{radius:8,color:'#087f23',fillColor:'#21c55d',fillOpacity:1}).addTo(map).bindPopup('Začátek trasy: Zwiesel');
- L.circleMarker(end,{radius:8,color:'#991b1b',fillColor:'#ef4444',fillOpacity:1}).addTo(map).bindPopup('Konec trasy: Klatovy');
+ L.circleMarker(start,{radius:7,color:'#087f23',fillColor:'#21c55d',fillOpacity:1}).addTo(map).bindPopup('Začátek trasy: Zwiesel');
+ L.circleMarker(end,{radius:7,color:'#991b1b',fillColor:'#ef4444',fillOpacity:1}).addTo(map).bindPopup('Konec trasy: Klatovy');
  map.fitBounds(line.getBounds(),{padding:[24,24]});
+ const trainIcon=L.divIcon({className:'cargo-preview-icon',html:'<img src="assets/trains/germany/waldbahn/WB3.png" alt="Waldbahn">',iconSize:[58,36],iconAnchor:[29,18]});
+ const train=L.marker(start,{icon:trainIcon,zIndexOffset:1000}).addTo(map).bindPopup('<b>Nákladní vlak</b><br>Zwiesel → Klatovy<br><small>Testovací pohyb po připravené geometrii</small>');
+ let segment=0,segmentProgress=0;
+ function tick(){
+   if(segment>=route.points.length-1){segment=0;segmentProgress=0;}
+   const a=route.points[segment],b=route.points[segment+1];
+   const rad=Math.PI/180,dLat=(b[0]-a[0])*rad,dLon=(b[1]-a[1])*rad;
+   const q=Math.sin(dLat/2)**2+Math.cos(a[0]*rad)*Math.cos(b[0]*rad)*Math.sin(dLon/2)**2;
+   const dist=6371000*2*Math.atan2(Math.sqrt(q),Math.sqrt(Math.max(0,1-q)));
+   segmentProgress+=Math.max(0.00002,Math.min(0.02,500/Math.max(1,dist)));
+   if(segmentProgress>=1){segment++;segmentProgress=0;} 
+   if(segment<route.points.length-1){
+     const p=route.points[segment],n=route.points[segment+1];
+     train.setLatLng([p[0]+(n[0]-p[0])*segmentProgress,p[1]+(n[1]-p[1])*segmentProgress]);
+   }
+   requestAnimationFrame(tick);
+ }
+ tick();
  const km=route.points.slice(1).reduce((sum,p,i)=>{const a=route.points[i],rad=Math.PI/180,dLat=(p[0]-a[0])*rad,dLon=(p[1]-a[1])*rad,q=Math.sin(dLat/2)**2+Math.cos(a[0]*rad)*Math.cos(p[0]*rad)*Math.sin(dLon/2)**2;return sum+6371*2*Math.atan2(Math.sqrt(q),Math.sqrt(Math.max(0,1-q)));},0);
- document.querySelector('p').textContent='Sestaveno: '+route.points.length+' bodů, délka geometrie přibližně '+km.toFixed(1)+' km. Modrá čára = nákladní trasa; kliknutím na krajní body zobrazíš jejich souřadnice.';
+ document.querySelector('p').textContent='Vlak WB3 se pohybuje po trase: '+route.points.length+' bodů, geometrie cca '+km.toFixed(1)+' km. Klikni na vlak pro kontrolní popisek. Tento náhled používá obrázek WB3.png ze Zwiesel.';
 })();
 </script>
 </body>

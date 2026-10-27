@@ -11,7 +11,7 @@
     { id: "plzen-klatovy", label: "Nákladní vlak · Plzeň–Klatovy", keys: ["plzen:prestice", "prestice:klatovy"], tier: "medium", cooldownMs: 30 * 60 * 1000 },
     { id: "plzen-praha", label: "Nákladní vlak · Plzeň–Praha", keys: ["plzen:rokycany", "rokycany:horovice", "horovice:beroun", "beroun:dobrichovice", "dobrichovice:praha"], tier: "long", cooldownMs: 60 * 60 * 1000 },
     { id: "plzen-cheb", label: "Nákladní vlak · Plzeň–Cheb", keys: ["plzen:pnovany", "pnovany:svojsin", "svojsin:plana", "plana:marianske_lazne", "marianske_lazne:cheb"], tier: "long", cooldownMs: 60 * 60 * 1000 },
-    { id: "budejovice-veseli", label: "Nákladní vlak · České Budějovice–Veselí nad Lužnicí", keys: ["divcice:ceske_budejovice", "protivin:divcice", "strakonice:protivin"], tier: "medium", cooldownMs: 30 * 60 * 1000 },
+    { id: "budejovice-veseli", label: "Nákladní vlak · České Budějovice–Veselí nad Lužnicí", keys: ["ceske_budejovice:veseli_nad_luznici"], tier: "medium", cooldownMs: 30 * 60 * 1000 },
     { id: "munich-approach", label: "Nákladní vlak · München Hbf–Neufahrn", keys: ["laim:muenchen", "moosach:laim", "feldmoching:moosach", "neufahrn_b_freising:feldmoching"], tier: "long", cooldownMs: 60 * 60 * 1000 }
   ];
 
@@ -21,9 +21,17 @@
     for (const key of definition.keys) {
       const segment = source[key];
       if (!Array.isArray(segment) || segment.length < 2) return null;
-      const copy = segment.map(p => [Number(p[0]), Number(p[1])]);
-      if (points.length && distance(points[points.length - 1], copy[0]) > 500) return null;
-      points.push(...copy.slice(points.length ? 1 : 0));
+      let copy = segment.map(p => [Number(p[0]), Number(p[1])]);
+      if (points.length) {
+        const end = points[points.length - 1];
+        const startGap = distance(end, copy[0]);
+        const reverseGap = distance(end, copy[copy.length - 1]);
+        if (reverseGap < startGap) copy.reverse();
+        if (Math.min(startGap, reverseGap) > 500) return null;
+        points.push(...copy.slice(1));
+      } else {
+        points.push(...copy);
+      }
     }
     if (definition.reverse) points.reverse();
     if (points.length < 2) return null;

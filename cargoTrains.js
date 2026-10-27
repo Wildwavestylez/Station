@@ -23,9 +23,9 @@
     const bounds=map.getBounds(), routes=window.STATION_CARGO_ROUTES||[];
     return routes.filter(r=>r.points.some(p=>bounds.contains(p)) && Date.now() >= (state.cooldowns[r.id]||0));
   }
-  function spawn() {
+  function spawn(preferredRouteId) {
     if(active.length>=MAX_TRAINS || !map || !api) return;
-    const candidates=visibleRoutes().filter(r=>!active.some(t=>t.route.id===r.id));
+    const candidates=visibleRoutes().filter(r=>(!preferredRouteId || r.id===preferredRouteId) && !active.some(t=>t.route.id===r.id));
     if(!candidates.length) return;
     const route=candidates[Math.floor(Math.random()*candidates.length)];
     const bounds=map.getBounds();
@@ -73,12 +73,17 @@
     if(now-lastSpawn>SPAWN_INTERVAL){ spawn(); lastSpawn=now; }
     requestAnimationFrame(tick);
   }
+  window.spawnTutorialCargoTrain=function(){
+    if(!api || !map) return false;
+    const before=active.length;
+    spawn("zwiesel-klatovy");
+    return active.length>before;
+  };
   window.initStationCargoTrains=function(options){
     if(api) return;
     api=options; map=options.map;
     if(!map || !window.STATION_CARGO_ROUTES) return;
-    map.on("moveend zoomend",()=>{ if(active.length===0) spawn(); });
+    map.on("moveend zoomend",()=>{});
     requestAnimationFrame(tick);
-    setTimeout(spawn,2500);
   };
 })();

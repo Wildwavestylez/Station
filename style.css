@@ -978,7 +978,8 @@ button {
 
 
 .cargo-train-div-icon { background: transparent !important; border: 0 !important; }
-.cargo-train-marker { font-size: 25px; line-height: 30px; width: 42px; height: 30px; text-align: center; cursor: pointer; filter: drop-shadow(0 2px 3px rgba(0,0,0,.85)); user-select: none; }
+.cargo-train-marker { font-size: 25px; line-height: 30px; width: 58px; height: 36px; text-align: center; cursor: pointer; filter: drop-shadow(0 2px 3px rgba(0,0,0,.85)); user-select: none; }
+.cargo-train-marker img { display: block; width: 58px; height: 36px; object-fit: contain; }
 .cargo-train-marker:hover { transform: scale(1.18); }
 
 

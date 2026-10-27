@@ -117,6 +117,7 @@ function renderLanguageControls() {
   setText("first-contract-tutorial-title", "firstContractTutorialTitle");
   setText("first-contract-tutorial-body", "firstContractTutorialBody");
   setText("first-contract-tutorial-button", "firstContractTutorialButton");
+  renderTwoLinesTutorialText();
   const premiumCoinsLabel = document.getElementById("premium-coins-label");
   if (premiumCoinsLabel) premiumCoinsLabel.textContent = lang().premiumCoinsLabel || "Coins";
   const tracksLabel = document.getElementById("tracks-label");
@@ -1492,6 +1493,41 @@ function toggleShop(forceOpen) {
   const modal = document.getElementById("station-shop-modal");
   if (modal) modal.style.display = shopOpen ? "block" : "none";
   if (shopOpen) renderShop();
+  else setTimeout(showTwoLinesTutorialIfReady, 120);
+}
+
+const TWO_LINES_TUTORIAL_KEY = "station_zwiesel_two_lines_tutorial_v1";
+function renderTwoLinesTutorialText() {
+  const title = document.getElementById("two-lines-tutorial-title");
+  const body = document.getElementById("two-lines-tutorial-body");
+  const button = document.getElementById("two-lines-tutorial-button");
+  if (title) title.textContent = lang().twoLinesTutorialTitle || "Your turn now!";
+  if (body) body.textContent = lang().twoLinesTutorialBody || "Now handle both trains independently.";
+  if (button) button.textContent = lang().twoLinesTutorialButton || "Continue";
+}
+function showTwoLinesTutorialIfReady() {
+  if (shopOpen || currentStationKey !== "zwiesel") return;
+  if (localStorage.getItem(TWO_LINES_TUTORIAL_KEY) === "1") return;
+  const owned = ownedPerformancesByStation.zwiesel || [];
+  if (!owned.map(Number).includes(2)) return;
+  const modal = document.getElementById("two-lines-tutorial");
+  if (!modal) return;
+  renderTwoLinesTutorialText();
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+}
+function closeTwoLinesTutorial() {
+  const modal = document.getElementById("two-lines-tutorial");
+  if (modal) {
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+  }
+  localStorage.setItem(TWO_LINES_TUTORIAL_KEY, "1");
+}
+function initTwoLinesTutorial() {
+  const button = document.getElementById("two-lines-tutorial-button");
+  if (button) button.addEventListener("click", closeTwoLinesTutorial);
+  renderTwoLinesTutorialText();
 }
 
 function shopSection(title, body) {
@@ -2077,6 +2113,7 @@ function resetGameState() {
     localStorage.removeItem('station_zwiesel_train_card_tutorial_v1');
     localStorage.removeItem('station_zwiesel_first_contract_tutorial_v1');
     localStorage.removeItem('station_zwiesel_first_contract_tutorial_v2');
+    localStorage.removeItem("station_zwiesel_two_lines_tutorial_v1");
     
     // 2. Smažeme markery jedoucích vlaků, aby nezůstaly viset na mapě
     trains.forEach(t => { if (t.marker) map.removeLayer(t.marker); });
@@ -2376,6 +2413,7 @@ if (typeof window.initStationCargoTrains === "function") {
 }
 initWelcomePopup();
 initFirstContractTutorial();
+initTwoLinesTutorial();
 showWelcomePopup();
 initTrainCardTutorial();
 initSpeedUpTutorialBubble();

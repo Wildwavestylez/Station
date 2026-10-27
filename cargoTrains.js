@@ -3,6 +3,8 @@
   "use strict";
   const STORAGE_KEY = "station-cargo-state-v1";
   const MAX_TRAINS = 2;
+  const TRAIN_SPEED_MPS = 18; // přibližně 65 km/h
+  const BONUS_COOLDOWN_MS = 5 * 60 * 1000;
   let api = null, map = null, active = [], nextId = 1;
   let state = { claimed: {}, cooldowns: {} };
   try { state = { ...state, ...JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") }; } catch (_) {}
@@ -38,9 +40,9 @@
     const length=routeLength(points);
     const marker=L.marker(points[0],{interactive:true,keyboard:true,icon:L.divIcon({
       className:"cargo-train-div-icon",iconSize:[42,30],iconAnchor:[21,15],
-      html:'<div class="cargo-train-marker" title="'+route.label.replace(/"/g,"&quot;")+'">🚂</div>'
+      html:'<div class="cargo-train-marker" title="'+route.label.replace(/"/g,"&quot;")+'"><img src="assets/trains/cd/810_1.png" alt="ČD řada 810"></div>'
     }),zIndexOffset:800}).addTo(map);
-    const train={id:"cargo-"+(nextId++),route,points,length,distance:0,speed:Math.max(12,length/75),marker,claimed:false,isTutorial};
+    const train={id:"cargo-"+(nextId++),route,points,length,distance:0,speed:TRAIN_SPEED_MPS,marker,claimed:false,isTutorial};
     marker.bindTooltip(route.label + " · Klepni pro bonus",{direction:"top",offset:[0,-10]});
     marker.on("click",e=>{if(e&&e.originalEvent)L.DomEvent.stopPropagation(e.originalEvent);claimTrainBonus(train);});
     active.push(train);
@@ -59,9 +61,11 @@
       else { reward = { type: "coin", label: "+1 premium coin" }; api.addCoin(1); }
     }
     state.claimed[train.id] = Date.now();
+    state.cooldowns[train.route.id] = Date.now() + BONUS_COOLDOWN_MS;
     save();
-    map.removeLayer(train.marker);
-    active = active.filter(item => item !== train);
+    // Vlak zůstává na trati a pokračuje ve své trase; cooldown brání okamžitému dalšímu bonusu.
+    train.marker.closeTooltip();
+    train.marker.setOpacity(0.65);
     if (api.notify) api.notify("🚂 Bonus z nákladního vlaku: " + reward.label);
   }
   function tick(now) {

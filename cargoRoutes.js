@@ -7,6 +7,7 @@
     { id: "zwiesel-eisenstein", label: "Nákladní vlak · Zwiesel–Bayerisch Eisenstein", keys: ["alzbietin:zwiesel"], reverse: true, tier: "short", cooldownMs: 12 * 60 * 1000 },
     { id: "zwiesel-bodenmais", label: "Nákladní vlak · Zwiesel–Bodenmais", keys: ["zwiesel:bodenmais"], tier: "short", cooldownMs: 12 * 60 * 1000 },
     { id: "zwiesel-grafenau", label: "Nákladní vlak · Zwiesel–Grafenau", keys: ["zwiesel:grafenau"], tier: "short", cooldownMs: 12 * 60 * 1000 },
+    { id: "zwiesel-klatovy", label: "Nákladní vlak · Zwiesel–Klatovy", keys: ["klatovy:nyrsko", "nyrsko:alzbietin", "alzbietin:zwiesel"], reverse: true, tier: "long", cooldownMs: 60 * 60 * 1000 },
     { id: "klatovy-eisenstein", label: "Nákladní vlak · Klatovy–Bayerisch Eisenstein", keys: ["klatovy:nyrsko", "nyrsko:alzbietin"], tier: "medium", cooldownMs: 30 * 60 * 1000 },
     { id: "plzen-klatovy", label: "Nákladní vlak · Plzeň–Klatovy", keys: ["plzen:prestice", "prestice:klatovy"], tier: "medium", cooldownMs: 30 * 60 * 1000 },
     { id: "plzen-praha", label: "Nákladní vlak · Plzeň–Praha", keys: ["plzen:rokycany", "rokycany:horovice", "horovice:beroun", "beroun:dobrichovice", "dobrichovice:praha"], tier: "long", cooldownMs: 60 * 60 * 1000 },

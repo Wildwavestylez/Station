@@ -1527,10 +1527,10 @@ function showCargoTutorialPopup() {
   const modal = document.getElementById("cargo-tutorial");
   if (!modal || localStorage.getItem(ZWIESEL_CARGO_TUTORIAL_KEY) === "1") return;
   const copy = {
-    cs: ["Pozor, nákladní vlak!", "Skvěle! Obě osobní linky jsou vypravené. Na mapě právě vyrazil nákladní vlak. Klepni přímo na jedoucí vlak a získáš zajímavý bonus!", "Rozumím, zkusím klepnout na vlak"],
-    en: ["Freight train on the move!", "Great work! Both passenger services are on their way. A freight train is now moving on the map. Tap the moving train itself to claim an exciting bonus!", "Got it, I'll tap the train"],
-    de: ["Achtung, Güterzug!", "Gut gemacht! Beide Personenzüge sind unterwegs. Jetzt fährt ein Güterzug über die Karte. Tippe direkt auf den fahrenden Zug, um einen interessanten Bonus zu erhalten!", "Alles klar, ich tippe auf den Zug"]
-  }[currentLanguage] || ["Freight train on the move!", "A freight train is carrying goods. Sometimes cargo can fall off. Tap it to collect it and earn bonuses!", "Got it"];
+    cs: ["Pozor, nákladní vlak!", "Na mapě se objevil zvláštní nákladní vlak. 👀 Kdo ví, jaké poklady veze? Klepni na něj a zjisti, jaký bonus se pro tebe skrývá! 🎁", "Klepnu a zjistím to!"],
+    en: ["Freight train on the move!", "A mysterious freight train has appeared on the map. 👀 What kind of treasure could it be carrying? Tap it to discover the bonus waiting for you! 🎁", "Tap to find out!"],
+    de: ["Achtung, Güterzug!", "Ein geheimnisvoller Güterzug ist auf der Karte aufgetaucht. 👀 Welche Schätze er wohl geladen hat? Tippe auf ihn und entdecke deinen Bonus! 🎁", "Tippen und herausfinden!"]
+  }[currentLanguage] || ["Freight train on the move!", "A mysterious freight train has appeared. Tap it to discover your bonus! 🎁", "Tap to find out!"];
   document.getElementById("cargo-tutorial-title").textContent = copy[0];
   document.getElementById("cargo-tutorial-body").textContent = copy[1];
   document.getElementById("cargo-tutorial-button").textContent = copy[2];

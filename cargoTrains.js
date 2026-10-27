@@ -40,7 +40,7 @@
     const length=routeLength(points);
     const marker=L.marker(points[0],{interactive:true,keyboard:true,icon:L.divIcon({
       className:"cargo-train-div-icon",iconSize:[42,30],iconAnchor:[21,15],
-      html:'<div class="cargo-train-marker" title="'+route.label.replace(/"/g,"&quot;")+'"><img src="assets/trains/cd/810_1.png" alt="ČD řada 810"></div>'
+      html:'<div class="cargo-train-marker" title="'+route.label.replace(/"/g,"&quot;")+'"><img src="assets/trains/cd/810_2.png" alt="ČD řada 810" onerror="this.style.display=\'none\';this.parentNode.textContent=\'🚂\'"></div>'
     }),zIndexOffset:800}).addTo(map);
     const train={id:"cargo-"+(nextId++),route,points,length,distance:0,speed:TRAIN_SPEED_MPS,marker,claimed:false,isTutorial};
     marker.bindTooltip(route.label + " · Klepni pro bonus",{direction:"top",offset:[0,-10]});

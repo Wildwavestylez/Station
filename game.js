@@ -1527,9 +1527,9 @@ function showCargoTutorialPopup() {
   const modal = document.getElementById("cargo-tutorial");
   if (!modal || localStorage.getItem(ZWIESEL_CARGO_TUTORIAL_KEY) === "1") return;
   const copy = {
-    cs: ["Pozor, nákladní vlak!", "Skvěle! Obě osobní linky jsou vypravené. Na mapě právě vyrazil nákladní vlak, který veze zboží. Během cesty z něj může něco vypadnout. Sleduj trať a klepnutím na ztracený náklad ho seber — čekají tě zajímavé bonusy!", "Rozumím, budu hlídat trať"],
-    en: ["Freight train on the move!", "Great work! Both passenger services are on their way. A freight train carrying goods has now appeared on the map. Sometimes cargo can fall off along the route. Keep an eye on the track and tap any lost cargo to collect it for exciting bonuses!", "Got it, I'll watch the tracks"],
-    de: ["Achtung, Güterzug!", "Gut gemacht! Beide Personenzüge sind unterwegs. Jetzt ist ein Güterzug mit Waren auf der Karte gestartet. Unterwegs kann gelegentlich Ladung herunterfallen. Behalte die Strecke im Blick und tippe auf verlorene Fracht, um sie einzusammeln — dafür gibt es interessante Boni!", "Alles klar, ich passe auf"]
+    cs: ["Pozor, nákladní vlak!", "Skvěle! Obě osobní linky jsou vypravené. Na mapě právě vyrazil nákladní vlak. Klepni přímo na jedoucí vlak a získáš zajímavý bonus!", "Rozumím, zkusím klepnout na vlak"],
+    en: ["Freight train on the move!", "Great work! Both passenger services are on their way. A freight train is now moving on the map. Tap the moving train itself to claim an exciting bonus!", "Got it, I'll tap the train"],
+    de: ["Achtung, Güterzug!", "Gut gemacht! Beide Personenzüge sind unterwegs. Jetzt fährt ein Güterzug über die Karte. Tippe direkt auf den fahrenden Zug, um einen interessanten Bonus zu erhalten!", "Alles klar, ich tippe auf den Zug"]
   }[currentLanguage] || ["Freight train on the move!", "A freight train is carrying goods. Sometimes cargo can fall off. Tap it to collect it and earn bonuses!", "Got it"];
   document.getElementById("cargo-tutorial-title").textContent = copy[0];
   document.getElementById("cargo-tutorial-body").textContent = copy[1];

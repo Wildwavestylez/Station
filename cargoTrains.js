@@ -22,7 +22,7 @@
     const bounds=map.getBounds(), routes=window.STATION_CARGO_ROUTES||[];
     return routes.filter(r=>r.points.some(p=>bounds.contains(p)) && Date.now() >= (state.cooldowns[r.id]||0));
   }
-  function spawn(preferredRouteId) {
+  function spawn(preferredRouteId, isTutorial = false) {
     if(active.length>=MAX_TRAINS || !map || !api) return;
     const candidates=visibleRoutes().filter(r=>(!preferredRouteId || r.id===preferredRouteId) && !active.some(t=>t.route.id===r.id));
     if(!candidates.length) return;
@@ -40,7 +40,7 @@
       className:"cargo-train-div-icon",iconSize:[42,30],iconAnchor:[21,15],
       html:'<div class="cargo-train-marker" title="'+route.label.replace(/"/g,"&quot;")+'">🚂</div>'
     }),zIndexOffset:800}).addTo(map);
-    const train={id:"cargo-"+(nextId++),route,points,length,distance:0,speed:Math.max(12,length/75),marker,claimed:false};
+    const train={id:"cargo-"+(nextId++),route,points,length,distance:0,speed:Math.max(12,length/75),marker,claimed:false,isTutorial};
     marker.bindTooltip(route.label + " · Klepni pro bonus",{direction:"top",offset:[0,-10]});
     marker.on("click",e=>{if(e&&e.originalEvent)L.DomEvent.stopPropagation(e.originalEvent);claimTrainBonus(train);});
     active.push(train);
@@ -48,11 +48,16 @@
   function claimTrainBonus(train) {
     if (!active.includes(train) || train.claimed) return;
     train.claimed = true;
-    const roll = Math.random();
     let reward;
-    if (roll < 0.70) { reward = { type: "money", label: "+500 Kč" }; api.addMoney(500); }
-    else if (roll < 0.95) { reward = { type: "xp", label: "+1 XP" }; api.addXP(1); }
-    else { reward = { type: "coin", label: "+1 premium coin" }; api.addCoin(1); }
+    if (train.isTutorial) {
+      reward = { type: "coin", label: "+1 prémiová mince" };
+      api.addCoin(1);
+    } else {
+      const roll = Math.random();
+      if (roll < 0.70) { reward = { type: "money", label: "+500 Kč" }; api.addMoney(500); }
+      else if (roll < 0.95) { reward = { type: "xp", label: "+1 XP" }; api.addXP(1); }
+      else { reward = { type: "coin", label: "+1 premium coin" }; api.addCoin(1); }
+    }
     state.claimed[train.id] = Date.now();
     save();
     map.removeLayer(train.marker);
@@ -72,7 +77,7 @@
   window.spawnTutorialCargoTrain=function(){
     if(!api || !map) return false;
     const before=active.length;
-    spawn("zwiesel-klatovy");
+    spawn("zwiesel-klatovy", true);
     return active.length>before;
   };
   window.initStationCargoTrains=function(options){

@@ -1370,6 +1370,14 @@ function checkLevelUp() {
     const reachedConfig = currentStationData.levels[reachedLevel] || {};
     const rewards = [];
 
+    // Zwiesel Level 4 beendet das Tutorial und schaltet Plzeň frei.
+    if (currentStationKey === "zwiesel" && reachedLevel === 4) {
+      if (!GLOBAL_PLAYER_DATA.unlockedStations.includes("plzen")) {
+        GLOBAL_PLAYER_DATA.unlockedStations.push("plzen");
+      }
+      if (!stationLevels.plzen) stationLevels.plzen = { lvl: 0, xp: 0 };
+    }
+
     if (typeof reachedConfig.action === "function") reachedConfig.action();
 
     // Level 1: automaticky přiděl bezplatný výkon Arriva Stadler do Plas.

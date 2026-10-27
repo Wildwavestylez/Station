@@ -64,9 +64,8 @@
     if(roll<0.70){ reward={type:"money",amount:500}; api.addMoney(500); }
     else if(roll<0.95){ reward={type:"xp",amount:1}; api.addXP(1); }
     else { reward={type:"coin",amount:1}; api.addCoin(1); }
+    state.claimed[drop.id]=Date.now();
     save();
-    map.removeLayer(train.marker);
-    active=active.filter(t=>t!==train);
     const labels={money:"+500 Kč",xp:"+1 XP",coin:"+1 premium coin"};
     if(api.notify) api.notify("📦 Sebral jsi ztracený náklad: "+labels[reward.type]);
   }

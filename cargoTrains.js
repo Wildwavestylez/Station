@@ -3,8 +3,7 @@
   "use strict";
   const STORAGE_KEY = "station-cargo-state-v1";
   const MAX_TRAINS = 2;
-  const SPAWN_INTERVAL = 45000;
-  let api = null, map = null, active = [], lastSpawn = 0, nextId = 1;
+  let api = null, map = null, active = [], nextId = 1, nextCargoId = 1, cargoDrops = [];
   let state = { claimed: {}, cooldowns: {} };
   try { state = { ...state, ...JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") }; } catch (_) {}
   const save = () => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {} };
@@ -39,18 +38,27 @@
     const length=routeLength(points);
     const marker=L.marker(points[0],{interactive:true,keyboard:true,icon:L.divIcon({
       className:"cargo-train-div-icon",iconSize:[42,30],iconAnchor:[21,15],
-      html:'<div class="cargo-train-marker" title="'+route.label.replace(/"/g,"&quot;")+'">🚛</div>'
+      html:'<div class="cargo-train-marker" title="'+route.label.replace(/"/g,"&quot;")+'">🚂</div>'
     }),zIndexOffset:800}).addTo(map);
-    const train={id:"cargo-"+(nextId++),route,points,length,distance:0,speed:Math.max(12,length/75),marker,claimed:false};
-    marker.bindTooltip(route.label+" · Klikni pro odměnu",{direction:"top",offset:[0,-10]});
-    marker.on("click",e=>{ if(e && e.originalEvent) L.DomEvent.stopPropagation(e.originalEvent); claim(train); });
+    const train={id:"cargo-"+(nextId++),route,points,length,distance:0,speed:Math.max(12,length/75),marker,claimed:false,nextDropAt:Math.min(180,Math.max(80,length*0.22))};
+    marker.bindTooltip(route.label,{direction:"top",offset:[0,-10]});
     active.push(train);
   }
-  function claim(train) {
-    if(train.claimed || !active.includes(train)) return;
-    train.claimed=true;
-    state.claimed[train.id]=Date.now();
-    state.cooldowns[train.route.id]=Date.now()+train.route.cooldownMs;
+  function dropCargo(train) {
+    const position=pointAt(train.points,train.distance);
+    const marker=L.marker(position,{interactive:true,keyboard:true,icon:L.divIcon({
+      className:"cargo-drop-div-icon",iconSize:[30,30],iconAnchor:[15,15],
+      html:'<div class="cargo-drop-marker" title="Ztracený náklad">📦</div>'
+    }),zIndexOffset:1200}).addTo(map);
+    const drop={id:"cargo-drop-"+(nextCargoId++),marker,routeId:train.route.id};
+    marker.bindTooltip("Ztracený náklad · Klepni pro sebrání",{direction:"top",offset:[0,-8]});
+    marker.on("click",e=>{if(e&&e.originalEvent)L.DomEvent.stopPropagation(e.originalEvent);claimCargo(drop);});
+    cargoDrops.push(drop);
+  }
+  function claimCargo(drop) {
+    if(!cargoDrops.includes(drop)) return;
+    cargoDrops=cargoDrops.filter(item=>item!==drop);
+    map.removeLayer(drop.marker);
     const roll=Math.random();
     let reward;
     if(roll<0.70){ reward={type:"money",amount:500}; api.addMoney(500); }
@@ -60,7 +68,7 @@
     map.removeLayer(train.marker);
     active=active.filter(t=>t!==train);
     const labels={money:"+500 Kč",xp:"+1 XP",coin:"+1 premium coin"};
-    if(api.notify) api.notify("📦 Nákladní vlak: "+labels[reward.type]);
+    if(api.notify) api.notify("📦 Sebral jsi ztracený náklad: "+labels[reward.type]);
   }
   function tick(now) {
     if(!map || !api) { requestAnimationFrame(tick); return; }
@@ -69,8 +77,8 @@
       t.distance+=t.speed*dt;
       if(t.distance>=t.length){ map.removeLayer(t.marker); active=active.filter(x=>x!==t); continue; }
       t.marker.setLatLng(pointAt(t.points,t.distance));
+      if(t.distance>=t.nextDropAt){ dropCargo(t); t.nextDropAt+=Math.max(120,Math.min(260,t.length*0.28)); }
     }
-    if(now-lastSpawn>SPAWN_INTERVAL){ spawn(); lastSpawn=now; }
     requestAnimationFrame(tick);
   }
   window.spawnTutorialCargoTrain=function(){

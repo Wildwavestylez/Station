@@ -2332,6 +2332,39 @@ loadGameState();
 
 // Spuštění první stanice (Plzeň si teď vezme data z načteného savu)
 loadStation("zwiesel");
+
+// Most pro nezávislý systém nákladních vlaků; tutorial a osobní vlaky zůstávají beze změny.
+if (typeof window.initStationCargoTrains === "function") {
+  window.initStationCargoTrains({
+    map,
+    addMoney(amount) {
+      globalMoney += Math.max(0, Number(amount) || 0);
+      if (currentStationKey) stationMoneyByStation[currentStationKey] = globalMoney;
+      saveGameState();
+      render();
+    },
+    addXP(amount) {
+      if (!currentStationKey) return;
+      if (!stationLevels[currentStationKey]) stationLevels[currentStationKey] = { lvl: 0, xp: 0 };
+      stationLevels[currentStationKey].xp = (Number(stationLevels[currentStationKey].xp) || 0) + Math.max(0, Number(amount) || 0);
+      checkLevelUp();
+      saveGameState();
+      render();
+    },
+    addCoin(amount) {
+      premiumCoins += Math.max(0, Number(amount) || 0);
+      saveGameState();
+      render();
+    },
+    notify(message) {
+      const toast = document.createElement("div");
+      toast.textContent = message;
+      toast.style.cssText = "position:fixed;z-index:3000;top:58px;left:50%;transform:translateX(-50%);background:#17251a;color:#fff;border:1px solid #4caf50;border-radius:10px;padding:10px 14px;font-weight:bold;box-shadow:0 4px 16px #0008;pointer-events:none;";
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2800);
+    }
+  });
+}
 initWelcomePopup();
 initFirstContractTutorial();
 showWelcomePopup();

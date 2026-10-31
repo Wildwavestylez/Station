@@ -698,12 +698,12 @@ button {
 /* 👋 Úvodní popup tutoriálu */
 .welcome-modal { display:none; position:fixed; inset:0; z-index:2000; align-items:center; justify-content:center; padding:20px; }
 .welcome-modal.open { display:flex; }
-.welcome-backdrop { position:absolute; inset:0; background:rgba(5,10,16,.78); backdrop-filter:blur(4px); }
-.welcome-window { position:relative; width:min(100%,440px); box-sizing:border-box; padding:26px 24px 22px; border:1px solid #3b4652; border-radius:18px; background:#171b20; color:#f4f6f8; box-shadow:0 18px 60px rgba(0,0,0,.5); text-align:center; }
+.welcome-backdrop { position:absolute; inset:0; background:rgba(5,10,16,.78); backdrop-filter:blur(4px); pointer-events:none; }
+.welcome-window { position:relative; z-index:1; width:min(100%,440px); box-sizing:border-box; padding:26px 24px 22px; border:1px solid #3b4652; border-radius:18px; background:#171b20; color:#f4f6f8; box-shadow:0 18px 60px rgba(0,0,0,.5); text-align:center; }
 .welcome-mark { font-size:38px; margin-bottom:12px; }
 .welcome-window h2 { margin:0 0 12px; font-size:23px; line-height:1.25; color:#f7d982; }
 .welcome-window p { margin:0 0 22px; color:#d5dbe1; font-size:15px; line-height:1.55; }
-#welcome-start { width:100%; margin:0; padding:13px 16px; font-size:15px; }
+#welcome-start { position:relative; z-index:2; width:100%; margin:0; padding:13px 16px; font-size:15px; touch-action:manipulation; -webkit-appearance:none; }
 @media (max-width:420px) { .welcome-window { padding:22px 18px 18px; } .welcome-window h2 { font-size:21px; } }
 
 

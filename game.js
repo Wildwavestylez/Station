@@ -57,6 +57,24 @@ let stationMoneyByStation = {}; // Samostatná kasa každého nádraží
 let currentStationKey = null;   // ID aktuálního nádraží (např. "plzen")
 let currentStationData = null;  // Celý objekt dat aktivního nádraží
 let stationLevels = {};         // Úrovně jednotlivých měst, např: { plzen: { lvl: 0, xp: 0 } }
+// Jednotné ovládání tlačítek myší i dotykem. Po pointerup potlačíme
+// navazující syntetický click, aby se akce na iOS nespustila dvakrát.
+function bindTap(element, handler) {
+  if (!element || element.dataset.tapBound === "1") return;
+  element.dataset.tapBound = "1";
+  let lastPointerActivation = 0;
+  element.addEventListener("pointerup", event => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    lastPointerActivation = Date.now();
+    if (event.pointerType !== "mouse") event.preventDefault();
+    handler(event);
+  });
+  element.addEventListener("click", event => {
+    if (Date.now() - lastPointerActivation < 800) return;
+    handler(event);
+  });
+}
+
 let selected = null;            // Právě vybraný vlak hráčem
 let tracks = [null, null];      // Pole kolejí aktivního nádraží
 let trains = [];                // Seznam vlaků aktivního nádraží
@@ -126,7 +144,7 @@ function renderLanguageControls() {
 
 function initLanguageControls() {
   document.querySelectorAll("[data-language]").forEach(button => {
-    button.addEventListener("click", () => setLanguage(button.dataset.language));
+    bindTap(button, () => setLanguage(button.dataset.language));
   });
   document.documentElement.lang = currentLanguage;
   renderLanguageControls();
@@ -293,7 +311,7 @@ function renderDepartureBoard() {
   }).join("");
 
   rows.querySelectorAll("[data-train-id]").forEach(button => {
-    button.addEventListener("click", () => {
+    bindTap(button, () => {
       const train = trains.find(item => String(item.id) === button.getAttribute("data-train-id"));
       if (!train) return;
       selected = train;
@@ -313,7 +331,7 @@ function initDepartureBoard() {
   const button = document.getElementById("departure-board-button");
   const close = document.getElementById("departure-board-close");
   const modal = document.getElementById("departure-board-modal");
-  if (button) button.addEventListener("click", () => {
+  if (button) bindTap(button, () => {
     if (trainCardTutorialActive && trainCardTutorialStep === "departureBoardButton") {
       openDepartureBoard();
       trainCardTutorialStep = "departureBoard";
@@ -324,9 +342,9 @@ function initDepartureBoard() {
     }
     openDepartureBoard();
   });
-  if (close) close.addEventListener("click", closeDepartureBoard);
+  if (close) bindTap(close, closeDepartureBoard);
   if (modal) {
-    modal.querySelectorAll("[data-close-departures]").forEach(el => el.addEventListener("click", closeDepartureBoard));
+    modal.querySelectorAll("[data-close-departures]").forEach(el => bindTap(el, closeDepartureBoard));
   }
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && departureBoardOpen) closeDepartureBoard();
@@ -366,7 +384,7 @@ function closeFirstContractTutorial() {
 }
 function initFirstContractTutorial() {
   const button = document.getElementById("first-contract-tutorial-button");
-  if (button) button.addEventListener("click", closeFirstContractTutorial);
+  if (button) bindTap(button, closeFirstContractTutorial);
 }
 function renderWelcomePopupText() {
   const title = document.getElementById("welcome-title");
@@ -398,13 +416,7 @@ function initWelcomePopup() {
   if (start && !start.dataset.bound) {
     start.dataset.bound = "1";
     // Pointer událost funguje spolehlivěji na dotykových Safari než samotný click.
-    const activate = event => {
-      if (event.type === "pointerup" && event.pointerType === "mouse" && event.button !== 0) return;
-      event.preventDefault();
-      closeWelcomePopup();
-    };
-    start.addEventListener("pointerup", activate);
-    start.addEventListener("click", activate);
+    bindTap(start, closeWelcomePopup);
   }
   document.addEventListener("keydown", event => {
     const modal = document.getElementById("welcome-modal");
@@ -545,7 +557,7 @@ function initSpeedUpTutorialBubble() {
   const button = document.getElementById("speed-up-tutorial-button");
   if (button && !button.dataset.bound) {
     button.dataset.bound = "1";
-    button.addEventListener("click", activateZwieselBodenmaisSpeedBoost);
+    bindTap(button, activateZwieselBodenmaisSpeedBoost);
   }
 }
 function finishTrainCardTutorial() {
@@ -564,7 +576,7 @@ function initTrainCardTutorial() {
   const nextButton = document.getElementById("train-card-tutorial-next");
   if (nextButton && !nextButton.dataset.bound) {
     nextButton.dataset.bound = "1";
-    nextButton.addEventListener("click", () => {
+    bindTap(nextButton, () => {
       if (!trainCardTutorialActive) return;
       if (trainCardTutorialStep === "trainInfo") {
         if (typeof map !== "undefined" && map && typeof map.closePopup === "function") map.closePopup();
@@ -1490,7 +1502,7 @@ function ensureShopUI() {
         <p id="station-shop-summary" style="color:#bbb"></p>
         <div id="station-shop-content"></div>
       </div>`;
-    overlay.addEventListener("click", event => {
+    bindTap(overlay, event => {
       if (event.target === overlay) toggleShop(false);
     });
     document.body.appendChild(overlay);
@@ -1605,9 +1617,9 @@ function registerZwieselSecondTrainServiced(trainId) {
 }
 function initTwoLinesTutorial() {
   const cargoButton = document.getElementById("cargo-tutorial-button");
-  if (cargoButton) cargoButton.addEventListener("click", closeCargoTutorialPopup);
+  if (cargoButton) bindTap(cargoButton, closeCargoTutorialPopup);
   const button = document.getElementById("two-lines-tutorial-button");
-  if (button) button.addEventListener("click", closeTwoLinesTutorial);
+  if (button) bindTap(button, closeTwoLinesTutorial);
   renderTwoLinesTutorialText();
 }
 

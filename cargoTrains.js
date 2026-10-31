@@ -24,7 +24,7 @@
   function save() {
     try {
       state.trains = active.map(t => ({
-        id: t.id, routeId: t.route.id, distance: t.distance,
+        id: t.id, routeId: t.route.id, points: t.points, distance: t.distance,
         speed: t.speed, claimed: t.claimed, isTutorial: t.isTutorial,
         finished: t.finished === true
       }));
@@ -85,9 +85,14 @@
     state.claimed[train.id] = Date.now();
     state.cooldowns[train.route.id] = Date.now() + BONUS_COOLDOWN_MS;
     // Tutorialová odměna zůstává jednorázová i po zavření a opětovném otevření hry.
+    if (train.finished) {
+      if (train.marker) map.removeLayer(train.marker);
+      active=active.filter(item=>item!==train);
+    } else {
+      train.marker.closeTooltip();
+      train.marker.setOpacity(0.65);
+    }
     save();
-    train.marker.closeTooltip();
-    train.marker.setOpacity(0.65);
     if (train.isTutorial && typeof window.showCargoBonusClaimedPopup === "function") {
       window.showCargoBonusClaimedPopup();
     } else if (api.notify) {
@@ -102,7 +107,7 @@
     for(const item of saved) {
       const route=routes.find(r=>r.id===item.routeId);
       if(!route || !Array.isArray(route.points) || route.points.length<2 || active.length>=MAX_TRAINS) continue;
-      const points=item.isTutorial ? route.points : route.points;
+      const points=Array.isArray(item.points) && item.points.length>=2 ? item.points : route.points;
       const length=routeLength(points);
       if(!Number.isFinite(length) || length<=0) continue;
       const speed=Math.max(1,Number(item.speed)||TRAIN_SPEED_MPS);

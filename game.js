@@ -385,16 +385,27 @@ function showWelcomePopup() {
 }
 function closeWelcomePopup() {
   const modal = document.getElementById("welcome-modal");
-  if (!modal) return;
+  if (!modal || !modal.classList.contains("open")) return;
   localStorage.setItem(WELCOME_SEEN_KEY, "1");
   modal.classList.remove("open");
   modal.setAttribute("aria-hidden", "true");
-  showTrainCardTutorial();
+  // Další krok spustíme až po zavření úvodního okna.
+  requestAnimationFrame(() => showTrainCardTutorial());
 }
 function initWelcomePopup() {
   renderWelcomePopupText();
   const start = document.getElementById("welcome-start");
-  if (start) start.addEventListener("click", closeWelcomePopup);
+  if (start && !start.dataset.bound) {
+    start.dataset.bound = "1";
+    // Pointer událost funguje spolehlivěji na dotykových Safari než samotný click.
+    const activate = event => {
+      if (event.type === "pointerup" && event.pointerType === "mouse" && event.button !== 0) return;
+      event.preventDefault();
+      closeWelcomePopup();
+    };
+    start.addEventListener("pointerup", activate);
+    start.addEventListener("click", activate);
+  }
   document.addEventListener("keydown", event => {
     const modal = document.getElementById("welcome-modal");
     if (event.key === "Escape" && modal && modal.classList.contains("open")) closeWelcomePopup();

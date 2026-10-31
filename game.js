@@ -2103,6 +2103,34 @@ function updateDetail() {
 function renderActions() {
   let a = document.getElementById("actions");
   if (!a) return;
+
+  // Jediný delegovaný touch/click handler přežije opakované překreslení
+  // dynamických akčních tlačítek a funguje stejně v tutoriálu i běžné hře.
+  if (a.dataset.trainActionsBound !== "1") {
+    a.dataset.trainActionsBound = "1";
+    bindTap(a, event => {
+      const target = event.target instanceof Element ? event.target : null;
+      const button = target && target.closest("button[data-train-action]");
+      if (!button || button.disabled || !a.contains(button)) return;
+
+      const action = button.dataset.trainAction;
+      if (action === "assign-track") {
+        const trackIndex = Number(button.dataset.trackIndex);
+        if (Number.isInteger(trackIndex) && trackIndex >= 0) assignTrack(trackIndex);
+      } else if (action === "unload") {
+        startTimer("exit");
+      } else if (action === "catering") {
+        startTimer("catering");
+      } else if (action === "clean") {
+        startTimer("clean");
+      } else if (action === "board") {
+        startTimer("board");
+      } else if (action === "depart") {
+        depart();
+      }
+    });
+  }
+
   a.innerHTML = "";
   if (!selected) return;
 
@@ -2112,7 +2140,7 @@ function renderActions() {
       if (tracks[i] !== null) {
         htmlButtons += `<button class="r" style="opacity: 0.4; cursor: not-allowed;" disabled>${lang().platform} ${i+1} (${lang().occupied})</button>`;
       } else {
-        htmlButtons += `<button class="g${trainCardTutorialActive && trainCardTutorialStep === "track" ? " track-tutorial-target" : ""}" onclick="assignTrack(${i})">${lang().platform} ${i+1}</button>`;
+        htmlButtons += `<button type="button" class="g${trainCardTutorialActive && trainCardTutorialStep === "track" ? " track-tutorial-target" : ""}" data-train-action="assign-track" data-track-index="${i}">${lang().platform} ${i+1}</button>`;
       }
     }
     a.innerHTML = htmlButtons;
@@ -2120,7 +2148,7 @@ function renderActions() {
   else if (selected.state === "COMING") {
     a.innerHTML = `<em>${lang().incoming} ${selected.track}... (${Math.max(0, Math.ceil(selected.timer))}s)</em>`;
   } else if (selected.state === "ARRIVED") {
-    a.innerHTML = `<button class="g${trainCardTutorialActive && trainCardTutorialStep === "unload" ? " track-tutorial-target" : ""}" onclick="startTimer('exit')">${lang().btnUnload}</button>`;
+    a.innerHTML = `<button type="button" class="g${trainCardTutorialActive && trainCardTutorialStep === "unload" ? " track-tutorial-target" : ""}" data-train-action="unload">${lang().btnUnload}</button>`;
   } else if (selected.state === "UNLOADING" || selected.state === "CLEANING" || selected.state === "CATERING" || selected.state === "BOARDING") {
     a.innerHTML = `<em>${lang().working}</em>`;
   } else if (selected.state === "WAIT_CATERING") {
@@ -2128,19 +2156,19 @@ function renderActions() {
       (selected.hasCateringTeam
         ? `<em>${lang().cateringAlreadyRunning}</em>`
         : cateringTeamsInUse < unlockedCateringTeamsCount
-          ? `<button class="y" onclick="startTimer('catering')">${lang().startCatering}</button>`
+          ? `<button type="button" class="y" data-train-action="catering">${lang().startCatering}</button>`
           : `<em>${lang().allCateringBusy}</em>`);
   } else if (selected.state === "WAIT_CLEAN") {
-    a.innerHTML = `<p>${lang().cleaningTeams}: ${cleaningTeamsInUse}/${unlockedCleaningTeamsCount} ${lang().teamsOccupied}</p><button class="y${trainCardTutorialActive && trainCardTutorialStep === "clean" ? " track-tutorial-target" : ""}" onclick="startTimer('clean')">${lang().btnClean}</button>`;
+    a.innerHTML = `<p>${lang().cleaningTeams}: ${cleaningTeamsInUse}/${unlockedCleaningTeamsCount} ${lang().teamsOccupied}</p><button type="button" class="y${trainCardTutorialActive && trainCardTutorialStep === "clean" ? " track-tutorial-target" : ""}" data-train-action="clean">${lang().btnClean}</button>`;
   } else if (selected.state === "WAIT_CLEAN_TEAM") {
     a.innerHTML = `<p>${lang().cleaningTeams}: ${cleaningTeamsInUse}/${unlockedCleaningTeamsCount} ${lang().teamsOccupied}</p>` +
       (cleaningTeamsInUse < unlockedCleaningTeamsCount
-        ? `<button class="y" onclick="startTimer('clean')">${lang().startCleaning}</button>`
+        ? `<button type="button" class="y" data-train-action="clean">${lang().startCleaning}</button>`
         : `<em>${lang().waitFreeTeam}</em>`);
   } else if (selected.state === "WAIT_BOARD") {
-    a.innerHTML = `<button class="b${trainCardTutorialActive && trainCardTutorialStep === "board" ? " track-tutorial-target" : ""}" onclick="startTimer('board')">${lang().btnBoard}</button>`;
+    a.innerHTML = `<button type="button" class="b${trainCardTutorialActive && trainCardTutorialStep === "board" ? " track-tutorial-target" : ""}" data-train-action="board">${lang().btnBoard}</button>`;
   } else if (selected.state === "READY_DEPART") {
-    a.innerHTML = `<button class="r${trainCardTutorialActive && trainCardTutorialStep === "depart" ? " track-tutorial-target" : ""}" onclick="depart()">${lang().btnDepart}</button>`;
+    a.innerHTML = `<button type="button" class="r${trainCardTutorialActive && trainCardTutorialStep === "depart" ? " track-tutorial-target" : ""}" data-train-action="depart">${lang().btnDepart}</button>`;
   } else {
     a.innerHTML = `<em>${lang().onRoute}</em>`;
   }

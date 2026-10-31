@@ -105,6 +105,8 @@ body {
 
 /* BUTTONS */
 button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   margin: 4px;
   padding: 8px;
   border: none;

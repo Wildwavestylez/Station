@@ -1557,7 +1557,6 @@ function closeCargoTutorialPopup() {
 function registerZwieselSecondTrainServiced(trainId) {
   // Nákladní vlak je odměnou za dokončené odbavení druhého vlaku v levelu 1.
   if (currentStationKey !== "zwiesel" || Number(trainId) !== 2 ||
-      Number(stationLevels.zwiesel && stationLevels.zwiesel.lvl) < 1 ||
       localStorage.getItem("station_zwiesel_cargo_bonus_claimed_v1") === "1" ||
       sessionStorage.getItem("station_zwiesel_cargo_spawned_v1") === "1") return;
 

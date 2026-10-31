@@ -5,6 +5,7 @@
   const MAX_TRAINS = 2;
   const TRAIN_SPEED_MPS = 18; // přibližně 65 km/h
   const BONUS_COOLDOWN_MS = 5 * 60 * 1000;
+  const TUTORIAL_BONUS_CLAIMED_KEY = "station_zwiesel_cargo_bonus_claimed_v1";
   let api = null, map = null, active = [], nextId = 1;
   let state = { claimed: {}, cooldowns: {} };
   try { state = { ...state, ...JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") }; } catch (_) {}
@@ -26,16 +27,22 @@
   }
   function spawn(preferredRouteId, isTutorial = false) {
     if(active.length>=MAX_TRAINS || !map || !api) return;
-    const candidates=visibleRoutes().filter(r=>(!preferredRouteId || r.id===preferredRouteId) && !active.some(t=>t.route.id===r.id));
+    const allRoutes = window.STATION_CARGO_ROUTES || [];
+    const sourceRoutes = isTutorial ? allRoutes : visibleRoutes();
+    const candidates=sourceRoutes.filter(r=>(!preferredRouteId || r.id===preferredRouteId) && !active.some(t=>t.route.id===r.id) && (isTutorial || Date.now() >= (state.cooldowns[r.id]||0)));
     if(!candidates.length) return;
     const route=candidates[Math.floor(Math.random()*candidates.length)];
-    const bounds=map.getBounds();
-    let first=route.points.findIndex(p=>bounds.contains(p));
-    if(first<0) return;
-    // Použijeme viditelný úsek skutečné trasy, aby vlak nebyl schovaný mimo obrazovku.
-    let end=first+1;
-    while(end<route.points.length && (bounds.contains(route.points[end]) || dist(route.points[end-1],route.points[end])<1200)) end++;
-    const points=route.points.slice(Math.max(0,first-1),Math.max(first+2,end));
+    const center=map.getCenter();
+    let first=0, nearest=Infinity;
+    if (isTutorial) {
+      route.points.forEach((p,i)=>{ const d=dist([center.lat,center.lng],p); if(d<nearest){nearest=d;first=i;} });
+    } else {
+      const bounds=map.getBounds();
+      first=route.points.findIndex(p=>bounds.contains(p));
+      if(first<0) return;
+    }
+    // Tutorialový vlak začíná na nejbližším bodě trasy k aktuálnímu středu mapy.
+    const points=isTutorial ? route.points.slice(first) : route.points.slice(Math.max(0,first-1),Math.max(first+2,first+80));
     if(points.length<2) return;
     const length=routeLength(points);
     const marker=L.marker(points[0],{interactive:true,keyboard:true,icon:L.divIcon({
@@ -54,6 +61,7 @@
     if (train.isTutorial) {
       reward = { type: "coin", label: "+1 prémiová mince" };
       api.addCoin(1);
+      localStorage.setItem(TUTORIAL_BONUS_CLAIMED_KEY, "1");
     } else {
       const roll = Math.random();
       if (roll < 0.70) { reward = { type: "money", label: "+500 Kč" }; api.addMoney(500); }
@@ -79,7 +87,7 @@
     requestAnimationFrame(tick);
   }
   window.spawnTutorialCargoTrain=function(){
-    if(!api || !map) return false;
+    if(!api || !map || localStorage.getItem(TUTORIAL_BONUS_CLAIMED_KEY) === "1") return false;
     const before=active.length;
     spawn("zwiesel-klatovy", true);
     return active.length>before;

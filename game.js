@@ -624,6 +624,67 @@ function initPrimaryNavigationControls() {
   if (resetButton) bindTap(resetButton, resetGameState);
 }
 
+// Karty vlaků se během herní smyčky překreslují. Výběr proto obsluhujeme
+// stabilně na documentu a cílovou kartu ověřujeme podle ID a místa dotyku.
+let trainCardPointerStart = null;
+let lastTrainCardPointerActivation = 0;
+
+function selectTrainCardById(trainId) {
+  const train = trains.find(item => String(item.id) === String(trainId));
+  if (!train) return;
+  selected = train;
+  train.queuePriority = ++trainQueuePriority;
+  updateDetail();
+  if (trainCardTutorialActive && trainCardTutorialStep === "card" && train.state === "WAIT_ASSIGN") {
+    trainCardTutorialStep = "track";
+    renderTrainCardTutorialText();
+  }
+  render();
+}
+
+function initTrainCardControls() {
+  document.addEventListener("pointerdown", event => {
+    const card = event.target && event.target.closest
+      ? event.target.closest("#queue .train")
+      : null;
+    trainCardPointerStart = card ? {
+      trainId: card.dataset.trainId,
+      pointerId: event.pointerId,
+      x: event.clientX,
+      y: event.clientY
+    } : null;
+  }, true);
+
+  document.addEventListener("pointercancel", () => {
+    trainCardPointerStart = null;
+  }, true);
+
+  document.addEventListener("pointerup", event => {
+    const start = trainCardPointerStart;
+    trainCardPointerStart = null;
+    if (!start || start.pointerId !== event.pointerId) return;
+    const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y);
+    if (moved > 12) return;
+
+    const hit = document.elementFromPoint(event.clientX, event.clientY);
+    const card = hit && hit.closest ? hit.closest("#queue .train") : null;
+    if (!card || card.dataset.trainId !== start.trainId) return;
+
+    lastTrainCardPointerActivation = Date.now();
+    event.preventDefault();
+    selectTrainCardById(start.trainId);
+  }, true);
+
+  // Záloha pro klávesnici a prohlížeče bez Pointer Events.
+  document.addEventListener("click", event => {
+    if (Date.now() - lastTrainCardPointerActivation < 800) return;
+    const card = event.target && event.target.closest
+      ? event.target.closest("#queue .train")
+      : null;
+    if (card) selectTrainCardById(card.dataset.trainId);
+  }, true);
+}
+
 
 // ==========================================
 // 🧱 KUS 2: BOČNÍ MENU A NAKUPOVÁNÍ NÁDRAŽÍ
@@ -1985,16 +2046,7 @@ function render() {
       <small>${statusText}</small>
     `;
 
-    d.onclick = () => {
-      selected = t;
-      t.queuePriority = ++trainQueuePriority;
-      updateDetail();
-      if (trainCardTutorialActive && trainCardTutorialStep === "card" && t.state === "WAIT_ASSIGN") {
-        trainCardTutorialStep = "track";
-        renderTrainCardTutorialText();
-        render();
-      } else render();
-    };
+    d.dataset.trainId = String(t.id);
     q.appendChild(d);
   });
 
@@ -2482,6 +2534,7 @@ function gameLoop(now) {
 
 initLanguageControls();
 initPrimaryNavigationControls();
+initTrainCardControls();
 initDepartureBoard();
 
 // 🚀 19. SPOUŠTĚČ SMYČKY

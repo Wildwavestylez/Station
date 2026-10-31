@@ -1,0 +1,26 @@
+name: Validate UI optimization
+
+on:
+  push:
+    branches:
+      - optimization/ui-render-separation
+    paths:
+      - "game.js"
+      - ".github/workflows/validate-ui-optimization.yml"
+  pull_request:
+    paths:
+      - "game.js"
+      - ".github/workflows/validate-ui-optimization.yml"
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check game JavaScript syntax
+        run: node --check game.js

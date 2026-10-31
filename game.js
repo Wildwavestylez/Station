@@ -653,6 +653,14 @@ function initTrainCardControls() {
       x: event.clientX,
       y: event.clientY
     } : null;
+    // Capture the pointer on the persistent queue container, because render()
+    // replaces individual card nodes while the game loop is running.
+    if (card) {
+      const queue = document.getElementById("queue");
+      if (queue && queue.setPointerCapture) {
+        try { queue.setPointerCapture(event.pointerId); } catch (_) {}
+      }
+    }
   }, true);
 
   document.addEventListener("pointercancel", () => {

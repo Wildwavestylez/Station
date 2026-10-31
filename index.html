@@ -18,14 +18,14 @@
 <body>
 
   <!-- 🍔 Tlačítko pro otevření menu -->
-  <button id="menu-btn" onclick="toggleSidebar()">☰</button>
+  <button id="menu-btn" type="button">☰</button>
 
   <!-- 🗂️ Vysouvací boční panel pro přepínání nádraží (World of Airports styl) -->
   <div id="sidebar">
     <div class="sidebar-header">
       <div class="language-switch" role="group" aria-label="Language"><button type="button" class="language-button" data-language="cs" aria-label="Čeština" title="Čeština">🇨🇿</button><button type="button" class="language-button" data-language="en" aria-label="English" title="English">🇬🇧</button><button type="button" class="language-button" data-language="de" aria-label="Deutsch" title="Deutsch">🇩🇪</button></div>
       <h3 id="sidebar-title">Moje Impérium</h3>
-      <button class="close-btn" onclick="toggleSidebar()">✕</button>
+      <button class="close-btn" type="button">✕</button>
     </div>
     <!-- Hlavní akce nádraží -->
     <div class="sidebar-actions">
@@ -38,7 +38,7 @@
 
     <div id="my-stations-label" class="sidebar-section-title">MOJE NÁDRAŽÍ</div>
     <div id="station-list"></div>
-    <button id="reset-btn" onclick="resetGameState()">☢️ <span id="reset-game-label">RESETOVAT HRU</span></button>
+    <button id="reset-btn" type="button">☢️ <span id="reset-game-label">RESETOVAT HRU</span></button>
   
   </div>
 
@@ -187,7 +187,7 @@
   <script src="cargoTrains.js?v=9"></script>
 
   <!-- 🎮 Hlavní herní motor (Engine) -->
-  <script src="game.js?v=90"></script>
+  <script src="game.js?v=91"></script>
 
 </body>
 </html>

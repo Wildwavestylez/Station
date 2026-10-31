@@ -2186,6 +2186,10 @@ function resetGameState() {
     localStorage.removeItem("station_zwiesel_two_lines_tutorial_v1");
     localStorage.removeItem("station_zwiesel_tutorial_departures_v1");
     localStorage.removeItem("station_zwiesel_cargo_tutorial_v1");
+    // Vývojářský reset musí umožnit opakovat celý cargo tutorial od začátku.
+    localStorage.removeItem("station_zwiesel_cargo_trigger_v2");
+    localStorage.removeItem("station_zwiesel_cargo_bonus_claimed_v1");
+    localStorage.removeItem("station-cargo-state-v1");
     sessionStorage.removeItem("station_zwiesel_cargo_spawned_v1");
     
     // 2. Smažeme markery jedoucích vlaků, aby nezůstaly viset na mapě

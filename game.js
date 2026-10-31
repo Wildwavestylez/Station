@@ -1707,9 +1707,23 @@ function shopSection(title, body) {
 }
 
 function shopCard(title, subtitle, detail, actionLabel, action, disabled = false) {
-  const button = disabled
-    ? `<button disabled style="opacity:.45;cursor:not-allowed">${actionLabel}</button>`
-    : `<button class="g" onclick="${action}">${actionLabel}</button>`;
+  let actionAttributes = "";
+  if (!disabled) {
+    const performanceMatch = String(action || "").match(/^buyPerformance\((\d+)\)$/);
+    if (performanceMatch) {
+      actionAttributes = `data-shop-action="performance" data-item-id="${performanceMatch[1]}"`;
+    } else if (action === "buyTrack()") {
+      actionAttributes = 'data-shop-action="track"';
+    } else if (action === "buyCleaningTeam()") {
+      actionAttributes = 'data-shop-action="cleaning"';
+    } else if (action === "buyCateringTeam()") {
+      actionAttributes = 'data-shop-action="catering"';
+    }
+  }
+  const isDisabled = disabled || !actionAttributes;
+  const button = isDisabled
+    ? `<button type="button" disabled style="opacity:.45;cursor:not-allowed">${actionLabel}</button>`
+    : `<button type="button" class="g" ${actionAttributes}>${actionLabel}</button>`;
   return `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;background:#222;border:1px solid #383838;border-radius:10px;padding:12px;margin:8px 0">
     <div style="min-width:0"><b>${title}</b><div style="color:#aaa;font-size:13px;margin-top:3px">${subtitle}</div><div style="font-size:13px;margin-top:5px">${detail}</div></div>
     <div style="flex-shrink:0">${button}</div>
@@ -1721,6 +1735,28 @@ function renderShop() {
   const summary = document.getElementById("station-shop-summary");
   const title = document.getElementById("station-shop-title");
   if (!content || !currentStationData || !currentStationKey) return;
+
+  // Delegace na stabilním kontejneru funguje i po každém přegenerování obsahu obchodu.
+  if (content.dataset.shopActionsBound !== "1") {
+    content.dataset.shopActionsBound = "1";
+    bindTap(content, event => {
+      const target = event.target instanceof Element ? event.target : null;
+      const button = target && target.closest("button[data-shop-action]");
+      if (!button || button.disabled || !content.contains(button)) return;
+
+      const action = button.dataset.shopAction;
+      if (action === "performance") {
+        const itemId = Number(button.dataset.itemId);
+        if (Number.isInteger(itemId) && itemId > 0) buyPerformance(itemId);
+      } else if (action === "track") {
+        buyTrack();
+      } else if (action === "cleaning") {
+        buyCleaningTeam();
+      } else if (action === "catering") {
+        buyCateringTeam();
+      }
+    });
+  }
 
   const stationKey = currentStationKey;
   const level = Number((stationLevels[stationKey] || {}).lvl) || 0;

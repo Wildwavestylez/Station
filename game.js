@@ -1195,11 +1195,6 @@ async function depart() {
   t.tripStartedAt = Date.now();
   t.pendingAction = false;
 
-  // První nákladní vlak se objeví až po vypravení obou osobních linek ve Zwieselu.
-  if (currentStationKey === "zwiesel" && [1, 2].includes(Number(t.id))) {
-    registerZwieselPassengerDeparture(Number(t.id));
-  }
-
   // Vytvoření markeru vlaku; kliknutí otevře provozní informace.
   if (!t.marker) {
     t.marker = L.marker(route[0], {
@@ -1542,16 +1537,17 @@ function closeCargoTutorialPopup() {
   if (modal) { modal.classList.remove("open"); modal.setAttribute("aria-hidden", "true"); }
   localStorage.setItem(ZWIESEL_CARGO_TUTORIAL_KEY, "1");
 }
-function registerZwieselPassengerDeparture(trainId) {
-  if (localStorage.getItem("station_zwiesel_cargo_bonus_claimed_v1") === "1" || sessionStorage.getItem("station_zwiesel_cargo_spawned_v1") === "1") return;
-  let departed = [];
-  try { departed = JSON.parse(localStorage.getItem(ZWIESEL_DEPARTURES_KEY) || "[]"); } catch (_) {}
-  if (!departed.includes(trainId)) departed.push(trainId);
-  localStorage.setItem(ZWIESEL_DEPARTURES_KEY, JSON.stringify(departed));
-  if (![1, 2].every(id => departed.includes(id))) return;
+function registerZwieselSecondTrainServiced(trainId) {
+  // Nákladní vlak je odměnou za dokončené odbavení druhého vlaku v levelu 1.
+  if (currentStationKey !== "zwiesel" || Number(trainId) !== 2 ||
+      Number(stationLevels.zwiesel && stationLevels.zwiesel.lvl) < 1 ||
+      localStorage.getItem("station_zwiesel_cargo_bonus_claimed_v1") === "1" ||
+      sessionStorage.getItem("station_zwiesel_cargo_spawned_v1") === "1") return;
+
+  localStorage.setItem("station_zwiesel_cargo_trigger_v2", "1");
   sessionStorage.setItem("station_zwiesel_cargo_spawned_v1", "1");
-  // Bublinu ukaž nezávisle na vykreslení markeru; chyba vlaku ji nesmí potichu potlačit.
   showCargoTutorialPopup();
+
   let attempts = 0;
   const trySpawn = () => {
     if (currentStationKey !== "zwiesel") {
@@ -1559,21 +1555,19 @@ function registerZwieselPassengerDeparture(trainId) {
       return;
     }
     if (typeof window.spawnTutorialCargoTrain === "function" && window.spawnTutorialCargoTrain()) {
-      console.info("🚂 Tutorialový nákladní vlak Zwiesel–Klatovy byl vytvořen.");
+      console.info("🚂 Tutorialový nákladní vlak Zwiesel–Klatovy byl vytvořen po odbavení druhého vlaku.");
       return;
     }
     attempts++;
     console.error("🚂 Nákladní vlak se nepodařilo vytvořit. Kontrola:", {
       cargoRoutesLoaded: Array.isArray(window.STATION_CARGO_ROUTES),
-      routeIds: (window.STATION_CARGO_ROUTES || []).map(route => route.id),
-      mapReady: !!window.map
+      routeIds: (window.STATION_CARGO_ROUTES || []).map(route => route.id)
     });
     if (attempts < 20) window.setTimeout(trySpawn, 2000);
     else sessionStorage.removeItem("station_zwiesel_cargo_spawned_v1");
   };
   window.setTimeout(trySpawn, 500);
-}
-function closeTwoLinesTutorial() {
+}function closeTwoLinesTutorial() {
   const modal = document.getElementById("two-lines-tutorial");
   if (modal) {
     modal.classList.remove("open");
@@ -2397,6 +2391,10 @@ function gameLoop(now) {
       t.progress.board = (1 - t.timer / t.timers.board) * 100;
       if (t.timer <= 0) {
         t.state = "READY_DEPART";
+        // Spouštěč nákladního vlaku: až po dokončení nástupu druhého vlaku v levelu 1.
+        if (currentStationKey === "zwiesel" && Number(t.id) === 2) {
+          registerZwieselSecondTrainServiced(Number(t.id));
+        }
         if (trainCardTutorialActive && trainCardTutorialStep === "boarding" && selected && selected.id === t.id) {
           trainCardTutorialStep = "depart";
           renderTrainCardTutorialText();
@@ -2473,15 +2471,12 @@ if (typeof window.initStationCargoTrains === "function") {
     }
   });
 }
-// Obnova tutorialového vlaku po obnovení stránky, pokud už hráč vypravil oba osobní spoje.
-if (currentStationKey === "zwiesel" && localStorage.getItem("station_zwiesel_cargo_bonus_claimed_v1") !== "1") {
-  try {
-    const departed = JSON.parse(localStorage.getItem(ZWIESEL_DEPARTURES_KEY) || "[]");
-    if ([1, 2].every(id => departed.includes(id))) {
-      sessionStorage.removeItem("station_zwiesel_cargo_spawned_v1");
-      registerZwieselPassengerDeparture(1);
-    }
-  } catch (_) {}
+// Obnova nákladního vlaku po obnovení stránky, pouze pokud už byl splněn správný tutorialový krok.
+if (currentStationKey === "zwiesel" &&
+    localStorage.getItem("station_zwiesel_cargo_trigger_v2") === "1" &&
+    localStorage.getItem("station_zwiesel_cargo_bonus_claimed_v1") !== "1") {
+  sessionStorage.removeItem("station_zwiesel_cargo_spawned_v1");
+  registerZwieselSecondTrainServiced(2);
 }
 initWelcomePopup();
 initFirstContractTutorial();

@@ -1532,6 +1532,23 @@ function showCargoTutorialPopup() {
   modal.classList.add("open");
   modal.setAttribute("aria-hidden", "false");
 }
+function showCargoBonusClaimedPopup() {
+  const modal = document.getElementById("cargo-tutorial");
+  if (!modal) return;
+  const copy = {
+    cs: ["Paráda! Získal jsi 1 prémiový coin! 🪙", "Další bonus z nákladního vlaku bude dostupný až po určité době.", "Klidně teď můžeš odejít. Vlaky mezitím pokračují ve své jízdě, i když hru zrovna nesleduješ. Až se vrátíš, najdeš je přesně tam, kde mají být — buď na trase v místě, kam mezitím dojely, nebo zpět na nádraží, připravené na další akci.", "Rozumím!"],
+    en: ["Great! You received 1 premium coin! 🪙", "The next freight train bonus will be available after a short cooldown.", "You can leave the game now if you like. Your trains will keep moving even while you are away. When you return, they will be right where they should be — either further along their route or back at the station, waiting for your next action.", "Got it!"],
+    de: ["Super! Du hast 1 Premium-Münze erhalten! 🪙", "Den nächsten Bonus vom Güterzug gibt es erst nach einer kurzen Abklingzeit.", "Du kannst das Spiel jetzt ruhig verlassen. Deine Züge fahren weiter, auch wenn du gerade nicht spielst. Wenn du zurückkommst, sind sie genau dort, wo sie sein sollen — entweder weiter auf ihrer Strecke oder zurück am Bahnhof und bereit für deine nächste Aktion.", "Alles klar!"]
+  }[currentLanguage] || ["Great! You received 1 premium coin! 🪙", "The next freight train bonus will be available after a short cooldown.", "Your trains will keep moving while you are away. When you return, they will be further along their route or back at the station, waiting for your next action.", "Got it!"];
+  document.getElementById("cargo-tutorial-title").textContent = copy[0];
+  document.getElementById("cargo-tutorial-body").textContent = copy[1];
+  const extra = document.getElementById("cargo-tutorial-extra");
+  if (extra) extra.textContent = copy[2];
+  document.getElementById("cargo-tutorial-button").textContent = copy[3];
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+}
+window.showCargoBonusClaimedPopup = showCargoBonusClaimedPopup;
 function closeCargoTutorialPopup() {
   const modal = document.getElementById("cargo-tutorial");
   if (modal) { modal.classList.remove("open"); modal.setAttribute("aria-hidden", "true"); }

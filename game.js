@@ -2372,6 +2372,24 @@ function restoreOfflineTrips(stationKey) {
 
 // 🔁 18. SPOLEČNÝ REÁLNÝ HERNÍ LOOP (Srdce enginu)
 let lastTime = performance.now();
+let lastUiSecond = -1;
+
+// Animované progress bary se aktualizují samostatně. Není kvůli nim nutné
+// znovu vytvářet seznam vlaků ani tlačítka akcí.
+function updateLiveProgressBars() {
+  if (!selected) return;
+  const progress = selected.progress || {};
+  const values = [
+    progress.exit || 0,
+    progress.clean || 0,
+    progress.catering || 0,
+    progress.board || 0
+  ];
+  ["p1", "p2", "p3", "p4"].forEach((id, index) => {
+    const bar = document.getElementById(id);
+    if (bar) bar.style.width = values[index] + "%";
+  });
+}
 
 function gameLoop(now) {
   // Pokud ještě není načtené žádné nádraží, loop jen čeká a neběží naprázdno
@@ -2536,7 +2554,17 @@ function gameLoop(now) {
     }
   });
 
-  render();
+  // Průběh právě vybraného vlaku zůstává plynulý (60 FPS), ale DOM
+  // karet a akčních tlačítek se nepřestavuje v každém snímku.
+  updateLiveProgressBars();
+
+  // Textové časy a stavové popisky stačí překreslit jednou za sekundu.
+  // Okamžité render() při hráčských akcích a dokončení kroků zůstává zachováno.
+  const uiSecond = Math.floor(now / 1000);
+  if (uiSecond !== lastUiSecond) {
+    lastUiSecond = uiSecond;
+    render();
+  }
   requestAnimationFrame(gameLoop);
 }
 

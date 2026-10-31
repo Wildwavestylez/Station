@@ -1030,3 +1030,12 @@ button {
     touch-action: manipulation;
   }
 }
+
+
+/* iOS train-card tap handling: keep cards as tap targets, not draggable content. */
+.train {
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}

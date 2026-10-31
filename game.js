@@ -2467,6 +2467,16 @@ if (typeof window.initStationCargoTrains === "function") {
     }
   });
 }
+// Obnova tutorialového vlaku po obnovení stránky, pokud už hráč vypravil oba osobní spoje.
+if (currentStationKey === "zwiesel" && localStorage.getItem("station_zwiesel_cargo_bonus_claimed_v1") !== "1") {
+  try {
+    const departed = JSON.parse(localStorage.getItem(ZWIESEL_DEPARTURES_KEY) || "[]");
+    if ([1, 2].every(id => departed.includes(id))) {
+      sessionStorage.removeItem("station_zwiesel_cargo_spawned_v1");
+      registerZwieselPassengerDeparture(1);
+    }
+  } catch (_) {}
+}
 initWelcomePopup();
 initFirstContractTutorial();
 initTwoLinesTutorial();

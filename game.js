@@ -614,6 +614,16 @@ function toggleSidebar() {
   }
 }
 
+// Hlavní navigační tlačítka používají stejnou pointer/click obsluhu jako odjezdová tabule.
+function initPrimaryNavigationControls() {
+  const menuButton = document.getElementById("menu-btn");
+  const closeButton = document.querySelector("#sidebar .close-btn");
+  const resetButton = document.getElementById("reset-btn");
+  if (menuButton) bindTap(menuButton, toggleSidebar);
+  if (closeButton) bindTap(closeButton, toggleSidebar);
+  if (resetButton) bindTap(resetButton, resetGameState);
+}
+
 
 // ==========================================
 // 🧱 KUS 2: BOČNÍ MENU A NAKUPOVÁNÍ NÁDRAŽÍ
@@ -1487,7 +1497,7 @@ function checkLevelUp() {
 function ensureShopUI() {
   // Tlačítko obchodu je součástí HTML menu; zde jen bezpečně navážeme akci.
   const button = document.getElementById("station-shop-button");
-  if (button) button.onclick = () => toggleShop();
+  if (button) bindTap(button, () => toggleShop());
 
   if (!document.getElementById("station-shop-modal")) {
     const overlay = document.createElement("div");
@@ -1506,7 +1516,7 @@ function ensureShopUI() {
       if (event.target === overlay) toggleShop(false);
     });
     document.body.appendChild(overlay);
-    document.getElementById("station-shop-close").onclick = () => toggleShop(false);
+    bindTap(document.getElementById("station-shop-close"), () => toggleShop(false));
   }
 }
 
@@ -2471,6 +2481,7 @@ function gameLoop(now) {
 }
 
 initLanguageControls();
+initPrimaryNavigationControls();
 initDepartureBoard();
 
 // 🚀 19. SPOUŠTĚČ SMYČKY

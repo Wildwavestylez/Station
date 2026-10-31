@@ -71,7 +71,11 @@
     // Vlak zůstává na trati a pokračuje ve své trase; cooldown brání okamžitému dalšímu bonusu.
     train.marker.closeTooltip();
     train.marker.setOpacity(0.65);
-    if (api.notify) api.notify("🚂 Bonus z nákladního vlaku: " + reward.label);
+    if (train.isTutorial && typeof window.showCargoBonusClaimedPopup === "function") {
+      window.showCargoBonusClaimedPopup();
+    } else if (api.notify) {
+      api.notify("🚂 Bonus z nákladního vlaku: " + reward.label);
+    }
   }
   function tick(now) {
     if(!map || !api) { requestAnimationFrame(tick); return; }

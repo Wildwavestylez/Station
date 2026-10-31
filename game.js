@@ -1550,6 +1550,8 @@ function registerZwieselPassengerDeparture(trainId) {
   localStorage.setItem(ZWIESEL_DEPARTURES_KEY, JSON.stringify(departed));
   if (![1, 2].every(id => departed.includes(id))) return;
   sessionStorage.setItem("station_zwiesel_cargo_spawned_v1", "1");
+  // Bublinu ukaž nezávisle na vykreslení markeru; chyba vlaku ji nesmí potichu potlačit.
+  showCargoTutorialPopup();
   let attempts = 0;
   const trySpawn = () => {
     if (currentStationKey !== "zwiesel") {
@@ -1557,15 +1559,19 @@ function registerZwieselPassengerDeparture(trainId) {
       return;
     }
     if (typeof window.spawnTutorialCargoTrain === "function" && window.spawnTutorialCargoTrain()) {
-      showCargoTutorialPopup();
+      console.info("🚂 Tutorialový nákladní vlak Zwiesel–Klatovy byl vytvořen.");
       return;
     }
     attempts++;
-    console.warn("Nákladní tutorialový vlak zatím nelze vytvořit; pokus", attempts);
-    if (attempts < 10) window.setTimeout(trySpawn, 2000);
+    console.error("🚂 Nákladní vlak se nepodařilo vytvořit. Kontrola:", {
+      cargoRoutesLoaded: Array.isArray(window.STATION_CARGO_ROUTES),
+      routeIds: (window.STATION_CARGO_ROUTES || []).map(route => route.id),
+      mapReady: !!window.map
+    });
+    if (attempts < 20) window.setTimeout(trySpawn, 2000);
     else sessionStorage.removeItem("station_zwiesel_cargo_spawned_v1");
   };
-  window.setTimeout(trySpawn, 1500);
+  window.setTimeout(trySpawn, 500);
 }
 function closeTwoLinesTutorial() {
   const modal = document.getElementById("two-lines-tutorial");

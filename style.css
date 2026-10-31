@@ -999,3 +999,34 @@ button {
 
 /* První nákladní vlak – navazující bublina tutoriálu */
 .cargo-tutorial{display:none;position:fixed;inset:0;z-index:3400;pointer-events:none}.cargo-tutorial.open{display:block}.cargo-tutorial-window{position:absolute;left:50%;bottom:90px;transform:translateX(-50%);width:min(440px,calc(100vw - 28px));box-sizing:border-box;display:flex;align-items:flex-start;gap:12px;padding:16px;border:1px solid rgba(251,191,36,.45);border-radius:14px;background:rgba(15,23,42,.97);box-shadow:0 12px 36px rgba(0,0,0,.4);color:#e4ebe7;pointer-events:auto}.cargo-tutorial-icon{flex:0 0 auto;font-size:30px;line-height:1.2}.cargo-tutorial-copy{flex:1;min-width:0}.cargo-tutorial-copy h3{margin:0 0 6px;color:#fcd34d;font-size:17px}.cargo-tutorial-copy p{margin:0;font-size:14px;line-height:1.45;white-space:pre-line}.cargo-tutorial-copy button{margin-top:12px;width:100%}@media(max-width:600px){.cargo-tutorial-window{bottom:82px;padding:13px;gap:10px}.cargo-tutorial-copy h3{font-size:16px}.cargo-tutorial-copy p{font-size:13px}}
+
+
+/* iOS-only touch layer: keep primary navigation above the Leaflet map.
+   Android and desktop retain their existing layout and stacking. */
+@supports (-webkit-touch-callout: none) {
+  #menu-btn {
+    position: fixed;
+    top: max(12px, env(safe-area-inset-top));
+    left: max(12px, env(safe-area-inset-left));
+    z-index: 5000;
+    pointer-events: auto;
+    touch-action: manipulation;
+    -webkit-appearance: none;
+  }
+
+  #sidebar {
+    z-index: 5001;
+    height: 100%;
+    height: 100dvh;
+    padding-bottom: env(safe-area-inset-bottom);
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+    pointer-events: auto;
+  }
+
+  #sidebar button,
+  #sidebar [role="button"] {
+    pointer-events: auto;
+    touch-action: manipulation;
+  }
+}

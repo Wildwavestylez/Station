@@ -1525,7 +1525,7 @@ const ZWIESEL_DEPARTURES_KEY = "station_zwiesel_tutorial_departures_v1";
 const ZWIESEL_CARGO_TUTORIAL_KEY = "station_zwiesel_cargo_tutorial_v1";
 function showCargoTutorialPopup() {
   const modal = document.getElementById("cargo-tutorial");
-  if (!modal || localStorage.getItem(ZWIESEL_CARGO_TUTORIAL_KEY) === "1") return;
+  if (!modal || localStorage.getItem("station_zwiesel_cargo_bonus_claimed_v1") === "1") return;
   const copy = {
     cs: ["Pozor, nákladní vlak!", "Na mapě se objevil zvláštní nákladní vlak. 👀 Kdo ví, jaké poklady veze? Klepni na něj a zjisti, jaký bonus se pro tebe skrývá! 🎁", "Klepnu a zjistím to!"],
     en: ["Freight train on the move!", "A mysterious freight train has appeared on the map. 👀 What kind of treasure could it be carrying? Tap it to discover the bonus waiting for you! 🎁", "Tap to find out!"],
@@ -1543,22 +1543,29 @@ function closeCargoTutorialPopup() {
   localStorage.setItem(ZWIESEL_CARGO_TUTORIAL_KEY, "1");
 }
 function registerZwieselPassengerDeparture(trainId) {
-  if (localStorage.getItem(ZWIESEL_CARGO_TUTORIAL_KEY) === "1" || sessionStorage.getItem("station_zwiesel_cargo_spawned_v1") === "1") return;
+  if (localStorage.getItem("station_zwiesel_cargo_bonus_claimed_v1") === "1" || sessionStorage.getItem("station_zwiesel_cargo_spawned_v1") === "1") return;
   let departed = [];
   try { departed = JSON.parse(localStorage.getItem(ZWIESEL_DEPARTURES_KEY) || "[]"); } catch (_) {}
   if (!departed.includes(trainId)) departed.push(trainId);
   localStorage.setItem(ZWIESEL_DEPARTURES_KEY, JSON.stringify(departed));
   if (![1, 2].every(id => departed.includes(id))) return;
   sessionStorage.setItem("station_zwiesel_cargo_spawned_v1", "1");
-  window.setTimeout(() => {
-    if (currentStationKey !== "zwiesel" || typeof window.spawnTutorialCargoTrain !== "function") return;
-    const spawned = window.spawnTutorialCargoTrain();
-    if (spawned) showCargoTutorialPopup();
-    else {
-      // Trasa může ještě chybět v aktuálním výřezu mapy; další pokus po přiblížení/posunu.
+  let attempts = 0;
+  const trySpawn = () => {
+    if (currentStationKey !== "zwiesel") {
       sessionStorage.removeItem("station_zwiesel_cargo_spawned_v1");
+      return;
     }
-  }, 5000);
+    if (typeof window.spawnTutorialCargoTrain === "function" && window.spawnTutorialCargoTrain()) {
+      showCargoTutorialPopup();
+      return;
+    }
+    attempts++;
+    console.warn("Nákladní tutorialový vlak zatím nelze vytvořit; pokus", attempts);
+    if (attempts < 10) window.setTimeout(trySpawn, 2000);
+    else sessionStorage.removeItem("station_zwiesel_cargo_spawned_v1");
+  };
+  window.setTimeout(trySpawn, 1500);
 }
 function closeTwoLinesTutorial() {
   const modal = document.getElementById("two-lines-tutorial");

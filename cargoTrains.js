@@ -32,17 +32,14 @@
     const candidates=sourceRoutes.filter(r=>(!preferredRouteId || r.id===preferredRouteId) && !active.some(t=>t.route.id===r.id) && (isTutorial || Date.now() >= (state.cooldowns[r.id]||0)));
     if(!candidates.length) return;
     const route=candidates[Math.floor(Math.random()*candidates.length)];
-    const center=map.getCenter();
-    let first=0, nearest=Infinity;
-    if (isTutorial) {
-      route.points.forEach((p,i)=>{ const d=dist([center.lat,center.lng],p); if(d<nearest){nearest=d;first=i;} });
-    } else {
+    let first=0;
+    if (!isTutorial) {
       const bounds=map.getBounds();
       first=route.points.findIndex(p=>bounds.contains(p));
       if(first<0) return;
     }
-    // Tutorialový vlak začíná na nejbližším bodě trasy k aktuálnímu středu mapy.
-    const points=isTutorial ? route.points.slice(first) : route.points.slice(Math.max(0,first-1),Math.max(first+2,first+80));
+    // Tutorialový vlak začíná na skutečném začátku uložené trasy Zwiesel–Klatovy (u Zwieselu).
+    const points=isTutorial ? route.points : route.points.slice(Math.max(0,first-1),Math.max(first+2,first+80));
     if(points.length<2) return;
     const length=routeLength(points);
     const marker=L.marker(points[0],{interactive:true,keyboard:true,icon:L.divIcon({

@@ -114,7 +114,7 @@
       const distance=Math.max(0,Number(item.distance)||0)+elapsed*speed;
       const finished=distance>=length;
       // První tutorialový vlak se na konci trasy zachová, aby hráč nepřišel o garantovaný coin.
-      if(finished && !item.isTutorial) continue;
+      if(finished && (!item.isTutorial || item.claimed===true)) continue;
       const train={
         id:String(item.id||("cargo-"+(nextId++))),route,points,length,
         distance:Math.min(length,distance),speed,marker:null,
@@ -154,6 +154,8 @@
   }
   window.spawnTutorialCargoTrain=function(){
     if(!api || !map || localStorage.getItem(TUTORIAL_BONUS_CLAIMED_KEY) === "1") return false;
+    // Po obnovení hry může být tutorialový vlak už obnoven z uloženého offline stavu.
+    if(active.some(train=>train.isTutorial && train.route.id==="zwiesel-klatovy")) return true;
     const before=active.length;
     spawn("zwiesel-klatovy", true);
     return active.length>before;

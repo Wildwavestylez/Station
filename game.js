@@ -1327,6 +1327,12 @@ async function depart() {
 
   t.progress = { exit: 0, clean: 0, catering: 0, board: 0 };
   selected = null;
+
+  // Tutorial nákladního vlaku se spustí až po skutečném kliknutí na ODJEZD.
+  // Tím popup nepřekryje tlačítko, kterým hráč právě dokončuje odbavení.
+  if (currentStationKey === "zwiesel" && Number(t.id) === 2) {
+    registerZwieselSecondTrainServiced(Number(t.id));
+  }
   if (tutorialTrainId !== null) {
     trainCardTutorialStep = "mapWait";
     const tutorial = document.getElementById("train-card-tutorial");
@@ -2569,10 +2575,6 @@ function gameLoop(now) {
       t.progress.board = (1 - t.timer / t.timers.board) * 100;
       if (t.timer <= 0) {
         t.state = "READY_DEPART";
-        // Spouštěč nákladního vlaku: až po dokončení nástupu druhého vlaku v levelu 1.
-        if (currentStationKey === "zwiesel" && Number(t.id) === 2) {
-          registerZwieselSecondTrainServiced(Number(t.id));
-        }
         if (trainCardTutorialActive && trainCardTutorialStep === "boarding" && selected && selected.id === t.id) {
           trainCardTutorialStep = "depart";
           renderTrainCardTutorialText();
